@@ -1,0 +1,114 @@
+{
+  "name": "LeadEngineConfig",
+  "type": "object",
+  "properties": {
+    "active_states": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "target_geography": {
+      "type": "string"
+    },
+    "minimum_lead_score": {
+      "type": "number"
+    },
+    "regulatory_lookback_days": {
+      "type": "number"
+    },
+    "signal_weights": {
+      "type": "object",
+      "properties": {
+        "immediate_jeopardy": {
+          "type": "number"
+        },
+        "cmp": {
+          "type": "number"
+        },
+        "dpna": {
+          "type": "number"
+        },
+        "sff": {
+          "type": "number"
+        },
+        "repeat_deficiency": {
+          "type": "number"
+        },
+        "infection_control": {
+          "type": "number"
+        },
+        "low_rating": {
+          "type": "number"
+        },
+        "follow_up_survey": {
+          "type": "number"
+        },
+        "ownership_change": {
+          "type": "number"
+        },
+        "leadership_signal": {
+          "type": "number"
+        }
+      }
+    },
+    "data_sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "refresh_frequency_hours": {
+      "type": "number"
+    },
+    "outreach_mode": {
+      "type": "string",
+      "enum": [
+        "Research Only",
+        "Human Approved Outreach",
+        "Approved Automated Sequence"
+      ],
+      "default": "Human Approved Outreach"
+    },
+    "sender_name": {
+      "type": "string"
+    },
+    "sender_email": {
+      "type": "string"
+    },
+    "follow_up_intervals": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      }
+    },
+    "daily_outreach_limit": {
+      "type": "number"
+    },
+    "bd_owner_id": {
+      "type": "string"
+    },
+    "bd_owner_name": {
+      "type": "string"
+    },
+    "clinical_owner_id": {
+      "type": "string"
+    },
+    "clinical_owner_name": {
+      "type": "string"
+    },
+    "finance_owner_id": {
+      "type": "string"
+    },
+    "finance_owner_name": {
+      "type": "string"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "outreach_mode"
+  ]
+}
