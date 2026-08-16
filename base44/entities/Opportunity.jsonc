@@ -1,0 +1,83 @@
+{
+  "name": "Opportunity",
+  "type": "object",
+  "properties": {
+    "opportunity_name": {
+      "type": "string"
+    },
+    "lead_id": {
+      "type": "string"
+    },
+    "facility_id": {
+      "type": "string"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "organization_name": {
+      "type": "string"
+    },
+    "primary_contact_id": {
+      "type": "string"
+    },
+    "primary_contact_name": {
+      "type": "string"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "New",
+        "Researching",
+        "Verified",
+        "Qualified",
+        "Outreach Review",
+        "Contacted",
+        "Engaged",
+        "Discovery Scheduled",
+        "Discovery Completed",
+        "Proposal Draft",
+        "Proposal Sent",
+        "Negotiation",
+        "Won",
+        "Lost",
+        "Nurture",
+        "Suppressed"
+      ]
+    },
+    "estimated_value": {
+      "type": "number"
+    },
+    "probability": {
+      "type": "number"
+    },
+    "expected_close": {
+      "type": "string",
+      "format": "date"
+    },
+    "service_interest": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "owner_id": {
+      "type": "string"
+    },
+    "owner_name": {
+      "type": "string"
+    },
+    "reason_lost": {
+      "type": "string"
+    },
+    "lead_tier": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "opportunity_name",
+    "stage"
+  ]
+}

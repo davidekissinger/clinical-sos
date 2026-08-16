@@ -1,0 +1,80 @@
+{
+  "name": "Contact",
+  "type": "object",
+  "properties": {
+    "first_name": {
+      "type": "string"
+    },
+    "last_name": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "role_category": {
+      "type": "string",
+      "enum": [
+        "Administrator",
+        "Director of Nursing",
+        "Regional Clinical",
+        "Regional Operations",
+        "COO",
+        "CEO",
+        "Owner",
+        "Compliance",
+        "Legal/Risk",
+        "Other Executive"
+      ]
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "organization_name": {
+      "type": "string"
+    },
+    "facility_id": {
+      "type": "string"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "business_email": {
+      "type": "string"
+    },
+    "business_phone": {
+      "type": "string"
+    },
+    "public_profile_source": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": "string"
+    },
+    "verified_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "contact_confidence": {
+      "type": "number"
+    },
+    "do_not_contact": {
+      "type": "boolean",
+      "default": false
+    },
+    "opt_out": {
+      "type": "boolean",
+      "default": false
+    },
+    "inferred": {
+      "type": "boolean",
+      "default": false
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "first_name",
+    "last_name"
+  ]
+}

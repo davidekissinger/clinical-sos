@@ -1,0 +1,88 @@
+{
+  "name": "Lead",
+  "type": "object",
+  "properties": {
+    "facility_id": {
+      "type": "string"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "organization_name": {
+      "type": "string"
+    },
+    "primary_contact_id": {
+      "type": "string"
+    },
+    "primary_contact_name": {
+      "type": "string"
+    },
+    "lead_source": {
+      "type": "string"
+    },
+    "regulatory_signal_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "lead_score": {
+      "type": "number"
+    },
+    "lead_tier": {
+      "type": "string",
+      "enum": [
+        "Tier 1",
+        "Tier 2",
+        "Tier 3",
+        "Nurture"
+      ]
+    },
+    "score_explanation": {
+      "type": "string"
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "Unverified",
+        "Verified",
+        "Research Required",
+        "Suppressed"
+      ]
+    },
+    "recommended_service": {
+      "type": "string"
+    },
+    "potential_urgency": {
+      "type": "string",
+      "enum": [
+        "General Inquiry",
+        "Proactive",
+        "Corrective Action",
+        "Operational",
+        "Leadership",
+        "Regulatory",
+        "Urgent"
+      ]
+    },
+    "owner_id": {
+      "type": "string"
+    },
+    "owner_name": {
+      "type": "string"
+    },
+    "next_action": {
+      "type": "string"
+    },
+    "next_action_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "facility_name"
+  ]
+}

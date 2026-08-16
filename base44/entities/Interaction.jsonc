@@ -1,0 +1,62 @@
+{
+  "name": "Interaction",
+  "type": "object",
+  "properties": {
+    "interaction_type": {
+      "type": "string",
+      "enum": [
+        "Email",
+        "Inbound Form",
+        "Phone",
+        "Meeting",
+        "Note",
+        "Follow-Up",
+        "Proposal",
+        "Other"
+      ]
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "Inbound",
+        "Outbound",
+        "Internal"
+      ]
+    },
+    "team_member_id": {
+      "type": "string"
+    },
+    "team_member_name": {
+      "type": "string"
+    },
+    "contact_id": {
+      "type": "string"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "facility_id": {
+      "type": "string"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "opportunity_id": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "next_step": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "interaction_type",
+    "summary"
+  ]
+}

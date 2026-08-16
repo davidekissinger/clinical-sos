@@ -1,0 +1,39 @@
+{
+  "name": "Organization",
+  "type": "object",
+  "properties": {
+    "organization_name": {
+      "type": "string"
+    },
+    "parent_company": {
+      "type": "string"
+    },
+    "facility_count": {
+      "type": "number"
+    },
+    "address": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "ownership_structure": {
+      "type": "string"
+    },
+    "geographic_footprint": {
+      "type": "string"
+    },
+    "identified_decision_makers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "organization_name"
+  ]
+}

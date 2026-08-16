@@ -1,0 +1,60 @@
+{
+  "name": "Task",
+  "type": "object",
+  "properties": {
+    "workstream": {
+      "type": "string"
+    },
+    "task": {
+      "type": "string"
+    },
+    "owner_id": {
+      "type": "string"
+    },
+    "owner_name": {
+      "type": "string"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Urgent"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Not Started",
+        "In Progress",
+        "Blocked",
+        "Complete"
+      ]
+    },
+    "notes": {
+      "type": "string"
+    },
+    "linked_lead_id": {
+      "type": "string"
+    },
+    "linked_opportunity_id": {
+      "type": "string"
+    },
+    "linked_engagement_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "task",
+    "status"
+  ]
+}

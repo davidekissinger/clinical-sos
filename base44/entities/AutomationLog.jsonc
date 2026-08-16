@@ -1,0 +1,40 @@
+{
+  "name": "AutomationLog",
+  "type": "object",
+  "properties": {
+    "automation": {
+      "type": "string"
+    },
+    "started": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Running",
+        "Success",
+        "Failed",
+        "Partial",
+        "Retry"
+      ]
+    },
+    "records_processed": {
+      "type": "number"
+    },
+    "errors": {
+      "type": "string"
+    },
+    "retry_state": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "automation",
+    "status"
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "name": "ConsultationRequest",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "organization": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "business_email": {
+      "type": "string"
+    },
+    "business_phone": {
+      "type": "string"
+    },
+    "facility_or_org_name": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "number_of_facilities": {
+      "type": "string"
+    },
+    "service_needed": {
+      "type": "string"
+    },
+    "current_challenge": {
+      "type": "string"
+    },
+    "urgency_level": {
+      "type": "string",
+      "enum": [
+        "General inquiry",
+        "Proactive survey preparation",
+        "Corrective action support",
+        "Operational concern",
+        "Leadership support",
+        "Regulatory issue",
+        "Urgent assistance requested"
+      ]
+    },
+    "preferred_contact_method": {
+      "type": "string"
+    },
+    "preferred_consultation_time": {
+      "type": "string"
+    },
+    "consent_acknowledged": {
+      "type": "boolean",
+      "default": false
+    },
+    "source_page": {
+      "type": "string"
+    },
+    "campaign": {
+      "type": "string"
+    },
+    "lead_score": {
+      "type": "number"
+    },
+    "lead_tier": {
+      "type": "string"
+    },
+    "created_contact_id": {
+      "type": "string"
+    },
+    "created_opportunity_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "New",
+        "Acknowledged",
+        "Qualified",
+        "Scheduled",
+        "Converted"
+      ],
+      "default": "New"
+    }
+  },
+  "required": [
+    "name",
+    "business_email",
+    "urgency_level"
+  ]
+}

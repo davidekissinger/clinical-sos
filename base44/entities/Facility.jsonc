@@ -1,0 +1,75 @@
+{
+  "name": "Facility",
+  "type": "object",
+  "properties": {
+    "facility_name": {
+      "type": "string"
+    },
+    "ccn": {
+      "type": "string",
+      "title": "CMS Certification Number (CCN)"
+    },
+    "address": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "zip": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "facility_type": {
+      "type": "string",
+      "enum": [
+        "Skilled Nursing",
+        "Long-Term Care",
+        "Assisted Living",
+        "CCRC",
+        "Other"
+      ]
+    },
+    "bed_count": {
+      "type": "number"
+    },
+    "cms_rating": {
+      "type": "number"
+    },
+    "operator_id": {
+      "type": "string"
+    },
+    "operator_name": {
+      "type": "string"
+    },
+    "chain": {
+      "type": "string"
+    },
+    "ownership_type": {
+      "type": "string"
+    },
+    "source_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "last_verified_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "facility_name"
+  ]
+}

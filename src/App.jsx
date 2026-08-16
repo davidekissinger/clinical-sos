@@ -1,12 +1,42 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
-// Add page imports here
+import ProtectedRoute from '@/components/ProtectedRoute';
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
+import ForgotPassword from '@/pages/ForgotPassword';
+import ResetPassword from '@/pages/ResetPassword';
+
+// Public site
+import PublicLayout from '@/components/PublicLayout';
+import Home from '@/pages/Home';
+import About from '@/pages/About';
+import Services from '@/pages/Services';
+import ServiceDetail from '@/pages/ServiceDetail';
+import RapidSurveyRecovery from '@/pages/RapidSurveyRecovery';
+import WhoWeHelp from '@/pages/WhoWeHelp';
+import Resources from '@/pages/Resources';
+import ResourceDetail from '@/pages/ResourceDetail';
+import FAQ from '@/pages/FAQ';
+import Contact from '@/pages/Contact';
+
+// Command center
+import CommandCenterLayout from '@/components/CommandCenterLayout';
+import Dashboard from '@/pages/cc/Dashboard';
+import Leads from '@/pages/cc/Leads';
+import Pipeline from '@/pages/cc/Pipeline';
+import Facilities from '@/pages/cc/Facilities';
+import Contacts from '@/pages/cc/Contacts';
+import Tasks from '@/pages/cc/Tasks';
+import Signals from '@/pages/cc/Signals';
+import Proposals from '@/pages/cc/Proposals';
+import Engagements from '@/pages/cc/Engagements';
+import Settings from '@/pages/cc/Settings';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -34,7 +64,42 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      {/* Add your page Route elements here */}
+      {/* Auth routes */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+
+      {/* Public website */}
+      <Route element={<PublicLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/services/:slug" element={<ServiceDetail />} />
+        <Route path="/rapid-survey-recovery" element={<RapidSurveyRecovery />} />
+        <Route path="/who-we-help" element={<WhoWeHelp />} />
+        <Route path="/resources" element={<Resources />} />
+        <Route path="/resources/:slug" element={<ResourceDetail />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/contact" element={<Contact />} />
+      </Route>
+
+      {/* Private command center — authenticated only */}
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        <Route element={<CommandCenterLayout />}>
+          <Route path="/command-center" element={<Dashboard />} />
+          <Route path="/command-center/leads" element={<Leads />} />
+          <Route path="/command-center/pipeline" element={<Pipeline />} />
+          <Route path="/command-center/facilities" element={<Facilities />} />
+          <Route path="/command-center/contacts" element={<Contacts />} />
+          <Route path="/command-center/tasks" element={<Tasks />} />
+          <Route path="/command-center/signals" element={<Signals />} />
+          <Route path="/command-center/proposals" element={<Proposals />} />
+          <Route path="/command-center/engagements" element={<Engagements />} />
+          <Route path="/command-center/settings" element={<Settings />} />
+        </Route>
+      </Route>
+
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

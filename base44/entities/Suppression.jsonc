@@ -1,0 +1,39 @@
+{
+  "name": "Suppression",
+  "type": "object",
+  "properties": {
+    "contact_email": {
+      "type": "string"
+    },
+    "contact_id": {
+      "type": "string"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "do_not_contact": {
+      "type": "boolean",
+      "default": true
+    },
+    "opt_out": {
+      "type": "boolean",
+      "default": false
+    },
+    "reason": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "compliance_notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "contact_email"
+  ]
+}

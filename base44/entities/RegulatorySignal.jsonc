@@ -1,0 +1,95 @@
+{
+  "name": "RegulatorySignal",
+  "type": "object",
+  "properties": {
+    "facility_id": {
+      "type": "string"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "ccn": {
+      "type": "string"
+    },
+    "signal_type": {
+      "type": "string",
+      "enum": [
+        "Immediate Jeopardy",
+        "CMP",
+        "DPNA",
+        "Special Focus Facility",
+        "SFF Candidate",
+        "Repeat Deficiency",
+        "Infection-Control Deficiency",
+        "Low Health Inspection Rating",
+        "Follow-Up Survey",
+        "Ownership Change",
+        "Leadership/Operational Signal",
+        "Other Regulatory Signal"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "High",
+        "Medium",
+        "Low"
+      ]
+    },
+    "event_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "source": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": "string"
+    },
+    "date_retrieved": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "factual_evidence_summary": {
+      "type": "string"
+    },
+    "enforcement_amount": {
+      "type": "number"
+    },
+    "deficiency_tag": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Current",
+        "Resolved",
+        "Unknown"
+      ]
+    },
+    "confidence_score": {
+      "type": "number"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "verification_method": {
+      "type": "string"
+    },
+    "stale_data_flag": {
+      "type": "boolean",
+      "default": false
+    },
+    "reviewer": {
+      "type": "string"
+    },
+    "reviewer_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "facility_name",
+    "signal_type"
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "name": "Engagement",
+  "type": "object",
+  "properties": {
+    "engagement_name": {
+      "type": "string"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "opportunity_id": {
+      "type": "string"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "estimated_end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "service_type": {
+      "type": "string"
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "Phase 1 \u2014 Initial Assessment",
+        "Phase 2 \u2014 POC/Improvement Development",
+        "Phase 3 \u2014 Implementation/Stabilization/Follow-Up",
+        "Onboarding",
+        "Complete"
+      ]
+    },
+    "manager_id": {
+      "type": "string"
+    },
+    "manager_name": {
+      "type": "string"
+    },
+    "clinical_lead_id": {
+      "type": "string"
+    },
+    "clinical_lead_name": {
+      "type": "string"
+    },
+    "deliverables": {
+      "type": "string"
+    },
+    "milestones": {
+      "type": "string"
+    },
+    "invoice_milestones": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Active",
+        "On Hold",
+        "Complete",
+        "Cancelled"
+      ]
+    }
+  },
+  "required": [
+    "engagement_name",
+    "status"
+  ]
+}

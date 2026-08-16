@@ -1,0 +1,58 @@
+{
+  "name": "OutreachSequence",
+  "type": "object",
+  "properties": {
+    "sequence_name": {
+      "type": "string"
+    },
+    "audience": {
+      "type": "string"
+    },
+    "step": {
+      "type": "number"
+    },
+    "step_label": {
+      "type": "string"
+    },
+    "timing": {
+      "type": "string"
+    },
+    "template": {
+      "type": "string"
+    },
+    "approval_status": {
+      "type": "string",
+      "enum": [
+        "Pending Approval",
+        "Approved",
+        "Sent",
+        "Cancelled",
+        "Skipped"
+      ]
+    },
+    "sent_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "response": {
+      "type": "string"
+    },
+    "opt_out": {
+      "type": "boolean",
+      "default": false
+    },
+    "lead_id": {
+      "type": "string"
+    },
+    "contact_id": {
+      "type": "string"
+    },
+    "opportunity_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "sequence_name",
+    "step"
+  ]
+}

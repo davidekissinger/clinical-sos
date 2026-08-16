@@ -1,0 +1,86 @@
+{
+  "name": "Proposal",
+  "type": "object",
+  "properties": {
+    "proposal_name": {
+      "type": "string"
+    },
+    "opportunity_id": {
+      "type": "string"
+    },
+    "facility_id": {
+      "type": "string"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "objectives": {
+      "type": "string"
+    },
+    "phases": {
+      "type": "string"
+    },
+    "deliverables": {
+      "type": "string"
+    },
+    "engagement_model": {
+      "type": "string",
+      "enum": [
+        "Fixed Fee",
+        "Hourly",
+        "Time and Expense",
+        "Hybrid"
+      ]
+    },
+    "pricing_method": {
+      "type": "string"
+    },
+    "fee": {
+      "type": "number"
+    },
+    "payment_milestones": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "In Review",
+        "Approved",
+        "Sent",
+        "Accepted",
+        "Rejected",
+        "Expired"
+      ]
+    },
+    "generated_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewer_id": {
+      "type": "string"
+    },
+    "reviewer_name": {
+      "type": "string"
+    },
+    "sent_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "acceptance_status": {
+      "type": "string",
+      "enum": [
+        "Pending",
+        "Accepted",
+        "Rejected"
+      ]
+    }
+  },
+  "required": [
+    "proposal_name",
+    "status"
+  ]
+}

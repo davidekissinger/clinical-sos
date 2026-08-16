@@ -1,0 +1,43 @@
+{
+  "name": "Source",
+  "type": "object",
+  "properties": {
+    "source_name": {
+      "type": "string"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "Government",
+        "State Agency",
+        "Third-Party Database",
+        "News",
+        "Public Record",
+        "Other"
+      ]
+    },
+    "url": {
+      "type": "string"
+    },
+    "date_retrieved": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_checked": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reliability_classification": {
+      "type": "string",
+      "enum": [
+        "Authoritative",
+        "Reliable",
+        "Supplementary",
+        "Unverified"
+      ]
+    }
+  },
+  "required": [
+    "source_name"
+  ]
+}
