@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Users, Building2, UserCircle, Target, ListChecks,
-  Settings, LogOut, Menu, X, FileText, ShieldCheck, Activity, Briefcase
+  Settings, LogOut, Menu, X, FileText, ShieldCheck, Activity, Briefcase, Bot
 } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import { useAuth } from "@/lib/AuthContext";
@@ -16,6 +16,7 @@ const NAV = [
   { label: "Contacts", path: "/command-center/contacts", icon: UserCircle, roles: ["admin", "business_development", "clinical"] },
   { label: "Tasks", path: "/command-center/tasks", icon: ListChecks, roles: ["admin", "business_development", "clinical", "finance"] },
   { label: "Regulatory Signals", path: "/command-center/signals", icon: Activity, roles: ["admin", "clinical", "read_only"] },
+  { label: "AI Agents", path: "/command-center/agents", icon: Bot, roles: ["admin", "clinical", "business_development"] },
   { label: "Proposals", path: "/command-center/proposals", icon: FileText, roles: ["admin", "business_development", "finance"] },
   { label: "Engagements", path: "/command-center/engagements", icon: ShieldCheck, roles: ["admin", "clinical", "finance", "read_only"] },
   { label: "Settings", path: "/command-center/settings", icon: Settings, roles: ["admin"] },
