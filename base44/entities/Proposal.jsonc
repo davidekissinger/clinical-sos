@@ -77,10 +77,96 @@
         "Accepted",
         "Rejected"
       ]
+    },
+    "is_test_data": {
+      "type": "boolean",
+      "default": false
     }
   },
   "required": [
     "proposal_name",
     "status"
-  ]
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "business_development"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "read_only"
+          }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "role": "finance"
+              }
+            },
+            {
+              "data.status": {
+                "$in": [
+                  "Approved",
+                  "Sent",
+                  "Accepted"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "business_development"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "business_development"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
 }

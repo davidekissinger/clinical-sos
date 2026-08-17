@@ -1,49 +1,51 @@
 {
-  "name": "AutomationLog",
+  "name": "LaunchReadinessCheck",
   "type": "object",
   "properties": {
-    "automation": {
+    "check_name": {
       "type": "string"
     },
-    "started": {
+    "category": {
       "type": "string",
-      "format": "date-time"
-    },
-    "completed": {
-      "type": "string",
-      "format": "date-time"
+      "enum": [
+        "Security",
+        "Privacy",
+        "Verification",
+        "Communication",
+        "Workflow",
+        "Infrastructure"
+      ]
     },
     "status": {
       "type": "string",
       "enum": [
-        "Running",
-        "Success",
-        "Failed",
-        "Partial",
-        "Retry"
-      ]
+        "PASS",
+        "WARNING",
+        "FAIL"
+      ],
+      "default": "WARNING"
     },
-    "records_processed": {
-      "type": "number"
+    "last_tested_date": {
+      "type": "string",
+      "format": "date-time"
     },
-    "errors": {
+    "evidence": {
       "type": "string"
     },
-    "retry_state": {
+    "unresolved_issue": {
       "type": "string"
     },
-    "affected_record_ids": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "triggered_by": {
+    "owner": {
       "type": "string"
+    },
+    "is_critical": {
+      "type": "boolean",
+      "default": true
     }
   },
   "required": [
-    "automation",
+    "check_name",
+    "category",
     "status"
   ],
   "rls": {

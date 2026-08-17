@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Users, Building2, UserCircle, Target, ListChecks,
-  Settings, LogOut, Menu, X, FileText, ShieldCheck, Activity, Briefcase, Bot, Send
+  Settings, LogOut, Menu, X, FileText, ShieldCheck, Activity, Briefcase, Bot, Send, Rocket
 } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import { useAuth } from "@/lib/AuthContext";
@@ -20,6 +20,7 @@ const NAV = [
   { label: "Outreach", path: "/command-center/outreach", icon: Send, roles: ["admin", "business_development", "clinical"] },
   { label: "Proposals", path: "/command-center/proposals", icon: FileText, roles: ["admin", "business_development", "finance"] },
   { label: "Engagements", path: "/command-center/engagements", icon: ShieldCheck, roles: ["admin", "clinical", "finance", "read_only"] },
+  { label: "Launch Readiness", path: "/command-center/launch-readiness", icon: Rocket, roles: ["admin"] },
   { label: "Settings", path: "/command-center/settings", icon: Settings, roles: ["admin"] },
 ];
 

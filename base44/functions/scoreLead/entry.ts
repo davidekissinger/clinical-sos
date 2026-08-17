@@ -194,6 +194,8 @@ export default async function(req: Request): Promise<Response> {
         completed: new Date().toISOString(),
         status: "Success",
         records_processed: 1,
+        affected_record_ids: [facilityId, lead?.id].filter(Boolean),
+        triggered_by: user.full_name || user.email || "system",
       });
     } catch (e) { /* best-effort */ }
 

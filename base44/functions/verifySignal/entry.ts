@@ -73,17 +73,37 @@ RULES:
     const result = llmResponse || {};
     const confidence = Math.round(Number(result.confidence_score) || 0);
 
+    // Evidence completeness check — required fields for a verifiable signal.
+    // If any core evidence field is missing, the signal cannot be verified
+    // and must be classified as "Research Required" regardless of LLM output.
+    const evidenceFields = {
+      ccn: signal.ccn,
+      event_date: signal.event_date,
+      source: signal.source,
+      source_url: signal.source_url,
+      factual_evidence_summary: signal.factual_evidence_summary,
+      date_retrieved: signal.date_retrieved,
+    };
+    const missingEvidence = Object.entries(evidenceFields)
+      .filter(([, v]) => !v || !String(v).trim())
+      .map(([k]) => k);
+    const evidenceComplete = missingEvidence.length === 0;
+
     // Determine final verified status
-    // Only mark verified if: confidence >= 80, source URL present, government source, and LLM recommends Verified
+    // Only mark verified if: confidence >= 80, source URL present, government source,
+    // evidence is complete, and LLM recommends Verified with no human review required.
     const hasGovSource = signal.source_url && /\.(gov|state\.\w+|medicaid)/i.test(signal.source_url);
     const hasSourceUrl = !!signal.source_url;
     let verified = false;
     let finalStatus = result.recommended_status || "Research Required";
 
-    if (confidence >= 80 && hasSourceUrl && hasGovSource && finalStatus === "Verified" && !result.human_review_required) {
+    // Force Research Required if evidence is incomplete
+    if (!evidenceComplete) {
+      finalStatus = "Research Required";
+      verified = false;
+    } else if (confidence >= 80 && hasSourceUrl && hasGovSource && finalStatus === "Verified" && !result.human_review_required) {
       verified = true;
     } else if (confidence >= 80 && finalStatus === "Verified" && result.human_review_required) {
-      // Even if LLM says verified, if human review required, keep unverified
       finalStatus = "Research Required";
       verified = false;
     } else {
@@ -111,6 +131,9 @@ RULES:
         completed: new Date().toISOString(),
         status: "Success",
         records_processed: 1,
+        affected_record_ids: [signalId],
+        triggered_by: user.full_name || user.email || "system",
+        errors: missingEvidence.length > 0 ? `Missing evidence fields: ${missingEvidence.join(", ")}` : null,
       });
     } catch (e) { /* best-effort */ }
 
@@ -124,6 +147,8 @@ RULES:
       verified,
       stale_data_flag: result.stale_data_flag,
       human_review_required: result.human_review_required,
+      evidence_complete: evidenceComplete,
+      missing_evidence_fields: missingEvidence,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

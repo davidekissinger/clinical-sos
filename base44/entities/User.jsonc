@@ -5,8 +5,12 @@
       "description": "The role of the user in the app",
       "enum": [
         "admin",
-        "user"
-      ]
+        "business_development",
+        "clinical",
+        "finance",
+        "read_only"
+      ],
+      "default": "read_only"
     }
   },
   "required": [

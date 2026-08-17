@@ -37,6 +37,7 @@ import Signals from '@/pages/cc/Signals';
 import Agents from '@/pages/cc/Agents';
 import Outreach from '@/pages/cc/Outreach';
 import Proposals from '@/pages/cc/Proposals';
+import LaunchReadiness from '@/pages/cc/LaunchReadiness';
 import Engagements from '@/pages/cc/Engagements';
 import Settings from '@/pages/cc/Settings';
 
@@ -99,6 +100,7 @@ const AuthenticatedApp = () => {
           <Route path="/command-center/agents" element={<Agents />} />
           <Route path="/command-center/outreach" element={<Outreach />} />
           <Route path="/command-center/proposals" element={<Proposals />} />
+          <Route path="/command-center/launch-readiness" element={<LaunchReadiness />} />
           <Route path="/command-center/engagements" element={<Engagements />} />
           <Route path="/command-center/settings" element={<Settings />} />
         </Route>
