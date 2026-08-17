@@ -1,0 +1,71 @@
+{
+  "name": "OutreachTemplate",
+  "type": "object",
+  "properties": {
+    "sequence_name": {
+      "type": "string",
+      "title": "Sequence Name"
+    },
+    "step_number": {
+      "type": "number",
+      "title": "Step Number"
+    },
+    "step_label": {
+      "type": "string",
+      "title": "Step Label"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "New",
+        "Researching",
+        "Verified",
+        "Qualified",
+        "Outreach Review",
+        "Contacted",
+        "Engaged",
+        "Discovery Scheduled",
+        "Discovery Completed",
+        "Proposal Draft",
+        "Proposal Sent",
+        "Negotiation",
+        "Nurture"
+      ],
+      "default": "Qualified"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "Email",
+        "Phone",
+        "LinkedIn",
+        "In-Person",
+        "Other"
+      ],
+      "default": "Email"
+    },
+    "timing": {
+      "type": "string",
+      "title": "Timing (e.g. Day 0, Day 3, +1 week)"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string",
+      "title": "Template Body"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "sequence_name",
+    "step_number",
+    "stage"
+  ]
+}
