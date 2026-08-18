@@ -1,0 +1,136 @@
+{
+  "name": "RegulatoryKnowledge",
+  "type": "object",
+  "properties": {
+    "f_tag": {
+      "type": "string",
+      "title": "F-Tag"
+    },
+    "title": {
+      "type": "string"
+    },
+    "regulation_reference": {
+      "type": "string"
+    },
+    "plain_language_regulatory_focus": {
+      "type": "string"
+    },
+    "common_deficiency_patterns": {
+      "type": "string"
+    },
+    "possible_root_cause_categories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "possible_corrective_approaches": {
+      "type": "string"
+    },
+    "possible_education_topics": {
+      "type": "string"
+    },
+    "possible_audit_items": {
+      "type": "string"
+    },
+    "possible_evidence": {
+      "type": "string"
+    },
+    "possible_monitoring_approaches": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": "string"
+    },
+    "source_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "last_reviewed": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "clinical_sos_reviewer": {
+      "type": "string"
+    },
+    "approval_status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Clinical Review",
+        "Approved",
+        "Retired"
+      ],
+      "default": "Draft"
+    },
+    "version": {
+      "type": "string"
+    },
+    "is_test_data": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "f_tag",
+    "title",
+    "approval_status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "read_only"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

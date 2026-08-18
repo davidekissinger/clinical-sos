@@ -1,0 +1,193 @@
+{
+  "name": "AuditTool",
+  "type": "object",
+  "properties": {
+    "facility_id": {
+      "type": "string"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "regulatory_case_id": {
+      "type": "string"
+    },
+    "regulatory_case_name": {
+      "type": "string"
+    },
+    "deficiency_id": {
+      "type": "string"
+    },
+    "deficiency_name": {
+      "type": "string"
+    },
+    "f_tag": {
+      "type": "string"
+    },
+    "cms_regulatory_reference": {
+      "type": "string"
+    },
+    "plain_language_regulatory_focus": {
+      "type": "string"
+    },
+    "specific_deficiency_focus": {
+      "type": "string"
+    },
+    "corrective_action_focus": {
+      "type": "string"
+    },
+    "audit_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "auditor": {
+      "type": "string"
+    },
+    "unit_hall": {
+      "type": "string"
+    },
+    "resident_record_area_reviewed": {
+      "type": "string"
+    },
+    "shift": {
+      "type": "string"
+    },
+    "meal": {
+      "type": "string"
+    },
+    "med_pass": {
+      "type": "string"
+    },
+    "follow_up_due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "checklist_json": {
+      "type": "string",
+      "title": "Checklist (JSON)"
+    },
+    "training_topic": {
+      "type": "string"
+    },
+    "training_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "departments_staff_taught": {
+      "type": "string"
+    },
+    "educator": {
+      "type": "string"
+    },
+    "competency_required": {
+      "type": "string"
+    },
+    "competency_completed": {
+      "type": "string"
+    },
+    "monitoring_sample_size": {
+      "type": "string"
+    },
+    "monitoring_frequency": {
+      "type": "string"
+    },
+    "monitoring_duration": {
+      "type": "string"
+    },
+    "monitoring_responsible_person": {
+      "type": "string"
+    },
+    "monitoring_reporting_route": {
+      "type": "string"
+    },
+    "audit_result": {
+      "type": "string",
+      "enum": [
+        "Pass",
+        "Needs Follow-Up",
+        "Immediate Correction Completed",
+        "Failed",
+        "Not Completed"
+      ],
+      "default": "Not Completed"
+    },
+    "what_was_corrected": {
+      "type": "string"
+    },
+    "what_remains_unresolved": {
+      "type": "string"
+    },
+    "responsible_person": {
+      "type": "string"
+    },
+    "don_qapi_review": {
+      "type": "string"
+    },
+    "review_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "is_test_data": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "facility_name",
+    "f_tag",
+    "audit_result"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "read_only"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -71,6 +71,150 @@
     "is_test_data": {
       "type": "boolean",
       "default": false
+    },
+    "cmp_present": {
+      "type": "string",
+      "enum": [
+        "Yes",
+        "No",
+        "Unknown"
+      ],
+      "default": "Unknown",
+      "title": "CMP Present"
+    },
+    "cmp_type": {
+      "type": "string",
+      "enum": [
+        "Per Day",
+        "Per Instance",
+        "Other",
+        "Unknown"
+      ],
+      "default": "Unknown",
+      "title": "CMP Type"
+    },
+    "verified_cmp_amount": {
+      "type": "number",
+      "title": "Verified CMP Amount"
+    },
+    "verified_daily_rate": {
+      "type": "number",
+      "title": "Verified Daily Rate"
+    },
+    "cmp_effective_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "cmp_end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "dpna_present": {
+      "type": "string",
+      "enum": [
+        "Yes",
+        "No",
+        "Unknown"
+      ],
+      "default": "Unknown",
+      "title": "DPNA Present"
+    },
+    "dpna_effective_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "dpna_duration": {
+      "type": "string",
+      "title": "DPNA Duration (if verified)"
+    },
+    "immediate_jeopardy": {
+      "type": "string",
+      "enum": [
+        "Yes",
+        "No",
+        "Unknown"
+      ],
+      "default": "Unknown"
+    },
+    "ij_start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "ij_removal_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "sff_status": {
+      "type": "string",
+      "enum": [
+        "Not SFF",
+        "SFF Candidate",
+        "Active SFF",
+        "Unknown"
+      ],
+      "default": "Unknown"
+    },
+    "scope_severity": {
+      "type": "string",
+      "title": "Scope & Severity"
+    },
+    "survey_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "revisit_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "revisit_status": {
+      "type": "string"
+    },
+    "substantial_compliance_status": {
+      "type": "string"
+    },
+    "enforcement_source": {
+      "type": "string"
+    },
+    "enforcement_source_url": {
+      "type": "string"
+    },
+    "last_verified": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidence_summary": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number"
+    },
+    "research_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "regulatory_urgency": {
+      "type": "string",
+      "enum": [
+        "Critical",
+        "Severe",
+        "High",
+        "Moderate",
+        "Proactive",
+        "Unknown / Research Required"
+      ],
+      "default": "Unknown / Research Required"
+    },
+    "regulatory_urgency_score": {
+      "type": "number"
+    },
+    "commercial_opportunity_score": {
+      "type": "number"
+    },
+    "clinical_sos_priority_score": {
+      "type": "number"
+    },
+    "score_explanation": {
+      "type": "string"
     }
   },
   "required": [

@@ -1,0 +1,149 @@
+{
+  "name": "EvidenceItem",
+  "type": "object",
+  "properties": {
+    "deficiency_id": {
+      "type": "string"
+    },
+    "deficiency_name": {
+      "type": "string"
+    },
+    "regulatory_case_id": {
+      "type": "string"
+    },
+    "regulatory_case_name": {
+      "type": "string"
+    },
+    "facility_id": {
+      "type": "string"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "evidence_type": {
+      "type": "string",
+      "enum": [
+        "Corrected Resident-Specific Documentation",
+        "Policy Revision",
+        "Care-Plan Revision",
+        "Physician Orders",
+        "Equipment Correction",
+        "Inspection Record",
+        "Training Materials",
+        "Attendance Roster",
+        "Competency Validation",
+        "Completed Audit",
+        "Follow-Up Correction",
+        "Photograph",
+        "Log",
+        "Leadership Rounding",
+        "QAPI Documentation",
+        "Consultant Review",
+        "Other Supporting Evidence"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "source": {
+      "type": "string"
+    },
+    "responsible_person": {
+      "type": "string"
+    },
+    "uploaded_document_url": {
+      "type": "string"
+    },
+    "review_status": {
+      "type": "string",
+      "enum": [
+        "Required",
+        "Requested",
+        "Received",
+        "Under Review",
+        "Accepted",
+        "Insufficient",
+        "Replaced",
+        "Not Applicable"
+      ],
+      "default": "Required"
+    },
+    "reviewer": {
+      "type": "string"
+    },
+    "accepted_as_sufficient": {
+      "type": "boolean",
+      "default": false
+    },
+    "notes": {
+      "type": "string"
+    },
+    "is_test_data": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "facility_name",
+    "evidence_type",
+    "review_status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "read_only"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

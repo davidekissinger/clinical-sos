@@ -1,0 +1,234 @@
+{
+  "name": "Deficiency",
+  "type": "object",
+  "properties": {
+    "regulatory_case_id": {
+      "type": "string"
+    },
+    "regulatory_case_name": {
+      "type": "string"
+    },
+    "facility_id": {
+      "type": "string"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "f_tag": {
+      "type": "string",
+      "title": "F-Tag"
+    },
+    "regulation_reference": {
+      "type": "string"
+    },
+    "deficiency_title": {
+      "type": "string"
+    },
+    "scope_severity": {
+      "type": "string",
+      "title": "Scope & Severity"
+    },
+    "immediate_jeopardy": {
+      "type": "string",
+      "enum": [
+        "Yes",
+        "No",
+        "Unknown"
+      ],
+      "default": "Unknown"
+    },
+    "source_cms_2567": {
+      "type": "string",
+      "title": "Source CMS-2567"
+    },
+    "page_reference": {
+      "type": "string"
+    },
+    "survey_finding": {
+      "type": "string"
+    },
+    "factual_summary": {
+      "type": "string"
+    },
+    "affected_residents_deidentified": {
+      "type": "string",
+      "title": "Affected Residents (De-identified)"
+    },
+    "deficiency_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "regulatory_focus": {
+      "type": "string"
+    },
+    "clinical_significance": {
+      "type": "string"
+    },
+    "immediate_safety_concern": {
+      "type": "boolean",
+      "default": false
+    },
+    "likely_contributing_factors": {
+      "type": "string"
+    },
+    "root_cause_categories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "systemic_issue": {
+      "type": "boolean",
+      "default": false
+    },
+    "policy_process_issue": {
+      "type": "boolean",
+      "default": false
+    },
+    "staffing_issue": {
+      "type": "boolean",
+      "default": false
+    },
+    "competency_issue": {
+      "type": "boolean",
+      "default": false
+    },
+    "documentation_issue": {
+      "type": "boolean",
+      "default": false
+    },
+    "oversight_accountability_issue": {
+      "type": "boolean",
+      "default": false
+    },
+    "other_relevant_factor": {
+      "type": "string"
+    },
+    "immediate_correction": {
+      "type": "string"
+    },
+    "potentially_affected_population": {
+      "type": "string"
+    },
+    "systemic_correction": {
+      "type": "string"
+    },
+    "education_training": {
+      "type": "string"
+    },
+    "competency_validation": {
+      "type": "string"
+    },
+    "audit_monitoring": {
+      "type": "string"
+    },
+    "evidence_needed": {
+      "type": "string"
+    },
+    "responsible_leader": {
+      "type": "string"
+    },
+    "target_completion_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "qapi_oversight": {
+      "type": "string"
+    },
+    "revisit_readiness_status": {
+      "type": "string",
+      "enum": [
+        "Ready",
+        "Nearly Ready",
+        "Significant Gaps",
+        "Not Ready",
+        "Not Assessed"
+      ],
+      "default": "Not Assessed"
+    },
+    "deficiency_status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Clinical Review",
+        "Client Review",
+        "Approved",
+        "Implementation",
+        "Evidence Pending",
+        "Monitoring",
+        "Revisit Ready",
+        "Closed"
+      ],
+      "default": "Draft"
+    },
+    "priority_ranking": {
+      "type": "number"
+    },
+    "priority_explanation": {
+      "type": "string"
+    },
+    "is_test_data": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "regulatory_case_id",
+    "f_tag",
+    "deficiency_status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "read_only"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

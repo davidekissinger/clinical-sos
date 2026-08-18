@@ -1,0 +1,237 @@
+{
+  "name": "RegulatoryCase",
+  "type": "object",
+  "properties": {
+    "case_name": {
+      "type": "string"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "facility_id": {
+      "type": "string"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "organization_name": {
+      "type": "string"
+    },
+    "engagement_id": {
+      "type": "string"
+    },
+    "engagement_name": {
+      "type": "string"
+    },
+    "survey_event_type": {
+      "type": "string"
+    },
+    "survey_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "cms_2567_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "state_agency": {
+      "type": "string"
+    },
+    "revisit_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "current_regulatory_status": {
+      "type": "string"
+    },
+    "scope_severity_overview": {
+      "type": "string"
+    },
+    "ij_status": {
+      "type": "string",
+      "enum": [
+        "Yes",
+        "No",
+        "Unknown"
+      ],
+      "default": "Unknown"
+    },
+    "cmp_status": {
+      "type": "string",
+      "enum": [
+        "Yes",
+        "No",
+        "Unknown"
+      ],
+      "default": "Unknown"
+    },
+    "dpna_status": {
+      "type": "string",
+      "enum": [
+        "Yes",
+        "No",
+        "Unknown"
+      ],
+      "default": "Unknown"
+    },
+    "sff_status": {
+      "type": "string",
+      "enum": [
+        "Not SFF",
+        "SFF Candidate",
+        "Active SFF",
+        "Unknown"
+      ],
+      "default": "Unknown"
+    },
+    "total_deficiencies": {
+      "type": "number"
+    },
+    "high_priority_deficiencies": {
+      "type": "number"
+    },
+    "case_status": {
+      "type": "string",
+      "enum": [
+        "Intake",
+        "Source Documents Pending",
+        "Initial Review",
+        "Deficiencies Extracted",
+        "Clinical Analysis",
+        "Corrective Strategy",
+        "POC Development",
+        "Implementation",
+        "Monitoring",
+        "Revisit Preparation",
+        "Revisit Pending",
+        "Substantial Compliance Pending",
+        "Closed",
+        "On Hold"
+      ],
+      "default": "Intake"
+    },
+    "case_owner_id": {
+      "type": "string"
+    },
+    "case_owner_name": {
+      "type": "string"
+    },
+    "clinical_lead_id": {
+      "type": "string"
+    },
+    "clinical_lead_name": {
+      "type": "string"
+    },
+    "regulatory_urgency": {
+      "type": "string",
+      "enum": [
+        "Critical",
+        "Severe",
+        "High",
+        "Moderate",
+        "Proactive",
+        "Unknown / Research Required"
+      ],
+      "default": "Unknown / Research Required"
+    },
+    "regulatory_urgency_score": {
+      "type": "number"
+    },
+    "commercial_opportunity_score": {
+      "type": "number"
+    },
+    "clinical_sos_priority_score": {
+      "type": "number"
+    },
+    "score_explanation": {
+      "type": "string"
+    },
+    "source_documents": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string"
+    },
+    "last_reviewed": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "clinical_approval_status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Clinical Review",
+        "Approved"
+      ],
+      "default": "Draft"
+    },
+    "is_test_data": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "case_name",
+    "case_status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "read_only"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

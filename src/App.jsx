@@ -40,6 +40,11 @@ import Proposals from '@/pages/cc/Proposals';
 import LaunchReadiness from '@/pages/cc/LaunchReadiness';
 import Engagements from '@/pages/cc/Engagements';
 import Settings from '@/pages/cc/Settings';
+import RecoveryDashboard from '@/pages/cc/RecoveryDashboard';
+import Cases from '@/pages/cc/Cases';
+import CaseDetail from '@/pages/cc/CaseDetail';
+import DeficiencyDetail from '@/pages/cc/DeficiencyDetail';
+import Knowledge from '@/pages/cc/Knowledge';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -102,6 +107,11 @@ const AuthenticatedApp = () => {
           <Route path="/command-center/proposals" element={<Proposals />} />
           <Route path="/command-center/launch-readiness" element={<LaunchReadiness />} />
           <Route path="/command-center/engagements" element={<Engagements />} />
+          <Route path="/command-center/recovery" element={<RecoveryDashboard />} />
+          <Route path="/command-center/cases" element={<Cases />} />
+          <Route path="/command-center/cases/:id" element={<CaseDetail />} />
+          <Route path="/command-center/deficiencies/:id" element={<DeficiencyDetail />} />
+          <Route path="/command-center/knowledge" element={<Knowledge />} />
           <Route path="/command-center/settings" element={<Settings />} />
         </Route>
       </Route>

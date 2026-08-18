@@ -1,0 +1,125 @@
+{
+  "name": "EducationPlan",
+  "type": "object",
+  "properties": {
+    "deficiency_id": {
+      "type": "string"
+    },
+    "deficiency_name": {
+      "type": "string"
+    },
+    "regulatory_case_id": {
+      "type": "string"
+    },
+    "regulatory_case_name": {
+      "type": "string"
+    },
+    "facility_id": {
+      "type": "string"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "education_outline": {
+      "type": "string"
+    },
+    "staff_training_content": {
+      "type": "string"
+    },
+    "talking_points": {
+      "type": "string"
+    },
+    "competency_requirements": {
+      "type": "string"
+    },
+    "return_demonstration_checklist": {
+      "type": "string"
+    },
+    "attendance_roster": {
+      "type": "string"
+    },
+    "department_assignments": {
+      "type": "string"
+    },
+    "completion_tracker": {
+      "type": "string"
+    },
+    "remediation_needs": {
+      "type": "string"
+    },
+    "education_status": {
+      "type": "string",
+      "enum": [
+        "Assigned",
+        "Scheduled",
+        "Completed",
+        "Competency Pending",
+        "Competency Completed",
+        "Remediation Required"
+      ],
+      "default": "Assigned"
+    },
+    "is_test_data": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "facility_name",
+    "education_status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "read_only"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

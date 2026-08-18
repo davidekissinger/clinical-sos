@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Users, Building2, UserCircle, Target, ListChecks,
-  Settings, LogOut, Menu, X, FileText, ShieldCheck, Activity, Briefcase, Bot, Send, Rocket
+  Settings, LogOut, Menu, X, FileText, ShieldCheck, Activity, Briefcase, Bot, Send, Rocket, Stethoscope, BookOpen, ClipboardList
 } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import { useAuth } from "@/lib/AuthContext";
@@ -20,6 +20,9 @@ const NAV = [
   { label: "Outreach", path: "/command-center/outreach", icon: Send, roles: ["admin", "business_development", "clinical"] },
   { label: "Proposals", path: "/command-center/proposals", icon: FileText, roles: ["admin", "business_development", "finance"] },
   { label: "Engagements", path: "/command-center/engagements", icon: ShieldCheck, roles: ["admin", "clinical", "finance", "read_only"] },
+  { label: "Recovery Studio", path: "/command-center/recovery", icon: Stethoscope, roles: ["admin", "clinical", "read_only"] },
+  { label: "Regulatory Cases", path: "/command-center/cases", icon: ClipboardList, roles: ["admin", "clinical", "read_only"] },
+  { label: "Knowledge Library", path: "/command-center/knowledge", icon: BookOpen, roles: ["admin", "clinical", "read_only"] },
   { label: "Launch Readiness", path: "/command-center/launch-readiness", icon: Rocket, roles: ["admin"] },
   { label: "Settings", path: "/command-center/settings", icon: Settings, roles: ["admin"] },
 ];

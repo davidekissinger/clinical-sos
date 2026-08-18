@@ -1,0 +1,128 @@
+{
+  "name": "QAPIReview",
+  "type": "object",
+  "properties": {
+    "deficiency_id": {
+      "type": "string"
+    },
+    "deficiency_name": {
+      "type": "string"
+    },
+    "regulatory_case_id": {
+      "type": "string"
+    },
+    "regulatory_case_name": {
+      "type": "string"
+    },
+    "facility_id": {
+      "type": "string"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "monitoring_results": {
+      "type": "string"
+    },
+    "trends": {
+      "type": "string"
+    },
+    "failures": {
+      "type": "string"
+    },
+    "corrective_followups": {
+      "type": "string"
+    },
+    "repeated_patterns": {
+      "type": "string"
+    },
+    "responsible_leader": {
+      "type": "string"
+    },
+    "qapi_review_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "qapi_decision": {
+      "type": "string"
+    },
+    "additional_action": {
+      "type": "string"
+    },
+    "monitoring_continuation": {
+      "type": "boolean",
+      "default": false
+    },
+    "monitoring_reduction": {
+      "type": "boolean",
+      "default": false
+    },
+    "monitoring_closure": {
+      "type": "boolean",
+      "default": false
+    },
+    "summary": {
+      "type": "string"
+    },
+    "is_test_data": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "facility_name"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "read_only"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

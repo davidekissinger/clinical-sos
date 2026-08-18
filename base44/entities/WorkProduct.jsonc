@@ -1,0 +1,148 @@
+{
+  "name": "WorkProduct",
+  "type": "object",
+  "properties": {
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "Executive Regulatory Assessment",
+        "Deficiency Analysis",
+        "Root Cause Analysis Draft",
+        "Plan of Correction Draft",
+        "Corrective Action Plan",
+        "Audit Form",
+        "Audit Packet",
+        "Education Outline",
+        "Competency Checklist",
+        "Evidence Checklist",
+        "Monitoring Plan",
+        "QAPI Summary",
+        "Revisit Readiness Report",
+        "Regulatory Recovery Status Report",
+        "Final Engagement / Stabilization Report"
+      ]
+    },
+    "facility_id": {
+      "type": "string"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "engagement_id": {
+      "type": "string"
+    },
+    "engagement_name": {
+      "type": "string"
+    },
+    "regulatory_case_id": {
+      "type": "string"
+    },
+    "regulatory_case_name": {
+      "type": "string"
+    },
+    "deficiency_id": {
+      "type": "string"
+    },
+    "deficiency_name": {
+      "type": "string"
+    },
+    "f_tag": {
+      "type": "string"
+    },
+    "generation_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "document_status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "CLINICAL REVIEW",
+        "CLIENT REVIEW",
+        "APPROVED",
+        "FINAL"
+      ],
+      "default": "DRAFT"
+    },
+    "preparer": {
+      "type": "string"
+    },
+    "reviewer": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0"
+    },
+    "content": {
+      "type": "string"
+    },
+    "is_test_data": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "document_type",
+    "document_status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "business_development"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "read_only"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

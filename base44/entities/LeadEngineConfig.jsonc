@@ -116,6 +116,108 @@
       "items": {
         "type": "string"
       }
+    },
+    "regulatory_urgency_weights": {
+      "type": "object",
+      "title": "Regulatory Urgency Score Weights",
+      "properties": {
+        "immediate_jeopardy": {
+          "type": "number"
+        },
+        "cmp_per_day": {
+          "type": "number"
+        },
+        "cmp_per_instance": {
+          "type": "number"
+        },
+        "dpna": {
+          "type": "number"
+        },
+        "sff_active": {
+          "type": "number"
+        },
+        "sff_candidate": {
+          "type": "number"
+        },
+        "repeat_serious_deficiency": {
+          "type": "number"
+        },
+        "failed_revisit": {
+          "type": "number"
+        },
+        "upcoming_revisit": {
+          "type": "number"
+        },
+        "infection_control": {
+          "type": "number"
+        },
+        "high_severity": {
+          "type": "number"
+        },
+        "medium_severity": {
+          "type": "number"
+        },
+        "low_severity": {
+          "type": "number"
+        },
+        "unresolved": {
+          "type": "number"
+        },
+        "recency_multiplier_max": {
+          "type": "number"
+        },
+        "verification_multiplier": {
+          "type": "number"
+        },
+        "multi_facility_operator_bonus": {
+          "type": "number"
+        }
+      }
+    },
+    "commercial_opportunity_weights": {
+      "type": "object",
+      "title": "Commercial Opportunity Score Weights",
+      "properties": {
+        "service_match": {
+          "type": "number"
+        },
+        "operator_size": {
+          "type": "number"
+        },
+        "multi_facility_affected": {
+          "type": "number"
+        },
+        "decision_maker_identified": {
+          "type": "number"
+        },
+        "geographic_fit": {
+          "type": "number"
+        },
+        "urgency_alignment": {
+          "type": "number"
+        },
+        "engagement_potential": {
+          "type": "number"
+        },
+        "prior_interaction": {
+          "type": "number"
+        },
+        "response_history": {
+          "type": "number"
+        }
+      }
+    },
+    "priority_score_weights": {
+      "type": "object",
+      "title": "Clinical SOS Priority Score Weights",
+      "properties": {
+        "regulatory_urgency_weight": {
+          "type": "number"
+        },
+        "commercial_opportunity_weight": {
+          "type": "number"
+        }
+      }
     }
   },
   "required": [

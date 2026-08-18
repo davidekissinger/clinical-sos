@@ -75,6 +75,27 @@
     "lead_tier": {
       "type": "string"
     },
+    "regulatory_urgency": {
+      "type": "string",
+      "enum": [
+        "Critical",
+        "Severe",
+        "High",
+        "Moderate",
+        "Proactive",
+        "Unknown / Research Required"
+      ],
+      "default": "Unknown / Research Required"
+    },
+    "regulatory_urgency_score": {
+      "type": "number"
+    },
+    "commercial_opportunity_score": {
+      "type": "number"
+    },
+    "clinical_sos_priority_score": {
+      "type": "number"
+    },
     "is_test_data": {
       "type": "boolean",
       "default": false
