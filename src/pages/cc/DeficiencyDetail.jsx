@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
-import { ArrowLeft, Save, AlertTriangle, FileText, ClipboardCheck, GraduationCap, FolderCheck, Stethoscope, ShieldCheck, Lock } from "lucide-react";
+import { ArrowLeft, Save, AlertTriangle, FileText, ClipboardCheck, GraduationCap, FolderCheck, Stethoscope, ShieldCheck, Lock, CheckCircle2, X } from "lucide-react";
 import POCBuilder from "@/components/cc/POCBuilder";
 import AuditToolForm from "@/components/cc/AuditToolForm";
 import EducationPlanForm from "@/components/cc/EducationPlanForm";
@@ -94,6 +94,11 @@ export default function DeficiencyDetail() {
       <PageHeader
         title={`${def.f_tag} — ${def.deficiency_title || "Untitled Deficiency"}`}
         subtitle={`${def.facility_name || "—"} · ${def.scope_severity || "—"} · ${def.deficiency_status}`}
+        action={def.deficiency_status !== "Closed" ? (
+          <button onClick={() => attemptClosure(false)} disabled={closing} className="btn-primary text-sm disabled:opacity-60">
+            <Lock className="h-4 w-4" /> {closing ? "Evaluating…" : "Attempt Closure"}
+          </button>
+        ) : undefined}
       />
 
       <div className="flex flex-wrap items-center gap-2 mb-5">
@@ -117,6 +122,26 @@ export default function DeficiencyDetail() {
       </div>
 
       {tab === "identification" && <IdentificationTab def={def} />}
+      {closureResult && (
+        <div className={`fixed bottom-4 right-4 bg-white rounded-xl border p-4 shadow-lg z-50 max-w-sm ${closureResult.closed ? "border-emerald-200" : "border-rose-200"}`}>
+          <div className="flex items-start gap-3">
+            {closureResult.closed ? <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0 mt-0.5" /> : <AlertTriangle className="h-5 w-5 text-rose-600 flex-shrink-0 mt-0.5" />}
+            <div className="flex-1">
+              <p className="text-sm font-medium text-foreground">{closureResult.closed ? "Deficiency Closed" : "Closure Blocked"}</p>
+              {closureResult.blockers && closureResult.blockers.length > 0 && (
+                <ul className="mt-1 text-xs text-rose-600 list-disc list-inside">
+                  {closureResult.blockers.map((b, i) => <li key={i}>{b}</li>)}
+                </ul>
+              )}
+              {closureResult.message && <p className="mt-1 text-xs text-muted-foreground">{closureResult.message}</p>}
+              {!closureResult.closed && (
+                <ClosureOverride def={def} onOverride={(reason) => attemptClosure(true, reason)} />
+              )}
+            </div>
+            <button onClick={() => setClosureResult(null)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+          </div>
+        </div>
+      )}
       {tab === "poc" && <POCBuilder deficiency={def} onSaved={reloadAll} />}
       {tab === "rca" && <RCATab def={def} rcaText={rcaText} setRcaText={setRcaText} />}
       {tab === "audits" && <AuditsTab def={def} audits={defAudits} showForm={showAuditForm} setShowForm={setShowAuditForm} onSaved={reloadAll} />}
@@ -158,7 +183,7 @@ function IdentificationTab({ def }) {
     { key: "regulatory_focus", label: "Regulatory Focus", type: "textarea" },
     { key: "clinical_significance", label: "Clinical Significance", type: "textarea" },
     { key: "immediate_safety_concern", label: "Immediate Safety Concern", type: "boolean" },
-    { key: "deficiency_status", label: "Status", type: "select", options: ["Draft", "Clinical Review", "Client Review", "Approved", "Implementation", "Evidence Pending", "Monitoring", "Revisit Ready", "Closed"] },
+    { key: "deficiency_status", label: "Status", type: "select", options: ["Draft", "Clinical Review", "Client Review", "Approved", "Implementation", "Evidence Pending", "Monitoring", "Revisit Ready"] },
   ];
 
   return (
@@ -372,6 +397,23 @@ function QAPITab({ def, qapi, showForm, setShowForm, onSaved }) {
         ))}
         {qapi.length === 0 && <EmptyState text="No QAPI reviews recorded" />}
       </div>
+    </div>
+  );
+}
+
+function ClosureOverride({ def, onOverride }) {
+  const [reason, setReason] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const submit = async () => {
+    setSubmitting(true);
+    await onOverride(reason);
+    setSubmitting(false);
+  };
+  return (
+    <div className="mt-3 border-t border-border pt-3">
+      <p className="text-xs font-medium text-foreground mb-1">Authorized Override (Admin/Clinical only)</p>
+      <textarea value={reason} onChange={e => setReason(e.target.value)} placeholder="Documented rationale for override…" rows={2} className="w-full border border-border rounded-lg px-3 py-2 text-xs" />
+      <button onClick={submit} disabled={!reason || submitting} className="btn-secondary text-xs mt-2 disabled:opacity-60">Override & Close</button>
     </div>
   );
 }

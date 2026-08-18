@@ -8,6 +8,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import RoleProtectedRoute from '@/components/RoleProtectedRoute';
+import { TestDataProvider } from '@/lib/TestDataContext';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
@@ -102,8 +103,7 @@ const AuthenticatedApp = () => {
             <Route path="/command-center/facilities" element={<Facilities />} />
             <Route path="/command-center/tasks" element={<Tasks />} />
             <Route path="/command-center/engagements" element={<Engagements />} />
-            <Route path="/command-center/cases/:id" element={<CaseDetail />} />
-            <Route path="/command-center/deficiencies/:id" element={<DeficiencyDetail />} />
+
             <Route element={<RoleProtectedRoute roles={['admin', 'business_development', 'clinical']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
               <Route path="/command-center/leads" element={<Leads />} />
               <Route path="/command-center/contacts" element={<Contacts />} />
@@ -114,6 +114,8 @@ const AuthenticatedApp = () => {
               <Route path="/command-center/signals" element={<Signals />} />
               <Route path="/command-center/recovery" element={<RecoveryDashboard />} />
               <Route path="/command-center/cases" element={<Cases />} />
+              <Route path="/command-center/cases/:id" element={<CaseDetail />} />
+              <Route path="/command-center/deficiencies/:id" element={<DeficiencyDetail />} />
               <Route path="/command-center/knowledge" element={<Knowledge />} />
             </Route>
             <Route element={<RoleProtectedRoute roles={['admin', 'business_development', 'finance']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
@@ -138,11 +140,13 @@ function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <ScrollToTop />
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
+        <TestDataProvider>
+          <Router>
+            <ScrollToTop />
+            <AuthenticatedApp />
+          </Router>
+          <Toaster />
+        </TestDataProvider>
       </QueryClientProvider>
     </AuthProvider>
   )

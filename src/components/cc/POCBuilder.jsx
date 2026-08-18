@@ -1,22 +1,53 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Badge } from "@/components/cc/ui";
-import { Save, FileText, AlertTriangle, Plus, CheckCircle } from "lucide-react";
+import { Save, FileText, AlertTriangle, Plus, CheckCircle, Send, ClipboardCheck, UserCheck, ArrowRightCircle, RotateCcw } from "lucide-react";
 
-const POC_STATUS = ["AI Draft", "Clinical Review", "Client Review", "Approved for Use", "Submitted", "Accepted", "Revision Requested", "Superseded"];
+const POC_STATUS_FLOW = {
+  "AI Draft": ["submit_for_clinical_review"],
+  "Clinical Review": ["approve_for_use", "send_to_client_review", "return_for_revision"],
+  "Client Review": ["return_to_clinical_review", "approve_from_client_review", "return_for_revision"],
+  "Approved for Use": ["submit_poc"],
+  "Submitted": ["record_acceptance"],
+  "Accepted": [],
+  "Revision Requested": [],
+  "Superseded": [],
+};
+
+const ACTION_LABELS = {
+  submit_for_clinical_review: { label: "Submit for Clinical Review", icon: ArrowRightCircle },
+  approve_for_use: { label: "Approve for Use", icon: CheckCircle },
+  send_to_client_review: { label: "Send to Client Review", icon: Send },
+  return_to_clinical_review: { label: "Return to Clinical Review", icon: RotateCcw },
+  approve_from_client_review: { label: "Approve for Use", icon: CheckCircle },
+  return_for_revision: { label: "Return for Revision", icon: RotateCcw },
+  submit_poc: { label: "Submit POC", icon: Send },
+  record_acceptance: { label: "Record Acceptance", icon: UserCheck },
+};
+
+const EVIDENCE_REQUIRED = ["submit_poc", "record_acceptance"];
 
 export default function POCBuilder({ deficiency, onSaved }) {
   const [pocs, setPocs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePoc, setActivePoc] = useState(null);
-  const [showSubmitForm, setShowSubmitForm] = useState(false);
-  const [showAcceptForm, setShowAcceptForm] = useState(false);
+  const [showEvidenceForm, setShowEvidenceForm] = useState(null);
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [transitionError, setTransitionError] = useState("");
 
   useEffect(() => {
     loadPOCs();
+    loadUser();
   }, [deficiency.id]);
+
+  const loadUser = async () => {
+    try {
+      const u = await base44.auth.me();
+      setCurrentUser(u);
+    } catch (e) { /* best-effort */ }
+  };
 
   const loadPOCs = async () => {
     setLoading(true);
@@ -33,6 +64,7 @@ export default function POCBuilder({ deficiency, onSaved }) {
     setSaving(true);
     try {
       const nextVersion = (pocs[0]?.version || 0) + 1;
+      const userName = currentUser?.full_name || currentUser?.email || null;
       const poc = await base44.entities.POC.create({
         deficiency_id: deficiency.id,
         regulatory_case_id: deficiency.regulatory_case_id || null,
@@ -49,9 +81,15 @@ export default function POCBuilder({ deficiency, onSaved }) {
         competency_plan: deficiency.competency_validation || "",
         evidence_requirements: deficiency.evidence_needed || "",
         status: "AI Draft",
-        prepared_by: null,
+        prepared_by: userName,
         is_test_data: !!deficiency.is_test_data,
       });
+      // Supersede prior versions
+      for (const p of pocs) {
+        if (p.status !== "Superseded") {
+          try { await base44.entities.POC.update(p.id, { status: "Superseded", superseded_by_version: nextVersion }); } catch (e) { /* best-effort */ }
+        }
+      }
       await loadPOCs();
     } catch (e) { console.error(e); }
     finally { setSaving(false); }
@@ -59,8 +97,7 @@ export default function POCBuilder({ deficiency, onSaved }) {
 
   const updatePoc = async (field, value) => {
     if (!activePoc) return;
-    const updated = { ...activePoc, [field]: value };
-    setActivePoc(updated);
+    setActivePoc({ ...activePoc, [field]: value });
   };
 
   const savePoc = async () => {
@@ -85,83 +122,60 @@ export default function POCBuilder({ deficiency, onSaved }) {
   const generateNarrative = async () => {
     if (!activePoc) return;
     setGenerating(true);
+    setTransitionError("");
     try {
-      const prompt = `You are a long-term care regulatory consultant. Generate a Plan of Correction (POC) narrative for the following deficiency. Use ONLY the approved structured information provided. Do NOT invent any findings, residents, dates, or enforcement actions. If information is missing, state "To be completed."
-
-F-Tag: ${deficiency.f_tag}
-Deficiency: ${deficiency.deficiency_title || ""}
-Survey Finding: ${deficiency.survey_finding || ""}
-Factual Summary: ${deficiency.factual_summary || ""}
-
-ELEMENT 1 - AFFECTED RESIDENT / SPECIFIC CORRECTION:
-${activePoc.element_1_specific_correction || "Not yet documented."}
-
-ELEMENT 2 - OTHERS POTENTIALLY AFFECTED:
-${activePoc.element_2_others_potentially_affected || "Not yet documented."}
-
-ELEMENT 3 - SYSTEMIC CORRECTIVE ACTION:
-${activePoc.element_3_systemic_correction || "Not yet documented."}
-
-ELEMENT 4 - MONITORING:
-${activePoc.element_4_monitoring || "Not yet documented."}
-
-ELEMENT 5 - RESPONSIBILITY / QAPI / COMPLETION:
-${activePoc.element_5_responsibility_qapi_completion || "Not yet documented."}
-
-Generate a formal POC narrative with clear section headers. Mark any undocumented sections as "To be completed."`;
-
       const result = await base44.functions.invoke("generateWorkProduct", {
         document_type: "Plan of Correction Draft",
         deficiency_id: deficiency.id,
-        facility_name: deficiency.facility_name,
-        f_tag: deficiency.f_tag,
-        prompt,
+        poc_id: activePoc.id,
+        action: "generate_poc_narrative",
       });
       const data = result.data || result;
-      if (data?.content) {
+      if (data?.ok === false) {
+        setTransitionError(data.error || "Work product generation failed.");
+      } else if (data?.content) {
         await base44.entities.POC.update(activePoc.id, { generated_narrative: data.content });
         await loadPOCs();
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      setTransitionError(e?.message || "Generation failed.");
+      console.error(e);
+    }
     finally { setGenerating(false); }
   };
 
-  const submitPoc = async (source, user) => {
+  const transitionPoc = async (action, evidence) => {
     if (!activePoc) return;
+    setTransitionError("");
     try {
-      await base44.entities.POC.update(activePoc.id, {
-        status: "Submitted",
-        submitted_date: new Date().toISOString(),
-        submission_source: source,
-        submitted_by: user,
+      const result = await base44.functions.invoke("transitionPOC", {
+        poc_id: activePoc.id,
+        action,
+        evidence,
       });
-      await loadPOCs();
-      setShowSubmitForm(false);
-    } catch (e) { console.error(e); }
-  };
-
-  const acceptPoc = async (source, user) => {
-    if (!activePoc) return;
-    try {
-      await base44.entities.POC.update(activePoc.id, {
-        status: "Accepted",
-        accepted_date: new Date().toISOString(),
-        acceptance_source: source,
-        accepted_by: user,
-      });
-      await loadPOCs();
-      setShowAcceptForm(false);
-    } catch (e) { console.error(e); }
+      const data = result.data || result;
+      if (data?.error) {
+        setTransitionError(data.error);
+      } else {
+        await loadPOCs();
+        setShowEvidenceForm(null);
+      }
+    } catch (e) {
+      setTransitionError(e?.message || "Transition failed.");
+      console.error(e);
+    }
   };
 
   if (loading) return <div className="text-sm text-muted-foreground">Loading POCs…</div>;
+
+  const availableActions = activePoc ? (POC_STATUS_FLOW[activePoc.status] || []) : [];
 
   if (pocs.length === 0) {
     return (
       <div className="space-y-4">
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
           <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-800">AI-generated POC narratives are DRAFT ONLY. Clinical Review is required before any content becomes authoritative. POC status cannot be automatically marked as Submitted or Accepted — those require human entry.</p>
+          <p className="text-xs text-amber-800">AI-generated POC narratives are DRAFT ONLY. Clinical Review is required before any content becomes authoritative. POC status cannot be automatically marked as Submitted or Accepted — those require human action with evidence.</p>
         </div>
         <button onClick={createNewVersion} disabled={saving} className="btn-primary text-sm disabled:opacity-60">
           <Plus className="h-4 w-4" /> Create POC (Version 1)
@@ -174,7 +188,7 @@ Generate a formal POC narrative with clear section headers. Mark any undocumente
     <div className="space-y-5">
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
         <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
-        <p className="text-xs text-amber-800">AI-generated POC narratives are DRAFT ONLY. Clinical Review is required before any content becomes authoritative. POC status cannot be automatically marked as Submitted or Accepted — those require human entry.</p>
+        <p className="text-xs text-amber-800">AI-generated POC narratives are DRAFT ONLY. Clinical Review is required before any content becomes authoritative. POC status cannot be automatically marked as Submitted or Accepted — those require human action with evidence.</p>
       </div>
 
       {/* Version selector + status */}
@@ -182,9 +196,22 @@ Generate a formal POC narrative with clear section headers. Mark any undocumente
         <select value={activePoc?.id || ""} onChange={e => setActivePoc(pocs.find(p => p.id === e.target.value))} className="border border-border rounded-lg px-3 py-1.5 text-sm bg-white">
           {pocs.map(p => <option key={p.id} value={p.id}>Version {p.version} — {p.status}</option>)}
         </select>
-        <Badge tone={activePoc?.status === "Accepted" ? "green" : activePoc?.status === "Submitted" ? "blue" : activePoc?.status === "Approved for Use" ? "green" : "amber"}>{activePoc?.status}</Badge>
+        <Badge tone={activePoc?.status === "Accepted" ? "green" : activePoc?.status === "Submitted" ? "blue" : activePoc?.status === "Approved for Use" ? "green" : activePoc?.status === "Superseded" ? "default" : "amber"}>{activePoc?.status}</Badge>
         <button onClick={createNewVersion} disabled={saving} className="btn-ghost text-sm"><Plus className="h-4 w-4" /> New Version</button>
       </div>
+
+      {/* Provenance / audit trail */}
+      {activePoc && (
+        <div className="bg-secondary/30 rounded-lg p-3 grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+          {activePoc.prepared_by && <div><span className="text-muted-foreground">Prepared by:</span> <span className="font-medium text-foreground">{activePoc.prepared_by}</span></div>}
+          {activePoc.reviewed_by && <div><span className="text-muted-foreground">Reviewed by:</span> <span className="font-medium text-foreground">{activePoc.reviewed_by}</span></div>}
+          {activePoc.clinical_approved_by && <div><span className="text-muted-foreground">Clinical approval:</span> <span className="font-medium text-foreground">{activePoc.clinical_approved_by}</span></div>}
+          {activePoc.submitted_by && <div><span className="text-muted-foreground">Submitted by:</span> <span className="font-medium text-foreground">{activePoc.submitted_by}</span></div>}
+          {activePoc.submitted_date && <div><span className="text-muted-foreground">Submitted:</span> <span className="font-medium text-foreground">{new Date(activePoc.submitted_date).toLocaleDateString()}</span></div>}
+          {activePoc.accepted_by && <div><span className="text-muted-foreground">Accepted by:</span> <span className="font-medium text-foreground">{activePoc.accepted_by}</span></div>}
+          {activePoc.accepted_date && <div><span className="text-muted-foreground">Accepted:</span> <span className="font-medium text-foreground">{new Date(activePoc.accepted_date).toLocaleDateString()}</span></div>}
+        </div>
+      )}
 
       {activePoc && (
         <>
@@ -214,7 +241,7 @@ Generate a formal POC narrative with clear section headers. Mark any undocumente
           </Section>
 
           {activePoc.generated_narrative && (
-            <Section title="Generated Narrative (AI Draft)" desc="AI-generated POC narrative — DRAFT ONLY, requires clinical review">
+            <Section title="Generated Narrative (AI Draft)" desc="AI-generated POC narrative — DRAFT ONLY, requires clinical review. Validated against source data.">
               <pre className="text-xs text-muted-foreground whitespace-pre-wrap bg-secondary/30 p-3 rounded-lg">{activePoc.generated_narrative}</pre>
             </Section>
           )}
@@ -222,33 +249,66 @@ Generate a formal POC narrative with clear section headers. Mark any undocumente
           <div className="flex items-center gap-3 flex-wrap">
             <button onClick={savePoc} disabled={saving} className="btn-primary text-sm disabled:opacity-60"><Save className="h-4 w-4" /> {saving ? "Saving…" : "Save POC"}</button>
             <button onClick={generateNarrative} disabled={generating} className="btn-secondary text-sm disabled:opacity-60"><FileText className="h-4 w-4" /> {generating ? "Generating…" : "Generate POC Narrative (Draft)"}</button>
-            {activePoc.status === "Approved for Use" && !showSubmitForm && (
-              <button onClick={() => setShowSubmitForm(true)} className="btn-secondary text-sm"><FileText className="h-4 w-4" /> Submit POC</button>
-            )}
-            {activePoc.status === "Submitted" && !showAcceptForm && (
-              <button onClick={() => setShowAcceptForm(true)} className="btn-secondary text-sm"><CheckCircle className="h-4 w-4" /> Accept POC</button>
-            )}
           </div>
 
-          {showSubmitForm && <HumanActionForm title="Submit POC — Human Confirmation Required" actionLabel="Confirm Submission" onSubmit={submitPoc} onCancel={() => setShowSubmitForm(false)} />}
-          {showAcceptForm && <HumanActionForm title="Accept POC — Human Confirmation Required" actionLabel="Confirm Acceptance" onSubmit={acceptPoc} onCancel={() => setShowAcceptForm(false)} />}
+          {/* Lifecycle transition buttons */}
+          {availableActions.length > 0 && (
+            <div className="bg-white rounded-xl border border-border p-4">
+              <h3 className="font-semibold text-foreground text-sm mb-1">POC Lifecycle Actions</h3>
+              <p className="text-xs text-muted-foreground mb-3">All actions are performed by the authenticated user. AI cannot perform these transitions.</p>
+              <div className="flex flex-wrap gap-2">
+                {availableActions.map(actionKey => {
+                  const cfg = ACTION_LABELS[actionKey];
+                  if (!cfg) return null;
+                  const Icon = cfg.icon;
+                  return (
+                    <button key={actionKey} onClick={() => {
+                      if (EVIDENCE_REQUIRED.includes(actionKey)) setShowEvidenceForm(actionKey);
+                      else if (actionKey === "return_for_revision") setShowEvidenceForm("return_for_revision");
+                      else transitionPoc(actionKey);
+                    }} className="btn-secondary text-sm">
+                      <Icon className="h-4 w-4" /> {cfg.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {transitionError && (
+            <div className="bg-rose-50 border border-rose-200 rounded-lg p-3 text-sm text-rose-700">{transitionError}</div>
+          )}
+
+          {showEvidenceForm && (
+            <EvidenceForm
+              actionKey={showEvidenceForm}
+              actionLabel={ACTION_LABELS[showEvidenceForm]?.label || showEvidenceForm}
+              onSubmit={(evidence) => transitionPoc(showEvidenceForm, evidence)}
+              onCancel={() => setShowEvidenceForm(null)}
+              isRevision={showEvidenceForm === "return_for_revision"}
+            />
+          )}
         </>
       )}
     </div>
   );
 }
 
-function HumanActionForm({ title, actionLabel, onSubmit, onCancel }) {
-  const [source, setSource] = useState("");
-  const [user, setUser] = useState("");
+function EvidenceForm({ actionKey, actionLabel, onSubmit, onCancel, isRevision }) {
+  const [evidence, setEvidence] = useState("");
   return (
     <div className="bg-white rounded-xl border border-border p-5 space-y-3">
-      <h3 className="font-semibold text-foreground text-sm">{title}</h3>
-      <p className="text-xs text-muted-foreground">AI cannot perform this action. A human must confirm with their name and a source/confirmation note.</p>
-      <input value={user} onChange={e => setUser(e.target.value)} placeholder="Your name" className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
-      <textarea value={source} onChange={e => setSource(e.target.value)} placeholder="Source / confirmation note (e.g. 'Verified via client email on …')" rows={2} className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
+      <h3 className="font-semibold text-foreground text-sm">{actionLabel} — Human Confirmation Required</h3>
+      <p className="text-xs text-muted-foreground">
+        {isRevision
+          ? "Provide revision notes for the POC author."
+          : "This action requires evidence or a source/confirmation note. The authenticated user will be recorded."}
+      </p>
+      <textarea value={evidence} onChange={e => setEvidence(e.target.value)}
+        placeholder={isRevision ? "Revision notes…" : "Source / confirmation note (e.g. 'Verified via client email on …')"}
+        rows={2} className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
       <div className="flex gap-2">
-        <button onClick={() => onSubmit(source, user)} disabled={!source || !user} className="btn-primary text-sm disabled:opacity-60">{actionLabel}</button>
+        <button onClick={() => onSubmit(evidence)} disabled={!evidence} className="btn-primary text-sm disabled:opacity-60">{actionLabel}</button>
         <button onClick={onCancel} className="btn-ghost text-sm">Cancel</button>
       </div>
     </div>

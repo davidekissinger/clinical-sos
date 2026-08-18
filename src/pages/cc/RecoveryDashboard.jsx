@@ -5,12 +5,12 @@ import { useEntities } from "@/hooks/useEntities";
 import { AlertTriangle, FileText, CheckCircle2, XCircle, Clock, Activity, ShieldAlert, ClipboardCheck, GraduationCap, FolderCheck, Stethoscope } from "lucide-react";
 
 export default function RecoveryDashboard() {
-  const cases = useEntities("RegulatoryCase", { sort: "-created_date", limit: 100 });
-  const deficiencies = useEntities("Deficiency", { sort: "-priority_ranking", limit: 200 });
-  const audits = useEntities("AuditTool", { sort: "-audit_date", limit: 200 });
-  const evidence = useEntities("EvidenceItem", { sort: "-created_date", limit: 200 });
-  const education = useEntities("EducationPlan", { sort: "-created_date", limit: 100 });
-  const qapi = useEntities("QAPIReview", { sort: "-qapi_review_date", limit: 100 });
+  const cases = useEntities("RegulatoryCase", { sort: "-created_date", limit: 100, excludeTestData: true });
+  const deficiencies = useEntities("Deficiency", { sort: "-priority_ranking", limit: 200, excludeTestData: true });
+  const audits = useEntities("AuditTool", { sort: "-audit_date", limit: 200, excludeTestData: true });
+  const evidence = useEntities("EvidenceItem", { sort: "-created_date", limit: 200, excludeTestData: true });
+  const education = useEntities("EducationPlan", { sort: "-created_date", limit: 100, excludeTestData: true });
+  const qapi = useEntities("QAPIReview", { sort: "-qapi_review_date", limit: 100, excludeTestData: true });
 
   const loading = cases.loading || deficiencies.loading;
 

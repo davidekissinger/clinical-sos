@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import { useAuth } from "@/lib/AuthContext";
+import { useTestData } from "@/lib/TestDataContext";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -29,6 +30,7 @@ const NAV = [
 
 export default function CommandCenterLayout() {
   const { user, logout } = useAuth();
+  const { showTestData, setShowTestData } = useTestData();
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -99,7 +101,18 @@ export default function CommandCenterLayout() {
               <h1 className="text-sm font-semibold text-foreground">Private · Internal Use Only</h1>
             </div>
           </div>
-          <Link to="/" className="text-sm text-muted-foreground hover:text-primary hidden sm:inline">View public site →</Link>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2 cursor-pointer text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={showTestData}
+                onChange={(e) => setShowTestData(e.target.checked)}
+                className="h-4 w-4 rounded border-border"
+              />
+              Show Test Data
+            </label>
+            <Link to="/" className="text-sm text-muted-foreground hover:text-primary hidden sm:inline">View public site →</Link>
+          </div>
         </header>
         <main className="flex-1 p-5 lg:p-8 overflow-x-hidden">
           <Outlet />

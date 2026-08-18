@@ -5,12 +5,12 @@ import { PageHeader, StatCard, Badge, EmptyState, LoadingState } from "@/compone
 import { useEntities } from "@/hooks/useEntities";
 
 export default function Dashboard() {
-  const leads = useEntities("Lead", { sort: "-created_date", limit: 100 });
-  const opportunities = useEntities("Opportunity", { sort: "-created_date", limit: 200 });
-  const signals = useEntities("RegulatorySignal", { sort: "-created_date", limit: 100 });
-  const tasks = useEntities("Task", { sort: "-due_date", limit: 100 });
-  const proposals = useEntities("Proposal", { sort: "-created_date", limit: 100 });
-  const engagements = useEntities("Engagement", { sort: "-created_date", limit: 100 });
+  const leads = useEntities("Lead", { sort: "-created_date", limit: 100, excludeTestData: true });
+  const opportunities = useEntities("Opportunity", { sort: "-created_date", limit: 200, excludeTestData: true });
+  const signals = useEntities("RegulatorySignal", { sort: "-created_date", limit: 100, excludeTestData: true });
+  const tasks = useEntities("Task", { sort: "-due_date", limit: 100, excludeTestData: true });
+  const proposals = useEntities("Proposal", { sort: "-created_date", limit: 100, excludeTestData: true });
+  const engagements = useEntities("Engagement", { sort: "-created_date", limit: 100, excludeTestData: true });
 
   const loading = leads.loading || opportunities.loading || signals.loading || tasks.loading;
 

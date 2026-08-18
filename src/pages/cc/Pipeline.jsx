@@ -11,8 +11,8 @@ const STAGES = [
 ];
 
 export default function Pipeline() {
-  const opportunities = useEntities("Opportunity", { sort: "-created_date", limit: 300 });
-  const engagements = useEntities("Engagement", { sort: "-created_date", limit: 100 });
+  const opportunities = useEntities("Opportunity", { sort: "-created_date", limit: 300, excludeTestData: true });
+  const engagements = useEntities("Engagement", { sort: "-created_date", limit: 100, excludeTestData: true });
   const [view, setView] = useState("kanban");
   const [dragId, setDragId] = useState(null);
   const [wonModal, setWonModal] = useState(null);
@@ -27,17 +27,11 @@ export default function Pipeline() {
     const opp = opportunities.data.find((o) => o.id === dragId);
     if (opp?.stage === stage) { setDragId(null); return; }
 
-    // If moving to Won, open the engagement creation modal
+    // If moving to Won, open the engagement creation modal — backend handles the Won transition atomically
     if (stage === "Won") {
-      // Check if engagement already exists
-      const existingEng = engagements.data.find(e => e.opportunity_id === dragId);
-      if (existingEng) {
-        setEngagementResult({ duplicate: true, engagement_name: existingEng.engagement_name });
-      } else {
-        setWonModal({ opportunity_id: dragId, opportunity: opp });
-        setDragId(null);
-        return;
-      }
+      setWonModal({ opportunity_id: dragId, opportunity: opp });
+      setDragId(null);
+      return;
     }
 
     try {
@@ -53,19 +47,24 @@ export default function Pipeline() {
       opportunity_id: wonModal.opportunity_id,
       service_type: form.service_type.value,
       start_date: form.start_date.value,
-      clinical_lead_name: form.clinical_lead_name.value,
+      clinical_lead_name: form.clinical_lead_name.value || "To be assigned",
       engagement_model: form.engagement_model.value,
+      accepted_proposal_id: form.accepted_proposal_id?.value || null,
     };
     try {
       const res = await base44.functions.invoke("createEngagementFromOpportunity", payload);
       const data = res.data || res;
-      setEngagementResult(data);
-      setWonModal(null);
-      // Update opportunity stage to Won
-      await base44.entities.Opportunity.update(wonModal.opportunity_id, { stage: "Won" });
-      opportunities.reload();
-      engagements.reload();
+      if (data?.error) {
+        setEngagementResult({ error: data.error });
+      } else {
+        setEngagementResult(data);
+        setWonModal(null);
+        // Backend has already marked the Opportunity as Won and created the Engagement
+        opportunities.reload();
+        engagements.reload();
+      }
     } catch (err) {
+      setEngagementResult({ error: err?.message || "Engagement creation failed" });
       console.error(err);
     }
   };
@@ -159,13 +158,17 @@ export default function Pipeline() {
                 <input name="clinical_lead_name" placeholder="Clinical lead name" className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
               </label>
               <label className="block">
-                <span className="block text-xs font-medium text-muted-foreground mb-1">Engagement Model</span>
-                <select name="engagement_model" className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white">
+                <span className="block text-xs font-medium text-muted-foreground mb-1">Engagement Model *</span>
+                <select name="engagement_model" required className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white">
                   <option value="Fixed Fee">Fixed Fee</option>
                   <option value="Hourly">Hourly</option>
                   <option value="Time and Expense">Time and Expense</option>
                   <option value="Hybrid">Hybrid</option>
                 </select>
+              </label>
+              <label className="block">
+                <span className="block text-xs font-medium text-muted-foreground mb-1">Accepted Proposal ID (optional)</span>
+                <input name="accepted_proposal_id" placeholder="Proposal ID if applicable" className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
               </label>
               <div className="flex gap-2">
                 <button type="submit" className="btn-primary text-sm flex-1">Create Engagement & Mark Won</button>
