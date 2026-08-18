@@ -97,6 +97,30 @@
     "client_reviewed_by": {
       "type": "string"
     },
+    "client_reviewed_by_id": {
+      "type": "string",
+      "title": "Client Reviewed By (User ID)"
+    },
+    "client_reviewed_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Client Reviewed Date"
+    },
+    "client_review_comment": {
+      "type": "string",
+      "title": "Client Review Comment"
+    },
+    "client_review_status": {
+      "type": "string",
+      "enum": [
+        "Pending",
+        "Acknowledged",
+        "Revision Requested",
+        "Client Approved"
+      ],
+      "default": "Pending",
+      "title": "Client Review Status"
+    },
     "submitted_date": {
       "type": "string",
       "format": "date-time"
@@ -171,6 +195,17 @@
             },
             {
               "data.client_visibility": true
+            },
+            {
+              "data.status": {
+                "$in": [
+                  "Client Review",
+                  "Approved for Use",
+                  "Submitted",
+                  "Accepted",
+                  "Revision Requested"
+                ]
+              }
             },
             {
               "data.facility_id": {
