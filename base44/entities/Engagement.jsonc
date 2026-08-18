@@ -32,6 +32,24 @@
         "Complete"
       ]
     },
+    "engagement_model": {
+      "type": "string",
+      "enum": [
+        "Fixed Fee",
+        "Hourly",
+        "Time and Expense",
+        "Hybrid"
+      ],
+      "title": "Engagement Model"
+    },
+    "accepted_proposal_id": {
+      "type": "string",
+      "title": "Accepted Proposal ID"
+    },
+    "accepted_proposal_name": {
+      "type": "string",
+      "title": "Accepted Proposal Name"
+    },
     "manager_id": {
       "type": "string"
     },

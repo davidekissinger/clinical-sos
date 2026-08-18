@@ -51,9 +51,11 @@ export default function Accessibility() {
 
             <h2 className="text-2xl font-semibold text-foreground mt-10">Continuous Improvement</h2>
             <p className="text-muted-foreground mt-3">
-              Accessibility is an ongoing effort. We regularly review our application, conduct
-              manual and automated testing, and remediate identified barriers. New components and
-              major changes are evaluated for accessibility before they are considered complete.
+              Accessibility is an ongoing effort. Our accessibility process includes manual and
+              automated evaluation as we continue to develop, test, and improve our digital
+              services. New components and major changes are evaluated for accessibility before
+              they are considered complete. Formal accessibility acceptance testing has not yet
+              been completed.
             </p>
 
             <h2 className="text-2xl font-semibold text-foreground mt-10">Reporting an Accessibility Issue</h2>

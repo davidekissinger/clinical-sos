@@ -193,7 +193,7 @@ export default function POCBuilder({ deficiency, onSaved }) {
 
       {/* Version selector + status */}
       <div className="flex items-center gap-3 flex-wrap">
-        <select value={activePoc?.id || ""} onChange={e => setActivePoc(pocs.find(p => p.id === e.target.value))} className="border border-border rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-card text-foreground">
+        <select value={activePoc?.id || ""} onChange={e => setActivePoc(pocs.find(p => p.id === e.target.value))} aria-label="Select POC version" className="border border-border rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-card text-foreground">
           {pocs.map(p => <option key={p.id} value={p.id}>Version {p.version} — {p.status}</option>)}
         </select>
         <Badge tone={activePoc?.status === "Accepted" ? "green" : activePoc?.status === "Submitted" ? "blue" : activePoc?.status === "Approved for Use" ? "green" : activePoc?.status === "Superseded" ? "default" : "amber"}>{activePoc?.status}</Badge>
@@ -216,28 +216,28 @@ export default function POCBuilder({ deficiency, onSaved }) {
       {activePoc && (
         <>
           <Section title="Element 1 — Affected Resident / Specific Correction" desc="What was corrected, what immediate action occurred, current status">
-            <TextArea value={activePoc.element_1_specific_correction || ""} onChange={v => updatePoc("element_1_specific_correction", v)} />
+            <TextArea label="Element 1 — Affected Resident / Specific Correction" value={activePoc.element_1_specific_correction || ""} onChange={v => updatePoc("element_1_specific_correction", v)} />
           </Section>
           <Section title="Element 2 — Others Potentially Affected" desc="How the facility identified others, universe reviewed, additional corrections">
-            <TextArea value={activePoc.element_2_others_potentially_affected || ""} onChange={v => updatePoc("element_2_others_potentially_affected", v)} />
+            <TextArea label="Element 2 — Others Potentially Affected" value={activePoc.element_2_others_potentially_affected || ""} onChange={v => updatePoc("element_2_others_potentially_affected", v)} />
           </Section>
           <Section title="Element 3 — Systemic Corrective Action" desc="Policy changes, workflow changes, staffing, equipment, clinical process, accountability, system changes to prevent recurrence">
-            <TextArea value={activePoc.element_3_systemic_correction || ""} onChange={v => updatePoc("element_3_systemic_correction", v)} />
+            <TextArea label="Element 3 — Systemic Corrective Action" value={activePoc.element_3_systemic_correction || ""} onChange={v => updatePoc("element_3_systemic_correction", v)} />
           </Section>
           <Section title="Element 4 — Monitoring" desc="Audit method, sample size, frequency, duration, responsible auditor, failure threshold, corrective follow-up, escalation criteria">
-            <TextArea value={activePoc.element_4_monitoring || ""} onChange={v => updatePoc("element_4_monitoring", v)} />
+            <TextArea label="Element 4 — Monitoring" value={activePoc.element_4_monitoring || ""} onChange={v => updatePoc("element_4_monitoring", v)} />
           </Section>
           <Section title="Element 5 — Responsibility / QAPI / Completion" desc="Responsible leader, DON/Administrator/designee, QAPI reporting, target completion, sustainability review">
-            <TextArea value={activePoc.element_5_responsibility_qapi_completion || ""} onChange={v => updatePoc("element_5_responsibility_qapi_completion", v)} />
+            <TextArea label="Element 5 — Responsibility / QAPI / Completion" value={activePoc.element_5_responsibility_qapi_completion || ""} onChange={v => updatePoc("element_5_responsibility_qapi_completion", v)} />
           </Section>
           <Section title="Education / Training" desc="Education and training plan for this deficiency">
-            <TextArea value={activePoc.education_plan || ""} onChange={v => updatePoc("education_plan", v)} />
+            <TextArea label="Education / Training" value={activePoc.education_plan || ""} onChange={v => updatePoc("education_plan", v)} />
           </Section>
           <Section title="Competency Validation" desc="Competency validation approach">
-            <TextArea value={activePoc.competency_plan || ""} onChange={v => updatePoc("competency_plan", v)} />
+            <TextArea label="Competency Validation" value={activePoc.competency_plan || ""} onChange={v => updatePoc("competency_plan", v)} />
           </Section>
           <Section title="Evidence Needed" desc="Evidence required to demonstrate corrective action">
-            <TextArea value={activePoc.evidence_requirements || ""} onChange={v => updatePoc("evidence_requirements", v)} />
+            <TextArea label="Evidence Needed" value={activePoc.evidence_requirements || ""} onChange={v => updatePoc("evidence_requirements", v)} />
           </Section>
 
           {activePoc.generated_narrative && (
@@ -305,6 +305,7 @@ function EvidenceForm({ actionKey, actionLabel, onSubmit, onCancel, isRevision }
           : "This action requires evidence or a source/confirmation note. The authenticated user will be recorded."}
       </p>
       <textarea value={evidence} onChange={e => setEvidence(e.target.value)}
+        aria-label={isRevision ? "Revision notes" : "Source or confirmation note"}
         placeholder={isRevision ? "Revision notes…" : "Source / confirmation note (e.g. 'Verified via client email on …')"}
         rows={2} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground" />
       <div className="flex gap-2">
@@ -325,8 +326,11 @@ function Section({ title, desc, children }) {
   );
 }
 
-function TextArea({ value, onChange, placeholder }) {
+function TextArea({ value, onChange, placeholder, label }) {
   return (
-    <textarea value={value || ""} onChange={e => onChange(e.target.value)} placeholder={placeholder || "Enter details…"} rows={4} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground focus:border-primary focus:ring-2 focus:ring-accent outline-none resize-y" />
+    <textarea value={value || ""} onChange={e => onChange(e.target.value)}
+      aria-label={label || placeholder || "Enter details"}
+      placeholder={placeholder || "Enter details…"} rows={4}
+      className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground focus:border-primary focus:ring-2 focus:ring-accent outline-none resize-y" />
   );
 }

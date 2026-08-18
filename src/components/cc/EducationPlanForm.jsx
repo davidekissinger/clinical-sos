@@ -33,10 +33,10 @@ export default function EducationPlanForm({ deficiency, onSaved, onCancel }) {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-border p-5 space-y-4">
+    <div className="bg-white dark:bg-card rounded-xl border border-border p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-foreground">New Education Plan</h3>
-        <button onClick={onCancel} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+        <button onClick={onCancel} aria-label="Close education plan form" className="text-muted-foreground hover:text-foreground min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg hover:bg-secondary/60"><X className="h-4 w-4" /></button>
       </div>
 
       <L label="Training Topic / Education Outline">
@@ -57,13 +57,11 @@ export default function EducationPlanForm({ deficiency, onSaved, onCancel }) {
       <L label="Attendance Roster"><textarea value={form.attendance_roster} onChange={e => set("attendance_roster", e.target.value)} rows={2} className="cc-input" /></L>
       <L label="Remediation Needs"><textarea value={form.remediation_needs} onChange={e => set("remediation_needs", e.target.value)} rows={2} className="cc-input" /></L>
 
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-        <p className="text-xs text-amber-800">Education cannot be marked complete simply because materials were generated. Competency validation and attendance tracking are required.</p>
+      <div className="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+        <p className="text-xs text-amber-800 dark:text-amber-300">Education cannot be marked complete simply because materials were generated. Competency validation and attendance tracking are required.</p>
       </div>
 
       <button onClick={save} disabled={saving} className="btn-primary text-sm disabled:opacity-60"><Save className="h-4 w-4" /> {saving ? "Saving…" : "Save Education Plan"}</button>
-
-      <style>{`.cc-input{width:100%;border:1px solid hsl(var(--border));border-radius:0.5rem;padding:0.5rem 0.75rem;font-size:0.875rem;background:white;outline:none;}`}</style>
     </div>
   );
 }

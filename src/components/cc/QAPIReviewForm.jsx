@@ -38,10 +38,10 @@ export default function QAPIReviewForm({ deficiency, onSaved, onCancel }) {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-border p-5 space-y-4">
+    <div className="bg-white dark:bg-card rounded-xl border border-border p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-foreground">New QAPI Review</h3>
-        <button onClick={onCancel} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+        <button onClick={onCancel} aria-label="Close QAPI review form" className="text-muted-foreground hover:text-foreground min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg hover:bg-secondary/60"><X className="h-4 w-4" /></button>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-3">
@@ -58,15 +58,16 @@ export default function QAPIReviewForm({ deficiency, onSaved, onCancel }) {
       <L label="Additional Action"><textarea value={form.additional_action} onChange={e => set("additional_action", e.target.value)} rows={2} className="cc-input" /></L>
       <L label="Summary"><textarea value={form.summary} onChange={e => set("summary", e.target.value)} rows={3} className="cc-input" /></L>
 
-      <div className="flex flex-wrap gap-4">
-        <label className="flex items-center gap-2"><input type="checkbox" checked={form.monitoring_continuation} onChange={e => { set("monitoring_continuation", e.target.checked); if (e.target.checked) { set("monitoring_reduction", false); set("monitoring_closure", false); } }} /> Continued Monitoring</label>
-        <label className="flex items-center gap-2"><input type="checkbox" checked={form.monitoring_reduction} onChange={e => { set("monitoring_reduction", e.target.checked); if (e.target.checked) { set("monitoring_continuation", false); set("monitoring_closure", false); } }} /> Reduced Monitoring</label>
-        <label className="flex items-center gap-2"><input type="checkbox" checked={form.monitoring_closure} onChange={e => { set("monitoring_closure", e.target.checked); if (e.target.checked) { set("monitoring_continuation", false); set("monitoring_reduction", false); } }} /> Closure</label>
-      </div>
+      <fieldset>
+        <legend className="text-xs font-medium text-muted-foreground mb-2">Monitoring Decision</legend>
+        <div className="flex flex-wrap gap-4">
+          <label className="flex items-center gap-2 min-h-[36px]"><input type="checkbox" checked={form.monitoring_continuation} onChange={e => { set("monitoring_continuation", e.target.checked); if (e.target.checked) { set("monitoring_reduction", false); set("monitoring_closure", false); } }} /> Continued Monitoring</label>
+          <label className="flex items-center gap-2 min-h-[36px]"><input type="checkbox" checked={form.monitoring_reduction} onChange={e => { set("monitoring_reduction", e.target.checked); if (e.target.checked) { set("monitoring_continuation", false); set("monitoring_closure", false); } }} /> Reduced Monitoring</label>
+          <label className="flex items-center gap-2 min-h-[36px]"><input type="checkbox" checked={form.monitoring_closure} onChange={e => { set("monitoring_closure", e.target.checked); if (e.target.checked) { set("monitoring_continuation", false); set("monitoring_reduction", false); } }} /> Closure</label>
+        </div>
+      </fieldset>
 
       <button onClick={save} disabled={saving} className="btn-primary text-sm disabled:opacity-60"><Save className="h-4 w-4" /> {saving ? "Saving…" : "Save QAPI Review"}</button>
-
-      <style>{`.cc-input{width:100%;border:1px solid hsl(var(--border));border-radius:0.5rem;padding:0.5rem 0.75rem;font-size:0.875rem;background:white;outline:none;}`}</style>
     </div>
   );
 }

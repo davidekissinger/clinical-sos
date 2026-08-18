@@ -123,7 +123,7 @@ export default function DeficiencyDetail() {
 
       {tab === "identification" && <IdentificationTab def={def} />}
       {closureResult && (
-        <div className={`fixed bottom-4 right-4 bg-white dark:bg-card rounded-xl border p-4 shadow-lg z-50 max-w-sm ${closureResult.closed ? "border-emerald-200 dark:border-emerald-800" : "border-rose-200 dark:border-rose-800"}`}>
+        <div className={`fixed bottom-4 right-4 bg-white dark:bg-card rounded-xl border p-4 shadow-lg z-50 max-w-sm ${closureResult.closed ? "border-emerald-200 dark:border-emerald-800" : "border-rose-200 dark:border-rose-800"}`} role="status" aria-live="polite" aria-atomic="true">
           <div className="flex items-start gap-3">
             {closureResult.closed ? <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" /> : <AlertTriangle className="h-5 w-5 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />}
             <div className="flex-1">
@@ -443,7 +443,7 @@ function RevisitTab({ def, readiness, onAssess }) {
             <p className="text-sm text-muted-foreground mt-1">{score}/100</p>
           </div>
           <div className="text-right">
-            <div className="w-24 h-24 rounded-full border-8 border-current flex items-center justify-center text-2xl font-bold" style={{ color: status === "Ready" ? "#059669" : status === "Nearly Ready" ? "#2563eb" : "#e11d48" }}>{score}</div>
+            <div className="w-24 h-24 rounded-full border-8 border-current flex items-center justify-center text-2xl font-bold" style={{ color: status === "Ready" ? "#059669" : status === "Nearly Ready" ? "#2563eb" : "#e11d48" }} role="img" aria-label={`Revisit readiness score: ${score} out of 100, status: ${status}`}>{score}</div>
           </div>
         </div>
         {def.revisit_readiness_explanation && (
@@ -462,10 +462,12 @@ function RevisitTab({ def, readiness, onAssess }) {
           <div className="space-y-2">
             {readiness.map(c => (
               <div key={c.id} className="flex items-center gap-3 p-2 rounded-lg">
-                <span className={`h-4 w-4 rounded-full ${c.is_met ? "bg-emerald-500" : "bg-rose-400"}`} />
+                <span className={`h-4 w-4 rounded-full flex-shrink-0 ${c.is_met ? "bg-emerald-500" : "bg-rose-400"}`} aria-hidden="true" />
                 <span className="text-sm text-foreground flex-1">{c.criterion_label}</span>
+                <span className="sr-only">{c.is_met ? "Met" : "Not Met"}</span>
+                <Badge tone={c.is_met ? "green" : "red"}>{c.is_met ? "Met" : "Not Met"}</Badge>
                 <Badge tone={c.derivation_source === "Automatic" ? "blue" : "amber"}>{c.derivation_source}</Badge>
-                {c.blocks_readiness && !c.is_met && <Badge tone="red">Blocks</Badge>}
+                {c.blocks_readiness && !c.is_met && <Badge tone="red">Blocks Readiness</Badge>}
                 <span className="text-xs text-muted-foreground">{c.evidence_summary}</span>
               </div>
             ))}

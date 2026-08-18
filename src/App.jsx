@@ -144,13 +144,13 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <TestDataProvider>
-          <ThemeProvider>
-            <Router>
-              <ScrollToTop />
+          <Router>
+            <ScrollToTop />
+            <ThemeProvider>
               <AuthenticatedApp />
-            </Router>
+            </ThemeProvider>
             <Toaster />
-          </ThemeProvider>
+          </Router>
         </TestDataProvider>
       </QueryClientProvider>
     </AuthProvider>

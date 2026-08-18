@@ -51,7 +51,7 @@ export function Table({ headers, children }) {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-secondary/50 text-muted-foreground">
-            <tr>{headers.map((h) => <th key={h} className="text-left font-medium px-4 py-3 whitespace-nowrap">{h}</th>)}</tr>
+            <tr>{headers.map((h) => <th key={h} scope="col" className="text-left font-medium px-4 py-3 whitespace-nowrap">{h}</th>)}</tr>
           </thead>
           <tbody className="divide-y divide-border">{children}</tbody>
         </table>

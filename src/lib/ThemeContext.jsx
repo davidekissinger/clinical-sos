@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const ThemeContext = createContext(null);
 const STORAGE_KEY = 'clinicalsos-theme';
@@ -19,24 +20,35 @@ function getEffectiveTheme(theme) {
   return theme === 'system' ? getSystemTheme() : theme;
 }
 
-function applyDarkClass(theme) {
-  const isDark = getEffectiveTheme(theme) === 'dark';
-  document.documentElement.classList.toggle('dark', isDark);
+/**
+ * Theme is scoped to the Command Center only.
+ * Public website always uses light branded presentation.
+ * This prevents dark semantic text colors from applying to public pages
+ * that use hard-coded light backgrounds.
+ */
+function isCommandCenterPath(pathname) {
+  return pathname && pathname.startsWith('/command-center');
+}
+
+function applyDarkClass(theme, pathname) {
+  const shouldApplyDark = isCommandCenterPath(pathname) && getEffectiveTheme(theme) === 'dark';
+  document.documentElement.classList.toggle('dark', shouldApplyDark);
 }
 
 export function ThemeProvider({ children }) {
   const [theme, setThemeState] = useState(getStoredTheme);
+  const location = useLocation();
 
-  // Apply theme on mount and when theme changes
+  // Apply theme on mount, when theme changes, or when route changes
   useEffect(() => {
-    applyDarkClass(theme);
-  }, [theme]);
+    applyDarkClass(theme, location.pathname);
+  }, [theme, location.pathname]);
 
   // Listen for system preference changes when in system mode
   useEffect(() => {
     if (theme !== 'system') return;
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = () => applyDarkClass('system');
+    const handler = () => applyDarkClass('system', window.location.pathname);
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
   }, [theme]);

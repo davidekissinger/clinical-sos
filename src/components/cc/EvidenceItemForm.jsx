@@ -48,10 +48,10 @@ export default function EvidenceItemForm({ deficiency, onSaved, onCancel }) {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-border p-5 space-y-4">
+    <div className="bg-white dark:bg-card rounded-xl border border-border p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-foreground">Add Evidence</h3>
-        <button onClick={onCancel} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+        <button onClick={onCancel} aria-label="Close evidence form" className="text-muted-foreground hover:text-foreground min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg hover:bg-secondary/60"><X className="h-4 w-4" /></button>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-3">
@@ -75,13 +75,11 @@ export default function EvidenceItemForm({ deficiency, onSaved, onCancel }) {
       <L label="Description"><textarea value={form.description} onChange={e => set("description", e.target.value)} rows={3} className="cc-input" /></L>
       <L label="Notes"><textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={2} className="cc-input" /></L>
 
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-        <p className="text-xs text-amber-800">A corrective action cannot be marked complete unless required evidence has been accepted or an authorized consultant overrides with documented rationale.</p>
+      <div className="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+        <p className="text-xs text-amber-800 dark:text-amber-300">A corrective action cannot be marked complete unless required evidence has been accepted or an authorized consultant overrides with documented rationale.</p>
       </div>
 
       <button onClick={save} disabled={saving} className="btn-primary text-sm disabled:opacity-60"><Save className="h-4 w-4" /> {saving ? "Saving…" : "Save Evidence"}</button>
-
-      <style>{`.cc-input{width:100%;border:1px solid hsl(var(--border));border-radius:0.5rem;padding:0.5rem 0.75rem;font-size:0.875rem;background:white;outline:none;}`}</style>
     </div>
   );
 }

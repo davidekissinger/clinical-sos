@@ -22,9 +22,27 @@ export default async function(req: Request): Promise<Response> {
     if (!engagement_model) return Response.json({ error: 'engagement_model is required' }, { status: 400 });
     if (!clinical_lead_name) return Response.json({ error: 'clinical_lead_name is required (or "To be assigned")', status: 'missing_clinical_lead' }, { status: 400 });
 
+    const ALLOWED_MODELS = ['Fixed Fee', 'Hourly', 'Time and Expense', 'Hybrid'];
+    if (!ALLOWED_MODELS.includes(engagement_model)) {
+      return Response.json({ error: 'Invalid engagement_model. Allowed: Fixed Fee, Hourly, Time and Expense, Hybrid' }, { status: 400 });
+    }
+
     const svc = base44.asServiceRole;
     const opp = await svc.entities.Opportunity.get(opportunity_id);
     if (!opp) return Response.json({ error: 'Opportunity not found' }, { status: 404 });
+
+    // Validate that the accepted proposal belongs to the same opportunity
+    let acceptedProposalName: string | null = null;
+    if (accepted_proposal_id) {
+      const proposal = await svc.entities.Proposal.get(accepted_proposal_id);
+      if (!proposal) {
+        return Response.json({ error: 'Referenced proposal not found' }, { status: 400 });
+      }
+      if (proposal.opportunity_id && proposal.opportunity_id !== opportunity_id) {
+        return Response.json({ error: 'Proposal does not belong to this opportunity — linkage rejected' }, { status: 400 });
+      }
+      acceptedProposalName = proposal.proposal_name || null;
+    }
 
     // Prevent duplicate engagement creation — return existing if found
     const existing = await svc.entities.Engagement.filter({ opportunity_id });
@@ -74,6 +92,9 @@ export default async function(req: Request): Promise<Response> {
       organization_name: opp.organization_name,
       start_date,
       service_type,
+      engagement_model,
+      accepted_proposal_id: accepted_proposal_id || null,
+      accepted_proposal_name: acceptedProposalName,
       phase: 'Phase 1 — Initial Assessment',
       clinical_lead_id: clinical_lead_id || null,
       clinical_lead_name: clinical_lead_name || null,

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { PageHeader, Badge, LoadingState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
+import AccessibleDialog from "@/components/AccessibleDialog";
 import { X, CheckCircle2, MoveRight } from "lucide-react";
 
 const STAGES = [
@@ -17,26 +18,7 @@ export default function Pipeline() {
   const [dragId, setDragId] = useState(null);
   const [wonModal, setWonModal] = useState(null);
   const [engagementResult, setEngagementResult] = useState(null);
-  const wonModalRef = useRef(null);
   const wonModalTriggerRef = useRef(null);
-
-  // Escape to close Won modal + focus management
-  useEffect(() => {
-    if (!wonModal) return;
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") {
-        setWonModal(null);
-        wonModalTriggerRef.current?.focus();
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    // Move focus into the modal
-    const timer = setTimeout(() => {
-      const firstInput = wonModalRef.current?.querySelector("input, select, button");
-      firstInput?.focus();
-    }, 50);
-    return () => { document.removeEventListener("keydown", handleKeyDown); clearTimeout(timer); };
-  }, [wonModal]);
 
   if (opportunities.loading) return <LoadingState />;
 
@@ -157,7 +139,7 @@ export default function Pipeline() {
         <div className="bg-white dark:bg-card rounded-xl border border-border overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-secondary/50 text-muted-foreground">
-              <tr>{["Opportunity", "Stage", "Tier", "Value", "Probability", "Owner", "Expected Close"].map((h) => <th key={h} className="text-left font-medium px-4 py-3 whitespace-nowrap">{h}</th>)}</tr>
+              <tr>{["Opportunity", "Stage", "Tier", "Value", "Probability", "Owner", "Expected Close"].map((h) => <th key={h} scope="col" className="text-left font-medium px-4 py-3 whitespace-nowrap">{h}</th>)}</tr>
             </thead>
             <tbody className="divide-y divide-border">
               {opportunities.data.map((o) => (
@@ -177,48 +159,46 @@ export default function Pipeline() {
       )}
 
       {/* Won → Engagement Modal */}
-      {wonModal && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="won-modal-title">
-          <div ref={wonModalRef} className="bg-white dark:bg-card rounded-xl border border-border p-6 max-w-md w-full">
-            <div className="flex items-center justify-between mb-4">
-              <h3 id="won-modal-title" className="font-semibold text-foreground">Create Engagement — Won Opportunity</h3>
-              <button onClick={() => { setWonModal(null); setDragId(null); wonModalTriggerRef.current?.focus(); }} className="text-muted-foreground hover:text-foreground" aria-label="Close dialog"><X className="h-4 w-4" aria-hidden="true" /></button>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">Opportunity: <span className="font-medium text-foreground">{wonModal.opportunity?.opportunity_name}</span></p>
-            <form onSubmit={createEngagement} className="space-y-3">
-              <label className="block">
-                <span className="block text-xs font-medium text-muted-foreground mb-1">Service Type *</span>
-                <input name="service_type" required placeholder="e.g. Rapid Survey Recovery" className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
-              </label>
-              <label className="block">
-                <span className="block text-xs font-medium text-muted-foreground mb-1">Start Date *</span>
-                <input name="start_date" type="date" required className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
-              </label>
-              <label className="block">
-                <span className="block text-xs font-medium text-muted-foreground mb-1">Clinical Lead</span>
-                <input name="clinical_lead_name" placeholder="Clinical lead name" className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
-              </label>
-              <label className="block">
-                <span className="block text-xs font-medium text-muted-foreground mb-1">Engagement Model *</span>
-                <select name="engagement_model" required className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white">
-                  <option value="Fixed Fee">Fixed Fee</option>
-                  <option value="Hourly">Hourly</option>
-                  <option value="Time and Expense">Time and Expense</option>
-                  <option value="Hybrid">Hybrid</option>
-                </select>
-              </label>
-              <label className="block">
-                <span className="block text-xs font-medium text-muted-foreground mb-1">Accepted Proposal ID (optional)</span>
-                <input name="accepted_proposal_id" placeholder="Proposal ID if applicable" className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
-              </label>
-              <div className="flex gap-2">
-                <button type="submit" className="btn-primary text-sm flex-1">Create Engagement & Mark Won</button>
-                <button type="button" onClick={() => { setWonModal(null); setDragId(null); }} className="btn-ghost text-sm">Cancel</button>
-              </div>
-            </form>
+      <AccessibleDialog
+        isOpen={!!wonModal}
+        onClose={() => { setWonModal(null); setDragId(null); }}
+        title="Create Engagement — Won Opportunity"
+        titleId="won-modal-title"
+        closeLabel="Close engagement creation dialog"
+      >
+        <p className="text-sm text-muted-foreground mb-4">Opportunity: <span className="font-medium text-foreground">{wonModal?.opportunity?.opportunity_name}</span></p>
+        <form onSubmit={createEngagement} className="space-y-3">
+          <label className="block">
+            <span className="block text-xs font-medium text-muted-foreground mb-1">Service Type *</span>
+            <input name="service_type" required placeholder="e.g. Rapid Survey Recovery" className="cc-input" />
+          </label>
+          <label className="block">
+            <span className="block text-xs font-medium text-muted-foreground mb-1">Start Date *</span>
+            <input name="start_date" type="date" required className="cc-input" />
+          </label>
+          <label className="block">
+            <span className="block text-xs font-medium text-muted-foreground mb-1">Clinical Lead</span>
+            <input name="clinical_lead_name" placeholder="Clinical lead name" className="cc-input" />
+          </label>
+          <label className="block">
+            <span className="block text-xs font-medium text-muted-foreground mb-1">Engagement Model *</span>
+            <select name="engagement_model" required className="cc-input">
+              <option value="Fixed Fee">Fixed Fee</option>
+              <option value="Hourly">Hourly</option>
+              <option value="Time and Expense">Time and Expense</option>
+              <option value="Hybrid">Hybrid</option>
+            </select>
+          </label>
+          <label className="block">
+            <span className="block text-xs font-medium text-muted-foreground mb-1">Accepted Proposal ID (optional)</span>
+            <input name="accepted_proposal_id" placeholder="Proposal ID if applicable" className="cc-input" />
+          </label>
+          <div className="flex gap-2">
+            <button type="submit" className="btn-primary text-sm flex-1">Create Engagement & Mark Won</button>
+            <button type="button" onClick={() => { setWonModal(null); setDragId(null); }} className="btn-ghost text-sm">Cancel</button>
           </div>
-        </div>
-      )}
+        </form>
+      </AccessibleDialog>
 
       {/* Engagement Result */}
       {engagementResult && (

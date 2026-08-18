@@ -68,10 +68,10 @@ export default function AuditToolForm({ deficiency, onSaved, onCancel }) {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-border p-5 space-y-4">
+    <div className="bg-white dark:bg-card rounded-xl border border-border p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-foreground">New Audit Tool</h3>
-        <button onClick={onCancel} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+        <button onClick={onCancel} aria-label="Close audit tool form" className="text-muted-foreground hover:text-foreground min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg hover:bg-secondary/60"><X className="h-4 w-4" /></button>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-3">
@@ -84,27 +84,37 @@ export default function AuditToolForm({ deficiency, onSaved, onCancel }) {
       <div>
         <div className="flex items-center justify-between mb-2">
           <h4 className="text-sm font-semibold text-foreground">Checklist Items</h4>
-          <button onClick={addChecklistItem} className="text-xs text-primary font-medium">+ Add Item</button>
+          <button onClick={addChecklistItem} className="text-xs text-primary font-medium min-h-[32px] px-2">+ Add Item</button>
         </div>
         <div className="space-y-3">
           {form.checklist_items.map((item, i) => (
             <div key={i} className="border border-border rounded-lg p-3 space-y-2">
               <div className="flex items-start gap-2">
-                <input value={item.question} onChange={e => updateChecklistItem(i, "question", e.target.value)} placeholder="Audit question / checklist item…" className="cc-input flex-1" />
-                <button onClick={() => removeChecklistItem(i)} className="text-rose-500 hover:text-rose-700 mt-1.5"><X className="h-4 w-4" /></button>
+                <input value={item.question} onChange={e => updateChecklistItem(i, "question", e.target.value)}
+                  aria-label={`Audit item ${i + 1} question`}
+                  placeholder="Audit question / checklist item…" className="cc-input flex-1" />
+                <button onClick={() => removeChecklistItem(i)} aria-label={`Remove audit item ${i + 1}`} className="text-rose-500 hover:text-rose-700 mt-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg"><X className="h-4 w-4" /></button>
               </div>
               <div className="grid sm:grid-cols-3 gap-2">
-                <select value={item.response} onChange={e => updateChecklistItem(i, "response", e.target.value)} className="cc-input">
+                <select value={item.response} onChange={e => updateChecklistItem(i, "response", e.target.value)}
+                  aria-label={`Audit item ${i + 1} response`} className="cc-input">
                   <option value="Yes">Yes</option>
                   <option value="No">No</option>
                   <option value="N/A">N/A</option>
                 </select>
-                <input value={item.responsible_person} onChange={e => updateChecklistItem(i, "responsible_person", e.target.value)} placeholder="Responsible person" className="cc-input" />
-                <input type="date" value={item.due_date} onChange={e => updateChecklistItem(i, "due_date", e.target.value)} className="cc-input" />
+                <input value={item.responsible_person} onChange={e => updateChecklistItem(i, "responsible_person", e.target.value)}
+                  aria-label={`Audit item ${i + 1} responsible person`}
+                  placeholder="Responsible person" className="cc-input" />
+                <input type="date" value={item.due_date} onChange={e => updateChecklistItem(i, "due_date", e.target.value)}
+                  aria-label={`Audit item ${i + 1} due date`} className="cc-input" />
               </div>
-              <input value={item.notes} onChange={e => updateChecklistItem(i, "notes", e.target.value)} placeholder="Notes…" className="cc-input" />
+              <input value={item.notes} onChange={e => updateChecklistItem(i, "notes", e.target.value)}
+                aria-label={`Audit item ${i + 1} notes`}
+                placeholder="Notes…" className="cc-input" />
               {item.response === "No" && (
-                <input value={item.follow_up_action} onChange={e => updateChecklistItem(i, "follow_up_action", e.target.value)} placeholder="Follow-up action required (if No)…" className="cc-input" />
+                <input value={item.follow_up_action} onChange={e => updateChecklistItem(i, "follow_up_action", e.target.value)}
+                  aria-label={`Audit item ${i + 1} follow-up action`}
+                  placeholder="Follow-up action required (if No)…" className="cc-input" />
               )}
             </div>
           ))}
@@ -120,8 +130,6 @@ export default function AuditToolForm({ deficiency, onSaved, onCancel }) {
         <button onClick={() => save(false)} disabled={saving} className="btn-secondary text-sm disabled:opacity-60"><Save className="h-4 w-4" /> {saving ? "Saving…" : "Save Draft"}</button>
         <button onClick={() => save(true)} disabled={saving} className="btn-primary text-sm disabled:opacity-60"><Save className="h-4 w-4" /> {saving ? "Saving…" : "Complete Audit"}</button>
       </div>
-
-      <style>{`.cc-input{width:100%;border:1px solid hsl(var(--border));border-radius:0.5rem;padding:0.5rem 0.75rem;font-size:0.875rem;background:white;outline:none;}`}</style>
     </div>
   );
 }
