@@ -32,27 +32,32 @@ export default function ThemeToggle({ compact = false }) {
           onClick={() => setOpen(!open)}
           className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition"
           title={`Appearance: ${active.label}`}
-          aria-label={`Appearance: ${active.label}`}
+          aria-label={`Appearance: ${active.label}. Press to change theme.`}
+          aria-expanded={open}
+          aria-haspopup="menu"
         >
-          <ActiveIcon className="h-4 w-4" />
+          <ActiveIcon className="h-4 w-4" aria-hidden="true" />
         </button>
         {open && (
-          <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-card border border-border rounded-xl shadow-lg py-1.5 z-50">
+          <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-card border border-border rounded-xl shadow-lg py-1.5 z-50" role="menu" aria-label="Appearance options">
             {OPTIONS.map((o) => {
               const Icon = o.icon;
               const isActive = theme === o.value;
               return (
                 <button
                   key={o.value}
+                  role="menuitemradio"
+                  aria-checked={isActive}
+                  aria-label={`Use ${o.label.toLowerCase()} mode`}
                   onClick={() => { setTheme(o.value); setOpen(false); }}
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-2 text-sm transition",
                     isActive ? "text-primary font-medium bg-accent/50" : "text-foreground hover:bg-secondary/60"
                   )}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-4 w-4" aria-hidden="true" />
                   {o.label}
-                  {isActive && <Check className="h-3.5 w-3.5 ml-auto" />}
+                  {isActive && <Check className="h-3.5 w-3.5 ml-auto" aria-hidden="true" />}
                 </button>
               );
             })}

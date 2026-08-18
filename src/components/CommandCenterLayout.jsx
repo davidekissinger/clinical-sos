@@ -48,6 +48,7 @@ export default function CommandCenterLayout() {
 
   return (
     <div className="min-h-screen bg-secondary/40 flex">
+      <a href="#cc-main-content" className="skip-link">Skip to main content</a>
       {/* Sidebar */}
       <aside className={cn(
         "fixed lg:static inset-y-0 left-0 z-40 w-64 bg-[hsl(263_65%_14%)] text-slate-300 flex flex-col transition-transform",
@@ -85,7 +86,7 @@ export default function CommandCenterLayout() {
               <p className="text-sm font-medium text-white truncate">{user?.full_name || user?.email}</p>
               <p className="text-xs text-slate-400">{roleLabel}</p>
             </div>
-            <button onClick={handleLogout} className="text-slate-400 hover:text-white" title="Sign out"><LogOut className="h-4 w-4" /></button>
+            <button onClick={handleLogout} className="text-slate-400 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2" aria-label="Sign out" title="Sign out"><LogOut className="h-4 w-4" /></button>
           </div>
         </div>
       </aside>
@@ -116,7 +117,7 @@ export default function CommandCenterLayout() {
             <Link to="/" className="text-sm text-muted-foreground hover:text-primary hidden sm:inline">View public site →</Link>
           </div>
         </header>
-        <main className="flex-1 p-5 lg:p-8 overflow-x-hidden">
+        <main id="cc-main-content" className="flex-1 p-5 lg:p-8 overflow-x-hidden">
           <Outlet />
         </main>
       </div>

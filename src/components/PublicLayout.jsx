@@ -11,6 +11,7 @@ export default function PublicLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <header className="sticky top-0 z-50 border-b border-border/70 bg-white/85 backdrop-blur-md">
         <div className="container-prose flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center" aria-label="Clinical SOS home">
@@ -62,7 +63,7 @@ export default function PublicLayout() {
         )}
       </header>
 
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <Outlet />
       </main>
 
@@ -93,6 +94,7 @@ export default function PublicLayout() {
                 <li><Link to="/contact" className="text-slate-400 hover:text-white transition">Request a Consultation</Link></li>
                 <li><Link to="/contact" className="text-slate-400 hover:text-white transition">Talk With Our Team</Link></li>
                 <li><Link to="/services" className="text-slate-400 hover:text-white transition">Our Services</Link></li>
+                <li><Link to="/accessibility" className="text-slate-400 hover:text-white transition">Accessibility</Link></li>
               </ul>
             </div>
           </div>

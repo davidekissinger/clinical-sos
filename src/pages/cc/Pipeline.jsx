@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { PageHeader, Badge, LoadingState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
-import { X, CheckCircle2 } from "lucide-react";
+import { X, CheckCircle2, MoveRight } from "lucide-react";
 
 const STAGES = [
   "New", "Researching", "Verified", "Qualified", "Outreach Review",
@@ -17,6 +17,26 @@ export default function Pipeline() {
   const [dragId, setDragId] = useState(null);
   const [wonModal, setWonModal] = useState(null);
   const [engagementResult, setEngagementResult] = useState(null);
+  const wonModalRef = useRef(null);
+  const wonModalTriggerRef = useRef(null);
+
+  // Escape to close Won modal + focus management
+  useEffect(() => {
+    if (!wonModal) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setWonModal(null);
+        wonModalTriggerRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    // Move focus into the modal
+    const timer = setTimeout(() => {
+      const firstInput = wonModalRef.current?.querySelector("input, select, button");
+      firstInput?.focus();
+    }, 50);
+    return () => { document.removeEventListener("keydown", handleKeyDown); clearTimeout(timer); };
+  }, [wonModal]);
 
   if (opportunities.loading) return <LoadingState />;
 
@@ -103,6 +123,27 @@ export default function Pipeline() {
                         <Badge tone={o.lead_tier === "Tier 1" ? "red" : o.lead_tier === "Tier 2" ? "amber" : "default"}>{o.lead_tier || "—"}</Badge>
                         <span className="text-xs font-medium text-foreground">{o.estimated_value ? `$${o.estimated_value.toLocaleString()}` : "—"}</span>
                       </div>
+                      <label className="mt-2 block">
+                        <span className="sr-only">Move {o.opportunity_name} to stage</span>
+                        <select
+                          value={o.stage}
+                          onChange={async (e) => {
+                            const newStage = e.target.value;
+                            if (newStage === o.stage) return;
+                            if (newStage === "Won") {
+                              wonModalTriggerRef.current = e.target;
+                              setWonModal({ opportunity_id: o.id, opportunity: o });
+                            } else {
+                              await base44.entities.Opportunity.update(o.id, { stage: newStage });
+                              opportunities.reload();
+                            }
+                          }}
+                          className="w-full border border-border rounded-md px-1.5 py-1 text-xs bg-white dark:bg-card text-foreground"
+                          aria-label={`Move ${o.opportunity_name} to stage`}
+                        >
+                          {STAGES.map((s) => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                      </label>
                     </div>
                   ))}
                   {items.length === 0 && <p className="text-xs text-muted-foreground text-center py-3">Drop here</p>}
@@ -137,11 +178,11 @@ export default function Pipeline() {
 
       {/* Won → Engagement Modal */}
       {wonModal && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-6 max-w-md w-full">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="won-modal-title">
+          <div ref={wonModalRef} className="bg-white dark:bg-card rounded-xl border border-border p-6 max-w-md w-full">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-foreground">Create Engagement — Won Opportunity</h3>
-              <button onClick={() => { setWonModal(null); setDragId(null); }} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+              <h3 id="won-modal-title" className="font-semibold text-foreground">Create Engagement — Won Opportunity</h3>
+              <button onClick={() => { setWonModal(null); setDragId(null); wonModalTriggerRef.current?.focus(); }} className="text-muted-foreground hover:text-foreground" aria-label="Close dialog"><X className="h-4 w-4" aria-hidden="true" /></button>
             </div>
             <p className="text-sm text-muted-foreground mb-4">Opportunity: <span className="font-medium text-foreground">{wonModal.opportunity?.opportunity_name}</span></p>
             <form onSubmit={createEngagement} className="space-y-3">
@@ -181,7 +222,7 @@ export default function Pipeline() {
 
       {/* Engagement Result */}
       {engagementResult && (
-        <div className="fixed bottom-4 right-4 bg-white dark:bg-card rounded-xl border border-border p-4 shadow-lg z-50 max-w-sm">
+        <div className="fixed bottom-4 right-4 bg-white dark:bg-card rounded-xl border border-border p-4 shadow-lg z-50 max-w-sm" role="status" aria-live="polite" aria-atomic="true">
           <div className="flex items-start gap-3">
             <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">

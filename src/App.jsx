@@ -27,6 +27,7 @@ import Resources from '@/pages/Resources';
 import ResourceDetail from '@/pages/ResourceDetail';
 import FAQ from '@/pages/FAQ';
 import Contact from '@/pages/Contact';
+import Accessibility from '@/pages/Accessibility';
 
 // Command center
 import CommandCenterLayout from '@/components/CommandCenterLayout';
@@ -93,6 +94,7 @@ const AuthenticatedApp = () => {
         <Route path="/resources/:slug" element={<ResourceDetail />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/accessibility" element={<Accessibility />} />
       </Route>
 
       {/* Private command center — authenticated + role-authorized */}
