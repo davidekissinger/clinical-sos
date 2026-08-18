@@ -56,7 +56,7 @@ export default function RecoveryDashboard() {
       </div>
 
       {/* Active Cases */}
-      <div className="bg-white rounded-xl border border-border mb-6">
+      <div className="bg-white dark:bg-card rounded-xl border border-border mb-6">
         <div className="flex items-center justify-between px-5 py-3 border-b border-border">
           <h2 className="font-semibold text-foreground">Active Regulatory Cases</h2>
           <Link to="/command-center/cases" className="text-xs font-medium text-primary hover:underline">View all →</Link>
@@ -80,9 +80,9 @@ export default function RecoveryDashboard() {
 
       {/* Overdue & Timeline */}
       <div className="grid lg:grid-cols-2 gap-5">
-        <div className="bg-white rounded-xl border border-border">
+        <div className="bg-white dark:bg-card rounded-xl border border-border">
           <div className="px-5 py-3 border-b border-border">
-            <h2 className="font-semibold text-foreground flex items-center gap-2"><Clock className="h-4 w-4 text-rose-600" /> Overdue Items</h2>
+            <h2 className="font-semibold text-foreground flex items-center gap-2"><Clock className="h-4 w-4 text-rose-600 dark:text-rose-400" /> Overdue Items</h2>
           </div>
           <div className="divide-y divide-border">
             {overdueItems.slice(0, 6).map((d) => (
@@ -95,7 +95,7 @@ export default function RecoveryDashboard() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-border">
+        <div className="bg-white dark:bg-card rounded-xl border border-border">
           <div className="px-5 py-3 border-b border-border">
             <h2 className="font-semibold text-foreground flex items-center gap-2"><Activity className="h-4 w-4 text-primary" /> High-Priority Deficiencies</h2>
           </div>

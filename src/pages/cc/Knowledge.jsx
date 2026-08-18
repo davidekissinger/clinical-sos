@@ -39,7 +39,7 @@ export default function Knowledge() {
         action={<button onClick={() => setShowNew(!showNew)} className="btn-primary text-sm"><Plus className="h-4 w-4" /> New Entry</button>}
       />
 
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 flex items-start gap-2">
+      <div className="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4 flex items-start gap-2">
         <BookOpen className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
         <p className="text-xs text-amber-800">
           <strong>CLINICAL SOS REUSABLE GUIDANCE</strong> — This library provides general reference material. It must NOT substitute for analysis of the actual facility-specific CMS-2567. Always distinguish reusable guidance from facility-specific findings and corrective plans.
@@ -47,7 +47,7 @@ export default function Knowledge() {
       </div>
 
       {showNew && (
-        <form onSubmit={create} className="bg-white rounded-xl border border-border p-5 mb-5 space-y-3">
+        <form onSubmit={create} className="bg-white dark:bg-card rounded-xl border border-border p-5 mb-5 space-y-3">
           <div className="grid sm:grid-cols-2 gap-3">
             <input required placeholder="F-Tag *" value={form.f_tag} onChange={e => setForm({...form, f_tag: e.target.value})} className="border border-border rounded-lg px-3 py-2 text-sm" />
             <input required placeholder="Title *" value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="border border-border rounded-lg px-3 py-2 text-sm" />
@@ -62,12 +62,12 @@ export default function Knowledge() {
 
       <div className="mb-4 relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by F-tag or title…" className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm bg-white" />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by F-tag or title…" className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm bg-white dark:bg-card text-foreground" />
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map(k => (
-          <div key={k.id} className="bg-white rounded-xl border border-border p-4">
+          <div key={k.id} className="bg-white dark:bg-card rounded-xl border border-border p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-lg font-bold text-primary">{k.f_tag}</span>
               <Badge tone={k.approval_status === "Approved" ? "green" : k.approval_status === "Retired" ? "red" : "amber"}>{k.approval_status}</Badge>

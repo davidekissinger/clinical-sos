@@ -75,7 +75,7 @@ export default function Outreach() {
           const isOpen = expanded === name;
           const activeCount = steps.filter((s) => s.active).length;
           return (
-            <div key={name} className="bg-white rounded-xl border border-border overflow-hidden">
+            <div key={name} className="bg-white dark:bg-card rounded-xl border border-border overflow-hidden">
               <button
                 onClick={() => setExpanded(isOpen ? null : name)}
                 className="w-full flex items-center justify-between px-5 py-4 hover:bg-secondary/30 transition"
@@ -158,8 +158,8 @@ function TemplateEditor({ template, isNewSequence, existingSequences, saving, on
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-white">
+      <div className="bg-white dark:bg-card rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-white dark:bg-card">
           <h2 className="text-lg font-semibold">{form.id ? "Edit Step" : "New Step"}</h2>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
         </div>
@@ -233,7 +233,8 @@ function TemplateEditor({ template, isNewSequence, existingSequences, saving, on
           </div>
         </form>
         <style>{`
-          .ot-input { width: 100%; border: 1px solid hsl(var(--border)); border-radius: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.875rem; background: white; outline: none; transition: border-color .15s, box-shadow .15s; }
+          .ot-input { width: 100%; border: 1px solid hsl(var(--border)); border-radius: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.875rem; background: white; outline: none; transition: border-color .15s, box-shadow .15s; color: hsl(var(--foreground)); }
+          .dark .ot-input { background: hsl(var(--card)); }
           .ot-input:focus { border-color: hsl(var(--primary)); box-shadow: 0 0 0 3px hsl(var(--accent)); }
         `}</style>
       </div>

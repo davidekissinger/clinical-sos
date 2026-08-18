@@ -49,7 +49,7 @@ export default function CaseDetail() {
       </div>
 
       {/* Enforcement Exposure */}
-      <div className="bg-white rounded-xl border border-border p-5 mb-6">
+      <div className="bg-white dark:bg-card rounded-xl border border-border p-5 mb-6">
         <h2 className="font-semibold text-foreground mb-3 flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-primary" /> Verified Enforcement Exposure</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 text-sm">
           <Field label="IJ Status" value={caseData.ij_status} />
@@ -69,7 +69,7 @@ export default function CaseDetail() {
       </div>
 
       {/* Deficiencies */}
-      <div className="bg-white rounded-xl border border-border">
+      <div className="bg-white dark:bg-card rounded-xl border border-border">
         <div className="flex items-center justify-between px-5 py-3 border-b border-border">
           <h2 className="font-semibold text-foreground">Deficiencies ({caseDeficiencies.length})</h2>
         </div>
@@ -94,7 +94,7 @@ export default function CaseDetail() {
       </div>
 
       {caseData.score_explanation && (
-        <div className="bg-white rounded-xl border border-border p-5 mt-6">
+        <div className="bg-white dark:bg-card rounded-xl border border-border p-5 mt-6">
           <h2 className="font-semibold text-foreground mb-3 flex items-center gap-2"><FileText className="h-4 w-4 text-primary" /> Score Explanation</h2>
           <pre className="text-xs text-muted-foreground whitespace-pre-wrap font-mono bg-secondary/30 rounded-lg p-4">{caseData.score_explanation}</pre>
         </div>
@@ -104,9 +104,9 @@ export default function CaseDetail() {
 }
 
 function SummaryCard({ label, value, tone }) {
-  const tones = { default: "text-foreground", red: "text-rose-600", amber: "text-amber-600", green: "text-emerald-600" };
+  const tones = { default: "text-foreground", red: "text-rose-600 dark:text-rose-400", amber: "text-amber-600 dark:text-amber-400", green: "text-emerald-600 dark:text-emerald-400" };
   return (
-    <div className="bg-white rounded-xl border border-border p-4">
+    <div className="bg-white dark:bg-card rounded-xl border border-border p-4">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</p>
       <p className={`mt-1 text-lg font-bold ${tones[tone] || "text-foreground"}`}>{value || "—"}</p>
     </div>

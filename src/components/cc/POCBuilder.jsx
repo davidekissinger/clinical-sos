@@ -173,9 +173,9 @@ export default function POCBuilder({ deficiency, onSaved }) {
   if (pocs.length === 0) {
     return (
       <div className="space-y-4">
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
-          <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-amber-800">AI-generated POC narratives are DRAFT ONLY. Clinical Review is required before any content becomes authoritative. POC status cannot be automatically marked as Submitted or Accepted — those require human action with evidence.</p>
+        <div className="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-start gap-2">
+          <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-800 dark:text-amber-300">AI-generated POC narratives are DRAFT ONLY. Clinical Review is required before any content becomes authoritative. POC status cannot be automatically marked as Submitted or Accepted — those require human action with evidence.</p>
         </div>
         <button onClick={createNewVersion} disabled={saving} className="btn-primary text-sm disabled:opacity-60">
           <Plus className="h-4 w-4" /> Create POC (Version 1)
@@ -186,14 +186,14 @@ export default function POCBuilder({ deficiency, onSaved }) {
 
   return (
     <div className="space-y-5">
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
-        <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
-        <p className="text-xs text-amber-800">AI-generated POC narratives are DRAFT ONLY. Clinical Review is required before any content becomes authoritative. POC status cannot be automatically marked as Submitted or Accepted — those require human action with evidence.</p>
+      <div className="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-start gap-2">
+        <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+        <p className="text-xs text-amber-800 dark:text-amber-300">AI-generated POC narratives are DRAFT ONLY. Clinical Review is required before any content becomes authoritative. POC status cannot be automatically marked as Submitted or Accepted — those require human action with evidence.</p>
       </div>
 
       {/* Version selector + status */}
       <div className="flex items-center gap-3 flex-wrap">
-        <select value={activePoc?.id || ""} onChange={e => setActivePoc(pocs.find(p => p.id === e.target.value))} className="border border-border rounded-lg px-3 py-1.5 text-sm bg-white">
+        <select value={activePoc?.id || ""} onChange={e => setActivePoc(pocs.find(p => p.id === e.target.value))} className="border border-border rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-card text-foreground">
           {pocs.map(p => <option key={p.id} value={p.id}>Version {p.version} — {p.status}</option>)}
         </select>
         <Badge tone={activePoc?.status === "Accepted" ? "green" : activePoc?.status === "Submitted" ? "blue" : activePoc?.status === "Approved for Use" ? "green" : activePoc?.status === "Superseded" ? "default" : "amber"}>{activePoc?.status}</Badge>
@@ -253,7 +253,7 @@ export default function POCBuilder({ deficiency, onSaved }) {
 
           {/* Lifecycle transition buttons */}
           {availableActions.length > 0 && (
-            <div className="bg-white rounded-xl border border-border p-4">
+            <div className="bg-white dark:bg-card rounded-xl border border-border p-4">
               <h3 className="font-semibold text-foreground text-sm mb-1">POC Lifecycle Actions</h3>
               <p className="text-xs text-muted-foreground mb-3">All actions are performed by the authenticated user. AI cannot perform these transitions.</p>
               <div className="flex flex-wrap gap-2">
@@ -276,7 +276,7 @@ export default function POCBuilder({ deficiency, onSaved }) {
           )}
 
           {transitionError && (
-            <div className="bg-rose-50 border border-rose-200 rounded-lg p-3 text-sm text-rose-700">{transitionError}</div>
+            <div className="bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 rounded-lg p-3 text-sm text-rose-700 dark:text-rose-400">{transitionError}</div>
           )}
 
           {showEvidenceForm && (
@@ -297,7 +297,7 @@ export default function POCBuilder({ deficiency, onSaved }) {
 function EvidenceForm({ actionKey, actionLabel, onSubmit, onCancel, isRevision }) {
   const [evidence, setEvidence] = useState("");
   return (
-    <div className="bg-white rounded-xl border border-border p-5 space-y-3">
+    <div className="bg-white dark:bg-card rounded-xl border border-border p-5 space-y-3">
       <h3 className="font-semibold text-foreground text-sm">{actionLabel} — Human Confirmation Required</h3>
       <p className="text-xs text-muted-foreground">
         {isRevision
@@ -306,7 +306,7 @@ function EvidenceForm({ actionKey, actionLabel, onSubmit, onCancel, isRevision }
       </p>
       <textarea value={evidence} onChange={e => setEvidence(e.target.value)}
         placeholder={isRevision ? "Revision notes…" : "Source / confirmation note (e.g. 'Verified via client email on …')"}
-        rows={2} className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
+        rows={2} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground" />
       <div className="flex gap-2">
         <button onClick={() => onSubmit(evidence)} disabled={!evidence} className="btn-primary text-sm disabled:opacity-60">{actionLabel}</button>
         <button onClick={onCancel} className="btn-ghost text-sm">Cancel</button>
@@ -317,7 +317,7 @@ function EvidenceForm({ actionKey, actionLabel, onSubmit, onCancel, isRevision }
 
 function Section({ title, desc, children }) {
   return (
-    <div className="bg-white rounded-xl border border-border p-5">
+    <div className="bg-white dark:bg-card rounded-xl border border-border p-5">
       <h3 className="font-semibold text-foreground text-sm">{title}</h3>
       {desc && <p className="text-xs text-muted-foreground mt-0.5 mb-3">{desc}</p>}
       <div className="space-y-3">{children}</div>
@@ -327,6 +327,6 @@ function Section({ title, desc, children }) {
 
 function TextArea({ value, onChange, placeholder }) {
   return (
-    <textarea value={value || ""} onChange={e => onChange(e.target.value)} placeholder={placeholder || "Enter details…"} rows={4} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white focus:border-primary focus:ring-2 focus:ring-accent outline-none resize-y" />
+    <textarea value={value || ""} onChange={e => onChange(e.target.value)} placeholder={placeholder || "Enter details…"} rows={4} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground focus:border-primary focus:ring-2 focus:ring-accent outline-none resize-y" />
   );
 }

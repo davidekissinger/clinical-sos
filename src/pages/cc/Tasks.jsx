@@ -36,7 +36,7 @@ export default function Tasks() {
               </div>
               <div className="p-2 space-y-2 min-h-[80px]">
                 {items.map((t) => (
-                  <div key={t.id} className="bg-white rounded-lg border border-border p-3">
+                  <div key={t.id} className="bg-white dark:bg-card rounded-lg border border-border p-3">
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-sm font-medium text-foreground leading-snug">{t.task}</p>
                       <Badge tone={t.priority === "Urgent" ? "red" : t.priority === "High" ? "amber" : "default"}>{t.priority}</Badge>
@@ -52,7 +52,7 @@ export default function Tasks() {
                         value={t.status}
                         disabled={updating === t.id}
                         onChange={(e) => move(t, e.target.value)}
-                        className="mt-2 w-full text-xs border border-border rounded-md px-2 py-1 bg-white"
+                        className="mt-2 w-full text-xs border border-border rounded-md px-2 py-1 bg-white dark:bg-card text-foreground"
                       >
                         {COLUMNS.map((c) => <option key={c.key} value={c.key}>{c.key}</option>)}
                       </select>

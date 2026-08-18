@@ -97,7 +97,7 @@ export default function Pipeline() {
                 </div>
                 <div className="p-2 space-y-2 min-h-[60px]">
                   {items.map((o) => (
-                    <div key={o.id} draggable onDragStart={() => setDragId(o.id)} className="bg-white rounded-lg border border-border p-3 cursor-grab active:cursor-grabbing hover:border-primary/40 transition">
+                    <div key={o.id} draggable onDragStart={() => setDragId(o.id)} className="bg-white dark:bg-card rounded-lg border border-border p-3 cursor-grab active:cursor-grabbing hover:border-primary/40 transition">
                       <p className="text-sm font-medium text-foreground leading-snug">{o.opportunity_name}</p>
                       <div className="mt-2 flex items-center justify-between">
                         <Badge tone={o.lead_tier === "Tier 1" ? "red" : o.lead_tier === "Tier 2" ? "amber" : "default"}>{o.lead_tier || "—"}</Badge>
@@ -113,7 +113,7 @@ export default function Pipeline() {
           })}
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-border overflow-x-auto">
+        <div className="bg-white dark:bg-card rounded-xl border border-border overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-secondary/50 text-muted-foreground">
               <tr>{["Opportunity", "Stage", "Tier", "Value", "Probability", "Owner", "Expected Close"].map((h) => <th key={h} className="text-left font-medium px-4 py-3 whitespace-nowrap">{h}</th>)}</tr>
@@ -138,7 +138,7 @@ export default function Pipeline() {
       {/* Won → Engagement Modal */}
       {wonModal && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-border p-6 max-w-md w-full">
+          <div className="bg-white dark:bg-card rounded-xl border border-border p-6 max-w-md w-full">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-foreground">Create Engagement — Won Opportunity</h3>
               <button onClick={() => { setWonModal(null); setDragId(null); }} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
@@ -181,7 +181,7 @@ export default function Pipeline() {
 
       {/* Engagement Result */}
       {engagementResult && (
-        <div className="fixed bottom-4 right-4 bg-white rounded-xl border border-border p-4 shadow-lg z-50 max-w-sm">
+        <div className="fixed bottom-4 right-4 bg-white dark:bg-card rounded-xl border border-border p-4 shadow-lg z-50 max-w-sm">
           <div className="flex items-start gap-3">
             <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">

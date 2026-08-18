@@ -46,7 +46,7 @@ export default function Cases() {
       />
 
       {showNew && (
-        <form onSubmit={create} className="bg-white rounded-xl border border-border p-5 mb-5 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <form onSubmit={create} className="bg-white dark:bg-card rounded-xl border border-border p-5 mb-5 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <input required placeholder="Case name *" value={form.case_name} onChange={e => setForm({...form, case_name: e.target.value})} className="border border-border rounded-lg px-3 py-2 text-sm" />
           <input placeholder="Facility name" value={form.facility_name} onChange={e => setForm({...form, facility_name: e.target.value})} className="border border-border rounded-lg px-3 py-2 text-sm" />
           <input placeholder="Client name" value={form.client_name} onChange={e => setForm({...form, client_name: e.target.value})} className="border border-border rounded-lg px-3 py-2 text-sm" />
@@ -60,10 +60,10 @@ export default function Cases() {
 
       <div className="mb-4 relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search cases…" className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm bg-white" />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search cases…" className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm bg-white dark:bg-card text-foreground" />
       </div>
 
-      <div className="bg-white rounded-xl border border-border overflow-hidden">
+      <div className="bg-white dark:bg-card rounded-xl border border-border overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-secondary/50 text-muted-foreground">
             <tr>

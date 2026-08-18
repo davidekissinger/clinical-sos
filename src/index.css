@@ -46,6 +46,37 @@
     --sidebar-border: 263 50% 26%;
     --sidebar-ring: 258 55% 70%;
   }
+
+  .dark {
+    --background: 250 13% 8%;
+    --foreground: 250 13% 95%;
+    --card: 250 13% 11%;
+    --card-foreground: 250 13% 95%;
+    --popover: 250 13% 10%;
+    --popover-foreground: 250 13% 95%;
+    --primary: 262 58% 65%;
+    --primary-foreground: 262 58% 10%;
+    --secondary: 250 13% 15%;
+    --secondary-foreground: 258 30% 85%;
+    --muted: 250 13% 14%;
+    --muted-foreground: 250 8% 62%;
+    --accent: 258 30% 20%;
+    --accent-foreground: 258 50% 85%;
+    --destructive: 0 63% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 250 13% 20%;
+    --input: 250 13% 18%;
+    --ring: 262 58% 65%;
+    --lavender: 258 30% 20%;
+    --lavender-strong: 258 40% 60%;
+    --sos: 262 58% 65%;
+    --sos-deep: 263 65% 24%;
+    --chart-1: 262 58% 65%;
+    --chart-2: 258 45% 70%;
+    --chart-3: 220 60% 60%;
+    --chart-4: 43 60% 60%;
+    --chart-5: 12 60% 60%;
+  }
 }
 
 @layer base {
@@ -83,7 +114,7 @@
   .sos-cross::after { height: 2px; width: 60%; }
   .card-elevated { @apply bg-card rounded-2xl border border-border shadow-sm; }
   .btn-primary { @apply inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-[hsl(262_58%_28%)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring; }
-  .btn-secondary { @apply inline-flex items-center justify-center gap-2 rounded-full border border-border bg-white px-6 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary; }
+  .btn-secondary { @apply inline-flex items-center justify-center gap-2 rounded-full border border-border bg-white dark:bg-card px-6 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary; }
   .btn-ghost { @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition hover:text-primary; }
   .section-eyebrow { @apply text-xs font-semibold uppercase tracking-[0.18em] text-[hsl(262_50%_45%)]; }
 }

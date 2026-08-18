@@ -35,7 +35,7 @@ export default function Leads() {
         <Filter className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         {TIERS.map((t) => (
           <button key={t} onClick={() => setTier(t)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${tier === t ? "bg-primary text-white" : "bg-white border border-border text-muted-foreground hover:text-foreground"}`}>
+            className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${tier === t ? "bg-primary text-white" : "bg-white dark:bg-card border border-border text-muted-foreground hover:text-foreground"}`}>
             {t}
           </button>
         ))}

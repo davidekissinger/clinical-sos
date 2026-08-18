@@ -40,9 +40,9 @@ export default function LaunchReadiness() {
         }
       />
 
-      <div className={`rounded-2xl border-2 p-6 mb-6 ${productionReady ? "border-emerald-300 bg-emerald-50" : "border-rose-300 bg-rose-50"}`}>
+      <div className={`rounded-2xl border-2 p-6 mb-6 ${productionReady ? "border-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 dark:border-emerald-800" : "border-rose-300 bg-rose-50 dark:bg-rose-950/50 dark:border-rose-800"}`}>
         <div className="flex items-center gap-4">
-          {productionReady ? <ShieldCheck className="h-12 w-12 text-emerald-600" /> : <XCircle className="h-12 w-12 text-rose-600" />}
+          {productionReady ? <ShieldCheck className="h-12 w-12 text-emerald-600 dark:text-emerald-400" /> : <XCircle className="h-12 w-12 text-rose-600 dark:text-rose-400" />}
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Production Ready</p>
             <p className={`text-3xl font-bold ${productionReady ? "text-emerald-700" : "text-rose-700"}`}>{productionReady ? "YES" : "NO"}</p>
@@ -77,7 +77,7 @@ export default function LaunchReadiness() {
                 const Icon = STATUS_ICON[c.status] || AlertTriangle;
                 const displayStatus = !c.last_tested_date && c.status === "PASS" ? "NOT TESTED" : c.status;
                 return (
-                  <div key={c.id} className="bg-white rounded-xl border border-border p-4 flex items-start gap-4">
+                  <div key={c.id} className="bg-white dark:bg-card rounded-xl border border-border p-4 flex items-start gap-4">
                     <Icon className={`h-5 w-5 flex-shrink-0 mt-0.5 ${STATUS_COLOR[displayStatus]}`} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -104,7 +104,7 @@ export default function LaunchReadiness() {
       })}
 
       {all.length === 0 && (
-        <div className="bg-white rounded-xl border border-border p-12 text-center">
+        <div className="bg-white dark:bg-card rounded-xl border border-border p-12 text-center">
           <p className="font-medium text-foreground">No readiness checks configured</p>
           <p className="mt-1 text-sm text-muted-foreground">Launch readiness checks will appear here once seeded.</p>
         </div>
@@ -114,9 +114,9 @@ export default function LaunchReadiness() {
 }
 
 function SummaryStat({ label, value, tone }) {
-  const tones = { default: "text-foreground", green: "text-emerald-600", amber: "text-amber-600", red: "text-rose-600" };
+  const tones = { default: "text-foreground", green: "text-emerald-600 dark:text-emerald-400", amber: "text-amber-600 dark:text-amber-400", red: "text-rose-600 dark:text-rose-400" };
   return (
-    <div className="bg-white rounded-xl border border-border p-4">
+    <div className="bg-white dark:bg-card rounded-xl border border-border p-4">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</p>
       <p className={`mt-1 text-2xl font-bold ${tones[tone]}`}>{value}</p>
     </div>

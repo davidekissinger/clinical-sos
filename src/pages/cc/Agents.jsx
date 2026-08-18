@@ -10,28 +10,28 @@ const AGENTS = [
     label: "Regulatory Intelligence",
     description: "Discovers current, verifiable public regulatory signals for skilled nursing facilities.",
     icon: Search,
-    color: "text-blue-600 bg-blue-50",
+    color: "text-blue-600 bg-blue-50 dark:bg-blue-950 dark:text-blue-400",
   },
   {
     name: "verification",
     label: "Verification",
     description: "Cross-checks regulatory claims against sources, assigns confidence, flags stale data.",
     icon: ShieldCheck,
-    color: "text-emerald-600 bg-emerald-50",
+    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950 dark:text-emerald-400",
   },
   {
     name: "contact_intelligence",
     label: "Contact Intelligence",
     description: "Identifies public business decision-makers with cited sources and confidence scores.",
     icon: Users,
-    color: "text-purple-600 bg-purple-50",
+    color: "text-purple-600 bg-purple-50 dark:bg-purple-950 dark:text-purple-400",
   },
   {
     name: "opportunity",
     label: "Opportunity",
     description: "Combines intelligence to calculate explainable lead scores and recommend outreach.",
     icon: Target,
-    color: "text-amber-600 bg-amber-50",
+    color: "text-amber-600 bg-amber-50 dark:bg-amber-950 dark:text-amber-400",
   },
 ];
 
@@ -39,7 +39,7 @@ function MessageBubble({ message }) {
   const isUser = message.role === "user";
   return (
     <div className={cn("flex", isUser ? "justify-end" : "justify-start")}>
-      <div className={cn("max-w-[80%] rounded-2xl px-4 py-2.5", isUser ? "bg-primary text-primary-foreground" : "bg-white border border-border")}>
+      <div className={cn("max-w-[80%] rounded-2xl px-4 py-2.5", isUser ? "bg-primary text-primary-foreground" : "bg-white dark:bg-card border border-border")}>
         {message.content && (
           isUser
             ? <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -124,7 +124,7 @@ export default function Agents() {
             <button
               key={a.name}
               onClick={() => { setSelectedAgent(a.name); startConversation(); }}
-              className="text-left p-5 rounded-xl border border-border bg-white hover:border-primary hover:shadow-md transition group"
+              className="text-left p-5 rounded-xl border border-border bg-white dark:bg-card hover:border-primary hover:shadow-md transition group"
             >
               <div className={cn("inline-flex p-2.5 rounded-lg mb-3", a.color)}>
                 <a.icon className="h-5 w-5" />
@@ -179,7 +179,7 @@ export default function Agents() {
         {messages.map((m, i) => <MessageBubble key={i} message={m} />)}
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-white border border-border rounded-2xl px-4 py-2.5">
+            <div className="bg-white dark:bg-card border border-border rounded-2xl px-4 py-2.5">
               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
             </div>
           </div>
@@ -194,7 +194,7 @@ export default function Agents() {
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
           placeholder={`Message the ${agent.label} agent…`}
           rows={1}
-          className="flex-1 resize-none rounded-xl border border-border bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          className="flex-1 resize-none rounded-xl border border-border bg-white dark:bg-card px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
         />
         <button onClick={sendMessage} disabled={!input.trim() || loading} className="btn-primary !rounded-xl px-4">
           <Send className="h-4 w-4" />

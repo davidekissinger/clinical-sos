@@ -123,9 +123,9 @@ export default function DeficiencyDetail() {
 
       {tab === "identification" && <IdentificationTab def={def} />}
       {closureResult && (
-        <div className={`fixed bottom-4 right-4 bg-white rounded-xl border p-4 shadow-lg z-50 max-w-sm ${closureResult.closed ? "border-emerald-200" : "border-rose-200"}`}>
+        <div className={`fixed bottom-4 right-4 bg-white dark:bg-card rounded-xl border p-4 shadow-lg z-50 max-w-sm ${closureResult.closed ? "border-emerald-200 dark:border-emerald-800" : "border-rose-200 dark:border-rose-800"}`}>
           <div className="flex items-start gap-3">
-            {closureResult.closed ? <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0 mt-0.5" /> : <AlertTriangle className="h-5 w-5 text-rose-600 flex-shrink-0 mt-0.5" />}
+            {closureResult.closed ? <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" /> : <AlertTriangle className="h-5 w-5 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />}
             <div className="flex-1">
               <p className="text-sm font-medium text-foreground">{closureResult.closed ? "Deficiency Closed" : "Closure Blocked"}</p>
               {closureResult.blockers && closureResult.blockers.length > 0 && (
@@ -187,7 +187,7 @@ function IdentificationTab({ def }) {
   ];
 
   return (
-    <div className="bg-white rounded-xl border border-border p-5">
+    <div className="bg-white dark:bg-card rounded-xl border border-border p-5">
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-semibold text-foreground">Deficiency Identification</h2>
         {editing ? (
@@ -205,17 +205,17 @@ function IdentificationTab({ def }) {
             <label className="block text-xs font-medium text-muted-foreground mb-1">{f.label}</label>
             {editing ? (
               f.type === "textarea" ? (
-                <textarea value={form[f.key] || ""} onChange={e => setForm({...form, [f.key]: e.target.value})} rows={3} className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
+                <textarea value={form[f.key] || ""} onChange={e => setForm({...form, [f.key]: e.target.value})} rows={3} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground" />
               ) : f.type === "select" ? (
-                <select value={form[f.key] || ""} onChange={e => setForm({...form, [f.key]: e.target.value})} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white">
+                <select value={form[f.key] || ""} onChange={e => setForm({...form, [f.key]: e.target.value})} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground">
                   {f.options.map(o => <option key={o} value={o}>{o || "—"}</option>)}
                 </select>
               ) : f.type === "boolean" ? (
-                <select value={form[f.key] ? "true" : "false"} onChange={e => setForm({...form, [f.key]: e.target.value === "true"})} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white">
+                <select value={form[f.key] ? "true" : "false"} onChange={e => setForm({...form, [f.key]: e.target.value === "true"})} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground">
                   <option value="false">No</option><option value="true">Yes</option>
                 </select>
               ) : (
-                <input type={f.type === "date" ? "date" : "text"} value={form[f.key] || ""} onChange={e => setForm({...form, [f.key]: e.target.value})} className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
+                <input type={f.type === "date" ? "date" : "text"} value={form[f.key] || ""} onChange={e => setForm({...form, [f.key]: e.target.value})} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground" />
               )
             ) : (
               <p className="text-sm text-foreground">{f.type === "boolean" ? (form[f.key] ? "Yes" : "No") : (form[f.key] || "—")}</p>
@@ -248,32 +248,32 @@ function RCATab({ def, rcaText, setRcaText }) {
 
   return (
     <div className="space-y-5">
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
-        <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
-        <p className="text-xs text-amber-800">AI may assist with questions and draft analysis, but the consultant must approve the final root cause. Never invent contributing factors not supported by evidence.</p>
+      <div className="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-start gap-2">
+        <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+        <p className="text-xs text-amber-800 dark:text-amber-300">AI may assist with questions and draft analysis, but the consultant must approve the final root cause. Never invent contributing factors not supported by evidence.</p>
       </div>
-      <div className="bg-white rounded-xl border border-border p-5">
+      <div className="bg-white dark:bg-card rounded-xl border border-border p-5">
         <h3 className="font-semibold text-foreground text-sm mb-3">Root Cause Categories</h3>
         <div className="flex flex-wrap gap-2">
           {ROOT_CAUSE_CATEGORIES.map(cat => (
-            <button key={cat} onClick={() => toggleCat(cat)} className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${categories.includes(cat) ? "bg-primary text-primary-foreground border-primary" : "bg-white text-muted-foreground border-border hover:border-primary"}`}>{cat}</button>
+            <button key={cat} onClick={() => toggleCat(cat)} className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${categories.includes(cat) ? "bg-primary text-primary-foreground border-primary" : "bg-white dark:bg-card text-muted-foreground border-border hover:border-primary"}`}>{cat}</button>
           ))}
         </div>
       </div>
-      <div className="bg-white rounded-xl border border-border p-5">
+      <div className="bg-white dark:bg-card rounded-xl border border-border p-5">
         <h3 className="font-semibold text-foreground text-sm mb-3">5 Whys Analysis</h3>
         <div className="space-y-3">
           {fiveWhys.map((w, i) => (
             <div key={i}>
               <label className="block text-xs font-medium text-muted-foreground mb-1">Why {i + 1}</label>
-              <input value={w} onChange={e => { const n = [...fiveWhys]; n[i] = e.target.value; setFiveWhys(n); }} placeholder="Because…" className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
+              <input value={w} onChange={e => { const n = [...fiveWhys]; n[i] = e.target.value; setFiveWhys(n); }} placeholder="Because…" className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground" />
             </div>
           ))}
         </div>
       </div>
-      <div className="bg-white rounded-xl border border-border p-5">
+      <div className="bg-white dark:bg-card rounded-xl border border-border p-5">
         <h3 className="font-semibold text-foreground text-sm mb-3">Contributing Factor Summary</h3>
-        <textarea value={contributingFactors} onChange={e => setContributingFactors(e.target.value)} rows={4} placeholder="Summarize the contributing factors identified…" className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
+        <textarea value={contributingFactors} onChange={e => setContributingFactors(e.target.value)} rows={4} placeholder="Summarize the contributing factors identified…" className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground" />
       </div>
       <button onClick={save} disabled={saving} className="btn-primary text-sm disabled:opacity-60"><Save className="h-4 w-4" /> {saving ? "Saving…" : "Save Root Cause Analysis"}</button>
     </div>
@@ -290,7 +290,7 @@ function AuditsTab({ def, audits, showForm, setShowForm, onSaved }) {
       {showForm && <div className="mb-4"><AuditToolForm deficiency={def} onSaved={() => { setShowForm(false); onSaved(); }} onCancel={() => setShowForm(false)} /></div>}
       <div className="space-y-3">
         {audits.map(a => (
-          <div key={a.id} className="bg-white rounded-xl border border-border p-4">
+          <div key={a.id} className="bg-white dark:bg-card rounded-xl border border-border p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-foreground">{a.plain_language_regulatory_focus || a.f_tag}</p>
@@ -318,7 +318,7 @@ function EducationTab({ def, education, showForm, setShowForm, onSaved }) {
       {showForm && <div className="mb-4"><EducationPlanForm deficiency={def} onSaved={() => { setShowForm(false); onSaved(); }} onCancel={() => setShowForm(false)} /></div>}
       <div className="space-y-3">
         {education.map(e => (
-          <div key={e.id} className="bg-white rounded-xl border border-border p-4">
+          <div key={e.id} className="bg-white dark:bg-card rounded-xl border border-border p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-foreground">{e.education_outline || "Education Plan"}</p>
@@ -330,9 +330,9 @@ function EducationTab({ def, education, showForm, setShowForm, onSaved }) {
         ))}
         {education.length === 0 && <EmptyState text="No education plans created yet" />}
       </div>
-      <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
-        <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
-        <p className="text-xs text-amber-800">Education cannot be marked complete simply because materials were generated. Competency validation and attendance tracking are required.</p>
+      <div className="mt-4 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-start gap-2">
+        <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+        <p className="text-xs text-amber-800 dark:text-amber-300">Education cannot be marked complete simply because materials were generated. Competency validation and attendance tracking are required.</p>
       </div>
     </div>
   );
@@ -353,7 +353,7 @@ function EvidenceTab({ def, evidence, showForm, setShowForm, onSaved }) {
       {showForm && <div className="mb-4"><EvidenceItemForm deficiency={def} onSaved={() => { setShowForm(false); onSaved(); }} onCancel={() => setShowForm(false)} /></div>}
       <div className="space-y-3">
         {evidence.map(e => (
-          <div key={e.id} className="bg-white rounded-xl border border-border p-4">
+          <div key={e.id} className="bg-white dark:bg-card rounded-xl border border-border p-4">
             <div className="flex items-center justify-between">
               <div className="min-w-0">
                 <p className="text-sm font-medium text-foreground">{e.evidence_type}</p>
@@ -366,9 +366,9 @@ function EvidenceTab({ def, evidence, showForm, setShowForm, onSaved }) {
         ))}
         {evidence.length === 0 && <EmptyState text="No evidence items recorded" />}
       </div>
-      <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
-        <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
-        <p className="text-xs text-amber-800">A corrective action cannot be marked complete unless required evidence has been accepted or an authorized consultant overrides with documented rationale.</p>
+      <div className="mt-4 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-start gap-2">
+        <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+        <p className="text-xs text-amber-800 dark:text-amber-300">A corrective action cannot be marked complete unless required evidence has been accepted or an authorized consultant overrides with documented rationale.</p>
       </div>
     </div>
   );
@@ -384,7 +384,7 @@ function QAPITab({ def, qapi, showForm, setShowForm, onSaved }) {
       {showForm && <div className="mb-4"><QAPIReviewForm deficiency={def} onSaved={() => { setShowForm(false); onSaved(); }} onCancel={() => setShowForm(false)} /></div>}
       <div className="space-y-3">
         {qapi.map(q => (
-          <div key={q.id} className="bg-white rounded-xl border border-border p-4">
+          <div key={q.id} className="bg-white dark:bg-card rounded-xl border border-border p-4">
             <p className="text-sm font-medium text-foreground">QAPI Review — {q.qapi_review_date || "—"}</p>
             <p className="text-xs text-muted-foreground mt-1">Leader: {q.responsible_leader || "—"}</p>
             {q.summary && <p className="mt-2 text-sm text-foreground">{q.summary}</p>}
@@ -412,7 +412,7 @@ function ClosureOverride({ def, onOverride }) {
   return (
     <div className="mt-3 border-t border-border pt-3">
       <p className="text-xs font-medium text-foreground mb-1">Authorized Override (Admin/Clinical only)</p>
-      <textarea value={reason} onChange={e => setReason(e.target.value)} placeholder="Documented rationale for override…" rows={2} className="w-full border border-border rounded-lg px-3 py-2 text-xs" />
+      <textarea value={reason} onChange={e => setReason(e.target.value)} placeholder="Documented rationale for override…" rows={2} className="w-full border border-border rounded-lg px-3 py-2 text-xs bg-white dark:bg-card text-foreground" />
       <button onClick={submit} disabled={!reason || submitting} className="btn-secondary text-xs mt-2 disabled:opacity-60">Override & Close</button>
     </div>
   );
@@ -435,7 +435,7 @@ function RevisitTab({ def, readiness, onAssess }) {
 
   return (
     <div className="space-y-5">
-      <div className={`rounded-2xl border-2 p-5 ${status === "Ready" ? "border-emerald-300 bg-emerald-50" : status === "Nearly Ready" ? "border-blue-300 bg-blue-50" : "border-rose-300 bg-rose-50"}`}>
+      <div className={`rounded-2xl border-2 p-5 ${status === "Ready" ? "border-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 dark:border-emerald-800" : status === "Nearly Ready" ? "border-blue-300 bg-blue-50 dark:bg-blue-950/50 dark:border-blue-800" : "border-rose-300 bg-rose-50 dark:bg-rose-950/50 dark:border-rose-800"}`}>
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Clinical SOS Internal Revisit Readiness Assessment</p>
@@ -451,13 +451,13 @@ function RevisitTab({ def, readiness, onAssess }) {
         )}
       </div>
 
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
-        <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
-        <p className="text-xs text-amber-800">This is a Clinical SOS internal readiness assessment. Clinical SOS does not guarantee that a facility will pass a regulatory revisit.</p>
+      <div className="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex items-start gap-2">
+        <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+        <p className="text-xs text-amber-800 dark:text-amber-300">This is a Clinical SOS internal readiness assessment. Clinical SOS does not guarantee that a facility will pass a regulatory revisit.</p>
       </div>
 
       {readiness.length > 0 && (
-        <div className="bg-white rounded-xl border border-border p-5">
+        <div className="bg-white dark:bg-card rounded-xl border border-border p-5">
           <h3 className="font-semibold text-foreground text-sm mb-3">Readiness Criteria (Evidence-Driven)</h3>
           <div className="space-y-2">
             {readiness.map(c => (
@@ -473,7 +473,7 @@ function RevisitTab({ def, readiness, onAssess }) {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-border p-5">
+      <div className="bg-white dark:bg-card rounded-xl border border-border p-5">
         <h3 className="font-semibold text-foreground text-sm mb-3">Manual Judgment Items</h3>
         <div className="space-y-2">
           {[

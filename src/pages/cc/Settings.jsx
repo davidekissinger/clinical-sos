@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { PageHeader, LoadingState } from "@/components/cc/ui";
-import { Save, CheckCircle2, FlaskConical, AlertTriangle } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
+import { Save, CheckCircle2, FlaskConical, AlertTriangle, Palette } from "lucide-react";
 
 export default function Settings() {
   const [config, setConfig] = useState(null);
@@ -64,13 +65,25 @@ export default function Settings() {
     <div>
       <PageHeader title="Settings" subtitle="Configure the lead engine, outreach, commercial terms, and team ownership" />
 
+      {/* Appearance */}
+      <div className="bg-white dark:bg-card rounded-xl border border-border p-6 mb-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Palette className="h-5 w-5 text-primary" />
+          <div>
+            <h2 className="font-semibold text-foreground">Appearance</h2>
+            <p className="text-sm text-muted-foreground mt-0.5">Choose how the Command Center looks. Your preference persists across sessions.</p>
+          </div>
+        </div>
+        <ThemeToggle />
+      </div>
+
       {/* Test Mode Banner */}
-      <div className={`rounded-2xl border-2 p-5 mb-6 ${config.test_mode ? "border-amber-300 bg-amber-50" : "border-emerald-200 bg-emerald-50"}`}>
+      <div className={`rounded-2xl border-2 p-5 mb-6 ${config.test_mode ? "border-amber-300 bg-amber-50 dark:bg-amber-950/50 dark:border-amber-800" : "border-emerald-200 bg-emerald-50 dark:bg-emerald-950/50 dark:border-emerald-800"}`}>
         <div className="flex items-start gap-4">
           {config.test_mode ? (
-            <FlaskConical className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
+            <FlaskConical className="h-6 w-6 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
           ) : (
-            <CheckCircle2 className="h-6 w-6 text-emerald-600 flex-shrink-0 mt-0.5" />
+            <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
           )}
           <div className="flex-1">
             <div className="flex items-center justify-between flex-wrap gap-3">
@@ -155,7 +168,7 @@ export default function Settings() {
 
 function Section({ title, desc, children }) {
   return (
-    <div className="bg-white rounded-xl border border-border p-6">
+    <div className="bg-white dark:bg-card rounded-xl border border-border p-6">
       <h2 className="font-semibold text-foreground">{title}</h2>
       {desc && <p className="mt-1 text-sm text-muted-foreground">{desc}</p>}
       <div className="mt-4 space-y-4">{children}</div>
@@ -167,7 +180,7 @@ function Input({ label, value, onChange, type = "text", hint }) {
   return (
     <label className="block">
       <span className="block text-sm font-medium text-foreground mb-1.5">{label}</span>
-      <input type={type} value={value ?? ""} onChange={(e) => onChange(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white focus:border-primary focus:ring-2 focus:ring-accent outline-none" />
+      <input type={type} value={value ?? ""} onChange={(e) => onChange(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground focus:border-primary focus:ring-2 focus:ring-accent outline-none" />
       {hint && <span className="block mt-1 text-xs text-muted-foreground">{hint}</span>}
     </label>
   );
@@ -177,7 +190,7 @@ function Select({ label, value, onChange, options }) {
   return (
     <label className="block">
       <span className="block text-sm font-medium text-foreground mb-1.5">{label}</span>
-      <select value={value} onChange={(e) => onChange(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white focus:border-primary focus:ring-2 focus:ring-accent outline-none">
+      <select value={value} onChange={(e) => onChange(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground focus:border-primary focus:ring-2 focus:ring-accent outline-none">
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
     </label>

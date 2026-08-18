@@ -5,6 +5,7 @@ import {
   Settings, LogOut, Menu, X, FileText, ShieldCheck, Activity, Briefcase, Bot, Send, Rocket, Stethoscope, BookOpen, ClipboardList
 } from "lucide-react";
 import Logo from "@/components/brand/Logo";
+import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/lib/AuthContext";
 import { useTestData } from "@/lib/TestDataContext";
 import { cn } from "@/lib/utils";
@@ -93,7 +94,7 @@ export default function CommandCenterLayout() {
 
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-white border-b border-border flex items-center justify-between px-5 lg:px-8 sticky top-0 z-20">
+        <header className="h-16 bg-white dark:bg-card border-b border-border flex items-center justify-between px-5 lg:px-8 sticky top-0 z-20">
           <div className="flex items-center gap-3">
             <button className="lg:hidden text-foreground" onClick={() => setOpen(true)}><Menu className="h-5 w-5" /></button>
             <div>
@@ -101,8 +102,8 @@ export default function CommandCenterLayout() {
               <h1 className="text-sm font-semibold text-foreground">Private · Internal Use Only</h1>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 cursor-pointer text-xs text-muted-foreground">
+          <div className="flex items-center gap-3">
+            <label className="hidden sm:flex items-center gap-2 cursor-pointer text-xs text-muted-foreground">
               <input
                 type="checkbox"
                 checked={showTestData}
@@ -111,6 +112,7 @@ export default function CommandCenterLayout() {
               />
               Show Test Data
             </label>
+            <ThemeToggle compact />
             <Link to="/" className="text-sm text-muted-foreground hover:text-primary hidden sm:inline">View public site →</Link>
           </div>
         </header>

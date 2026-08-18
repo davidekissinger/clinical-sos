@@ -93,7 +93,7 @@ export default function Dashboard() {
 
 function Panel({ title, to, children }) {
   return (
-    <div className="bg-white rounded-xl border border-border">
+    <div className="bg-white dark:bg-card rounded-xl border border-border">
       <div className="flex items-center justify-between px-5 py-3 border-b border-border">
         <h2 className="font-semibold text-foreground">{title}</h2>
         <Link to={to} className="text-xs font-medium text-primary hover:underline">View all →</Link>
