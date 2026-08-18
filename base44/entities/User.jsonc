@@ -4,6 +4,7 @@
       "type": "string",
       "description": "The role of the user in the app",
       "enum": [
+        "pending",
         "admin",
         "business_development",
         "clinical",
@@ -11,7 +12,7 @@
         "read_only",
         "client"
       ],
-      "default": "read_only"
+      "default": "pending"
     },
     "authorized_facility_ids": {
       "type": "array",
