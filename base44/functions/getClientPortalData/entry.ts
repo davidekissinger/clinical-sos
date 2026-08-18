@@ -30,32 +30,52 @@ export default async function(req) {
 
     const facilityIds = entitlement.facility_ids || [];
     const engagementIds = entitlement.engagement_ids || [];
+    const caps = entitlement.effective_capabilities || {};
     const flt = (r) => Array.isArray(r) ? r : (r?.data || []);
 
-    // ── Dashboard ──
+    // ── Dashboard (capability-aware — does not disclose unauthorized counts) ──
     if (resource === 'dashboard') {
-      const [engagements, cases, tasks, pocs, evidence] = await Promise.all([
-        base44.asServiceRole.entities.Engagement.list("-created_date", 200),
-        base44.asServiceRole.entities.RegulatoryCase.list("-created_date", 200),
-        base44.asServiceRole.entities.Task.list("-due_date", 100),
-        base44.asServiceRole.entities.POC.list("-created_date", 200),
-        base44.asServiceRole.entities.EvidenceItem.list("-created_date", 200),
-      ]);
-      const scopedEngagements = flt(engagements).filter(e => engagementIds.includes(e.id) && e.client_visibility);
-      const scopedCases = filterByTenantScope(filterClientVisible(flt(cases)), facilityIds, engagementIds);
-      const scopedTasks = filterByTenantScope(filterClientVisible(flt(tasks)), facilityIds, engagementIds);
-      const scopedPocs = filterByTenantScope(filterClientVisible(flt(pocs)), facilityIds, engagementIds).filter(p => !["AI Draft", "Clinical Review"].includes(p.status));
-      const scopedEvidence = filterByTenantScope(filterClientVisible(flt(evidence)), facilityIds, engagementIds);
+      const summary = {};
+
+      // Only query and return engagement data if can_view_engagement
+      let engagements = [];
+      if (caps.can_view_engagement) {
+        const engRes = await base44.asServiceRole.entities.Engagement.list("-created_date", 200);
+        engagements = flt(engRes).filter(e => engagementIds.includes(e.id) && e.client_visibility);
+        summary.active_engagements = engagements.filter(e => e.status === "Active").length;
+      }
+
+      // Cases are tied to can_view_engagement
+      if (caps.can_view_engagement) {
+        const caseRes = await base44.asServiceRole.entities.RegulatoryCase.list("-created_date", 200);
+        const scopedCases = filterByTenantScope(filterClientVisible(flt(caseRes)), facilityIds, engagementIds);
+        summary.open_cases = scopedCases.filter(c => c.case_status !== "Closed").length;
+      }
+
+      // Tasks — only if can_view_tasks
+      if (caps.can_view_tasks) {
+        const taskRes = await base44.asServiceRole.entities.Task.list("-due_date", 100);
+        const scopedTasks = filterByTenantScope(filterClientVisible(flt(taskRes)), facilityIds, engagementIds);
+        summary.open_tasks = scopedTasks.filter(t => t.status !== "Complete").length;
+      }
+
+      // POCs — only if can_view_poc
+      if (caps.can_view_poc) {
+        const pocRes = await base44.asServiceRole.entities.POC.list("-created_date", 200);
+        const scopedPocs = filterByTenantScope(filterClientVisible(flt(pocRes)), facilityIds, engagementIds).filter(p => !["AI Draft", "Clinical Review"].includes(p.status));
+        summary.pocs_in_review = scopedPocs.filter(p => p.status === "Client Review").length;
+      }
+
+      // Evidence — only if can_view_evidence
+      if (caps.can_view_evidence) {
+        const evidenceRes = await base44.asServiceRole.entities.EvidenceItem.list("-created_date", 200);
+        const scopedEvidence = filterByTenantScope(filterClientVisible(flt(evidenceRes)), facilityIds, engagementIds);
+        summary.pending_evidence = scopedEvidence.filter(e => e.review_status === "Required" || e.review_status === "Requested").length;
+      }
 
       return Response.json({
-        summary: {
-          active_engagements: scopedEngagements.filter(e => e.status === "Active").length,
-          open_cases: scopedCases.filter(c => c.case_status !== "Closed").length,
-          open_tasks: scopedTasks.filter(t => t.status !== "Complete").length,
-          pocs_in_review: scopedPocs.filter(p => p.status === "Client Review").length,
-          pending_evidence: scopedEvidence.filter(e => e.review_status === "Required" || e.review_status === "Requested").length,
-        },
-        engagements: scopedEngagements.map(sanitizeEngagement),
+        summary,
+        engagements: caps.can_view_engagement ? engagements.map(sanitizeEngagement) : [],
         capabilities: entitlement.effective_capabilities
       });
     }

@@ -21,10 +21,15 @@ export default async function(req) {
     const evidence = await base44.asServiceRole.entities.EvidenceItem.get(evidence_id);
     if (!evidence) return Response.json({ error: 'Evidence item not found' }, { status: 404 });
 
-    // 2. Resolve client entitlement — check can_submit_evidence + tenant scope
+    // 2. Fail closed if evidence lacks authoritative engagement relationship
+    if (!evidence.engagement_id) {
+      return Response.json({ error: 'Access denied', reason: 'Evidence item is missing an authoritative engagement relationship.' }, { status: 403 });
+    }
+
+    // 3. Resolve client entitlement — check can_submit_evidence + engagement-first tenant scope
     const entitlement = await resolveClientEntitlement(base44, user, {
       requestedCapability: 'can_submit_evidence',
-      recordFacilityId: evidence.facility_id,
+      recordEngagementId: evidence.engagement_id,
       recordClientVisibility: evidence.client_visibility,
       recordType: 'EvidenceItem'
     });
@@ -33,7 +38,12 @@ export default async function(req) {
       return Response.json({ error: 'Access denied', reason: entitlement.reason }, { status: 403 });
     }
 
-    // 3. Build whitelisted update — ONLY client-response fields, NOT clinical review_status
+    // 4. Defense-in-depth: confirm engagement is in authorized scope
+    if (!entitlement.engagement_ids.includes(evidence.engagement_id)) {
+      return Response.json({ error: 'Access denied', reason: 'Evidence engagement not in authorized tenant scope' }, { status: 403 });
+    }
+
+    // 5. Build whitelisted update — ONLY client-response fields, NOT clinical review_status
     const update = {
       client_response_status: response_status,
       client_response_note: note || null,
@@ -44,7 +54,7 @@ export default async function(req) {
 
     await base44.asServiceRole.entities.EvidenceItem.update(evidence_id, update);
 
-    // 4. Audit log
+    // 6. Audit log
     await auditAccessChange(base44, {
       client_account_id: null,
       previous_access_state: evidence.client_response_status || 'Pending',

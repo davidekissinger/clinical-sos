@@ -65,6 +65,9 @@ export function calculateEffectiveClientAccessStatus(account) {
  * Used by: manageClientMembership, syncClientMembershipAccess, transitionClientAccess,
  *           override-expiration handling in resolveClientEntitlement.
  *
+ * V1 INVARIANT: One active membership per user. If multiple active memberships
+ * are detected, FAIL CLOSED — clear arrays, do not merge tenants.
+ *
  * Account-level Suspended: role stays 'client', arrays cleared (user can see /client/account suspension message).
  * Account-level Terminated: role stays 'client', arrays cleared (user can see /client/account terminated message).
  * Membership Suspended/Revoked/Expired: role→'pending' if no other active membership, arrays cleared.
@@ -77,6 +80,35 @@ export function calculateEffectiveClientAccessStatus(account) {
 export async function syncClientUserAuthorization(base44, membership, effectiveAccessStatus, membershipStatus) {
   const currentUser = await base44.asServiceRole.entities.User.get(membership.client_user_id);
   if (!currentUser) return { role: null, authorized_facility_ids: [], authorized_engagement_ids: [] };
+
+  // V1 INVARIANT: Check for multiple active memberships before populating arrays
+  if (membershipStatus === "Active") {
+    const allMemberships = await base44.asServiceRole.entities.ClientMembership.filter({ client_user_id: membership.client_user_id });
+    const activeMemberships = (allMemberships || []).filter(m => m.membership_status === "Active" && m.id !== membership.id);
+    if (activeMemberships.length > 0) {
+      // FAIL CLOSED — membership conflict detected
+      await auditAccessChange(base44, {
+        client_account_id: membership.client_account_id,
+        previous_access_state: "Active",
+        new_access_state: "Conflict",
+        reason: `Multiple active client memberships detected for user ${membership.client_user_id}. Membership IDs in conflict: ${[membership.id, ...activeMemberships.map(m => m.id)].join(", ")}. Administrative review required.`,
+        triggering_source: "syncClientUserAuthorization:multiple_active_conflict",
+        acting_user_id: "system",
+        acting_user_name: "System — Membership Conflict Detector",
+        manual_override: false,
+        manual_override_details: null
+      });
+      // Set role to pending and clear arrays — do not merge tenants
+      if (currentUser.role === "client") {
+        await base44.asServiceRole.entities.User.update(membership.client_user_id, {
+          authorized_facility_ids: [],
+          authorized_engagement_ids: [],
+          role: "pending"
+        });
+      }
+      return { role: "pending", authorized_facility_ids: [], authorized_engagement_ids: [], membership_conflict: true };
+    }
+  }
 
   const isAccountNoDataAccess = effectiveAccessStatus === "Suspended" || effectiveAccessStatus === "Terminated";
 
@@ -114,6 +146,11 @@ export async function syncClientUserAuthorization(base44, membership, effectiveA
 /**
  * Resolve the effective client entitlement for an authenticated user.
  * Uses calculateEffectiveClientAccessStatus + syncClientUserAuthorization as single sources of truth.
+ *
+ * V1 INVARIANT: Exactly ONE active ClientMembership per user.
+ * If 0 active memberships → unauthorized.
+ * If 1 active membership → continue normally.
+ * If >1 active memberships → FAIL CLOSED (do not choose one, do not merge).
  */
 export async function resolveClientEntitlement(base44, user, options = {}) {
   const { requestedCapability, recordEngagementId, recordClientVisibility, recordType, recordStatus, resourceCapability } = options;
@@ -122,18 +159,50 @@ export async function resolveClientEntitlement(base44, user, options = {}) {
     return { authorized: false, access_status: null, membership_status: null, effective_capabilities: {}, reason: "User does not have client role", facility_ids: [], engagement_ids: [], account_name: null };
   }
 
-  // Find active ClientMembership
+  // Find all ClientMemberships for this user
   const memberships = await base44.asServiceRole.entities.ClientMembership.filter({ client_user_id: user.id });
   if (!memberships || memberships.length === 0) {
     return { authorized: false, access_status: null, membership_status: null, effective_capabilities: {}, reason: "No client membership found", facility_ids: [], engagement_ids: [], account_name: null };
   }
 
-  const membership = memberships.find(m => m.membership_status === "Active") || memberships[0];
+  // V1 INVARIANT: Check for multiple active memberships — FAIL CLOSED
+  const activeMemberships = memberships.filter(m => m.membership_status === "Active");
+  if (activeMemberships.length > 1) {
+    // Audit the conflict
+    try {
+      await auditAccessChange(base44, {
+        client_account_id: null,
+        previous_access_state: "Active",
+        new_access_state: "Conflict",
+        reason: `Multiple active client memberships detected for user ${user.id}. Membership IDs: ${activeMemberships.map(m => m.id).join(", ")}. Administrative review required.`,
+        triggering_source: "resolveClientEntitlement:multiple_active_conflict",
+        acting_user_id: "system",
+        acting_user_name: "System — Membership Conflict Detector",
+        manual_override: false,
+        manual_override_details: null
+      });
+    } catch (e) { /* non-blocking */ }
 
-  // Membership must be Active
-  if (membership.membership_status !== "Active") {
+    return {
+      authorized: false,
+      access_status: null,
+      membership_status: "Conflict",
+      effective_capabilities: {},
+      reason: "Multiple active client memberships detected. Administrative review required.",
+      facility_ids: [],
+      engagement_ids: [],
+      account_name: null
+    };
+  }
+
+  // Exactly 0 active memberships → unauthorized
+  if (activeMemberships.length === 0) {
+    const membership = memberships[0];
     return { authorized: false, access_status: null, membership_status: membership.membership_status, effective_capabilities: {}, reason: `Membership is ${membership.membership_status}`, facility_ids: [], engagement_ids: [], account_name: null };
   }
+
+  // Exactly 1 active membership → proceed normally
+  const membership = activeMemberships[0];
 
   if (membership.can_login === false) {
     return { authorized: false, access_status: null, membership_status: membership.membership_status, effective_capabilities: {}, reason: "Login capability not granted", facility_ids: [], engagement_ids: [], account_name: null };

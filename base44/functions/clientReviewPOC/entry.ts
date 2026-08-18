@@ -25,10 +25,15 @@ export default async function(req) {
     const poc = await base44.asServiceRole.entities.POC.get(poc_id);
     if (!poc) return Response.json({ error: 'POC not found' }, { status: 404 });
 
-    // 2. Resolve client entitlement — check capability + tenant scope + client_visibility + lifecycle
+    // 2. Fail closed if POC lacks authoritative engagement relationship
+    if (!poc.engagement_id) {
+      return Response.json({ error: 'Access denied', reason: 'POC is missing an authoritative engagement relationship.' }, { status: 403 });
+    }
+
+    // 3. Resolve client entitlement — check capability + engagement-first tenant scope + client_visibility + lifecycle
     const entitlement = await resolveClientEntitlement(base44, user, {
       requestedCapability: requiredCap,
-      recordFacilityId: poc.facility_id,
+      recordEngagementId: poc.engagement_id,
       recordClientVisibility: poc.client_visibility,
       recordType: 'POC',
       recordStatus: poc.status
@@ -38,12 +43,17 @@ export default async function(req) {
       return Response.json({ error: 'Access denied', reason: entitlement.reason }, { status: 403 });
     }
 
-    // 3. Verify POC is in a client-review-safe lifecycle state
+    // 4. Defense-in-depth: confirm engagement is in authorized scope
+    if (!entitlement.engagement_ids.includes(poc.engagement_id)) {
+      return Response.json({ error: 'Access denied', reason: 'POC engagement not in authorized tenant scope' }, { status: 403 });
+    }
+
+    // 5. Verify POC is in a client-review-safe lifecycle state
     if (!CLIENT_REVIEW_STATUSES.includes(poc.status)) {
       return Response.json({ error: `POC status '${poc.status}' is not in client review state` }, { status: 403 });
     }
 
-    // 4. Map action to client_review_status — NEVER touch regulatory lifecycle status
+    // 6. Map action to client_review_status — NEVER touch regulatory lifecycle status
     let clientReviewStatus;
     if (action === 'acknowledge') clientReviewStatus = 'Acknowledged';
     else if (action === 'request_revision') clientReviewStatus = 'Revision Requested';
@@ -59,7 +69,7 @@ export default async function(req) {
 
     await base44.asServiceRole.entities.POC.update(poc_id, update);
 
-    // 5. Audit log
+    // 7. Audit log
     await auditAccessChange(base44, {
       client_account_id: null,
       previous_access_state: poc.client_review_status || 'Pending',

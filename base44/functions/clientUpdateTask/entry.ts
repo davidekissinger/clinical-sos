@@ -21,7 +21,12 @@ export default async function(req) {
     const task = await base44.asServiceRole.entities.Task.get(task_id);
     if (!task) return Response.json({ error: 'Task not found' }, { status: 404 });
 
-    // 2. Resolve client entitlement — check can_complete_tasks capability + tenant scope
+    // 2. Fail closed if task lacks authoritative engagement relationship
+    if (!task.linked_engagement_id) {
+      return Response.json({ error: 'Access denied', reason: 'Task is missing an authoritative engagement relationship.' }, { status: 403 });
+    }
+
+    // 3. Resolve client entitlement — check can_complete_tasks capability + engagement-first tenant scope
     const entitlement = await resolveClientEntitlement(base44, user, {
       requestedCapability: 'can_complete_tasks',
       recordEngagementId: task.linked_engagement_id,
@@ -33,7 +38,12 @@ export default async function(req) {
       return Response.json({ error: 'Access denied', reason: entitlement.reason }, { status: 403 });
     }
 
-    // 3. Build whitelisted update — ONLY client-safe fields
+    // 4. Defense-in-depth: confirm engagement is in authorized scope
+    if (!entitlement.engagement_ids.includes(task.linked_engagement_id)) {
+      return Response.json({ error: 'Access denied', reason: 'Task engagement not in authorized tenant scope' }, { status: 403 });
+    }
+
+    // 5. Build whitelisted update — ONLY client-safe fields
     const update = {
       status: status,
       client_completion_note: completion_note || null,
@@ -43,7 +53,7 @@ export default async function(req) {
 
     await base44.asServiceRole.entities.Task.update(task_id, update);
 
-    // 4. Audit log
+    // 6. Audit log
     await auditAccessChange(base44, {
       client_account_id: null,
       previous_access_state: task.status,

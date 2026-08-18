@@ -31,9 +31,10 @@ export default async function(req) {
 
     const facilityIds = entitlement.facility_ids || [];
     const engagementIds = entitlement.engagement_ids || [];
+    const caps = entitlement.effective_capabilities || {};
     const flt = (r) => Array.isArray(r) ? r : (r?.data || []);
 
-    // ── Engagement Detail ──
+    // ── Engagement Detail (capability-aware bundled response) ──
     if (resource === 'engagement') {
       if (!engagementIds.includes(id)) {
         return Response.json({ error: 'Access denied — engagement not in authorized scope' }, { status: 403 });
@@ -43,37 +44,65 @@ export default async function(req) {
         return Response.json({ error: 'Engagement not found or not published' }, { status: 404 });
       }
 
-      const [cases, deficiencies, pocs, workProducts, evidence, tasks, audits, readiness] = await Promise.all([
-        base44.asServiceRole.entities.RegulatoryCase.list("-created_date", 200),
-        base44.asServiceRole.entities.Deficiency.list("-created_date", 200),
-        base44.asServiceRole.entities.POC.list("-created_date", 200),
-        base44.asServiceRole.entities.WorkProduct.list("-created_date", 200),
-        base44.asServiceRole.entities.EvidenceItem.list("-created_date", 200),
-        base44.asServiceRole.entities.Task.list("-due_date", 100),
-        base44.asServiceRole.entities.AuditTool.list("-created_date", 200),
-        base44.asServiceRole.entities.RevisitReadinessCriterion.list("-created_date", 200),
-      ]);
+      // Build response with independent capability gating for each child resource
+      const response = { engagement: sanitizeEngagement(engagement) };
 
-      const scopedCases = filterByEngagement(filterClientVisible(flt(cases)), id);
-      const scopedDeficiencies = filterByEngagement(filterClientVisible(flt(deficiencies)), id);
-      const scopedPocs = filterByEngagement(filterClientVisible(flt(pocs)), id).filter(p => !["AI Draft", "Clinical Review"].includes(p.status));
-      const scopedWorkProducts = filterByEngagement(filterClientVisible(flt(workProducts)), id).filter(w => !["DRAFT", "CLINICAL REVIEW"].includes(w.document_status));
-      const scopedEvidence = filterByEngagement(filterClientVisible(flt(evidence)), id);
-      const scopedTasks = filterByEngagement(filterClientVisible(flt(tasks)), id);
-      const scopedAudits = filterByEngagement(filterClientVisible(flt(audits)), id);
-      const scopedReadiness = filterByEngagement(filterClientVisible(flt(readiness)), id);
+      // Cases & Deficiencies: governed by can_view_engagement (already verified above)
+      const caseRes = await base44.asServiceRole.entities.RegulatoryCase.list("-created_date", 200);
+      response.cases = filterByEngagement(filterClientVisible(flt(caseRes)), id).map(sanitizeCase);
 
-      return Response.json({
-        engagement: sanitizeEngagement(engagement),
-        cases: scopedCases.map(sanitizeCase),
-        deficiencies: scopedDeficiencies.map(sanitizeDeficiency),
-        pocs: scopedPocs.map(sanitizePOC).filter(Boolean),
-        work_products: scopedWorkProducts.map(sanitizeWorkProduct).filter(Boolean),
-        evidence: scopedEvidence.map(sanitizeEvidence),
-        tasks: scopedTasks.map(sanitizeTask),
-        audits: scopedAudits.map(sanitizeAudit),
-        readiness: scopedReadiness.map(sanitizeReadinessCriterion),
-      });
+      const defRes = await base44.asServiceRole.entities.Deficiency.list("-created_date", 200);
+      response.deficiencies = filterByEngagement(filterClientVisible(flt(defRes)), id).map(sanitizeDeficiency);
+
+      // POCs: ONLY if can_view_poc
+      if (caps.can_view_poc) {
+        const pocRes = await base44.asServiceRole.entities.POC.list("-created_date", 200);
+        response.pocs = filterByEngagement(filterClientVisible(flt(pocRes)), id)
+          .filter(p => !["AI Draft", "Clinical Review"].includes(p.status))
+          .map(sanitizePOC).filter(Boolean);
+      } else {
+        response.pocs = [];
+      }
+
+      // Work Products: ONLY if can_view_documents
+      if (caps.can_view_documents) {
+        const wpRes = await base44.asServiceRole.entities.WorkProduct.list("-created_date", 200);
+        response.work_products = filterByEngagement(filterClientVisible(flt(wpRes)), id)
+          .filter(w => !["DRAFT", "CLINICAL REVIEW"].includes(w.document_status))
+          .map(sanitizeWorkProduct).filter(Boolean);
+      } else {
+        response.work_products = [];
+      }
+
+      // Evidence: ONLY if can_view_evidence
+      if (caps.can_view_evidence) {
+        const evidenceRes = await base44.asServiceRole.entities.EvidenceItem.list("-created_date", 200);
+        response.evidence = filterByEngagement(filterClientVisible(flt(evidenceRes)), id).map(sanitizeEvidence);
+      } else {
+        response.evidence = [];
+      }
+
+      // Tasks: ONLY if can_view_tasks
+      if (caps.can_view_tasks) {
+        const taskRes = await base44.asServiceRole.entities.Task.list("-due_date", 100);
+        response.tasks = filterByEngagement(filterClientVisible(flt(taskRes)), id).map(sanitizeTask);
+      } else {
+        response.tasks = [];
+      }
+
+      // Audits: ONLY if can_view_audits
+      if (caps.can_view_audits) {
+        const auditRes = await base44.asServiceRole.entities.AuditTool.list("-created_date", 200);
+        response.audits = filterByEngagement(filterClientVisible(flt(auditRes)), id).map(sanitizeAudit);
+      } else {
+        response.audits = [];
+      }
+
+      // Readiness: governed by can_view_engagement for V1
+      const readinessRes = await base44.asServiceRole.entities.RevisitReadinessCriterion.list("-created_date", 200);
+      response.readiness = filterByEngagement(filterClientVisible(flt(readinessRes)), id).map(sanitizeReadinessCriterion);
+
+      return Response.json(response);
     }
 
     // ── Case Detail (engagement-first) ──
@@ -96,6 +125,7 @@ export default async function(req) {
         return Response.json({ error: 'Access denied — case has no tenant relationship' }, { status: 403 });
       }
 
+      // Only return deficiencies — no POCs, evidence, documents, audits, or tasks leaked through case detail
       const defRes = await base44.asServiceRole.entities.Deficiency.list("-created_date", 200);
       const scopedDeficiencies = filterByEngagement(filterClientVisible(flt(defRes)), regCase.engagement_id)
         .filter(d => d.regulatory_case_id === id);
@@ -106,7 +136,7 @@ export default async function(req) {
       });
     }
 
-    // ── Deficiency Detail (engagement-first) ──
+    // ── Deficiency Detail (engagement-first, POC capability-gated) ──
     if (resource === 'deficiency') {
       const deficiency = await base44.asServiceRole.entities.Deficiency.get(id);
       if (!deficiency || !deficiency.client_visibility) {
@@ -126,13 +156,18 @@ export default async function(req) {
         return Response.json({ error: 'Access denied — deficiency has no tenant relationship' }, { status: 403 });
       }
 
-      const pocRes = await base44.asServiceRole.entities.POC.list("-created_date", 200);
-      const scopedPocs = filterClientVisible(flt(pocRes))
-        .filter(p => p.deficiency_id === id && !["AI Draft", "Clinical Review"].includes(p.status));
+      // POCs: ONLY if can_view_poc — do NOT reject the deficiency view if POC capability is absent
+      let pocs = [];
+      if (caps.can_view_poc) {
+        const pocRes = await base44.asServiceRole.entities.POC.list("-created_date", 200);
+        pocs = filterClientVisible(flt(pocRes))
+          .filter(p => p.deficiency_id === id && !["AI Draft", "Clinical Review"].includes(p.status))
+          .map(sanitizePOC).filter(Boolean);
+      }
 
       return Response.json({
         deficiency: sanitizeDeficiency(deficiency),
-        pocs: scopedPocs.map(sanitizePOC).filter(Boolean),
+        pocs: pocs,
       });
     }
 

@@ -70,6 +70,15 @@ export default async function(req) {
     previousState = membership.membership_status;
 
     if (action === 'activate') {
+      // V1 INVARIANT: Check for another Active membership BEFORE updating status
+      const allMemberships = await base44.asServiceRole.entities.ClientMembership.filter({ client_user_id: membership.client_user_id });
+      const otherActive = (allMemberships || []).filter(m => m.membership_status === "Active" && m.id !== membership_id);
+      if (otherActive.length > 0) {
+        return Response.json({
+          error: 'V1 Client Portal supports one active Client Membership per user. Suspend, revoke, or expire the existing membership before activating another.'
+        }, { status: 409 });
+      }
+
       await base44.asServiceRole.entities.ClientMembership.update(membership_id, {
         membership_status: 'Active', activated_date: new Date().toISOString()
       });
@@ -107,7 +116,7 @@ export default async function(req) {
 
       await base44.asServiceRole.entities.ClientMembership.update(membership_id, update);
 
-      // Re-sync using centralized helper
+      // Re-sync using centralized helper — preserves one-active invariant
       if (membership.membership_status === 'Active') {
         const effective = calculateEffectiveClientAccessStatus(account);
         const updated = { ...membership, ...update };
