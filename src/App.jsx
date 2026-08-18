@@ -49,6 +49,24 @@ import Cases from '@/pages/cc/Cases';
 import CaseDetail from '@/pages/cc/CaseDetail';
 import DeficiencyDetail from '@/pages/cc/DeficiencyDetail';
 import Knowledge from '@/pages/cc/Knowledge';
+import ClientAccounts from '@/pages/cc/ClientAccounts';
+
+// Client portal
+import ClientPortalLayout from '@/components/portal/ClientPortalLayout';
+import ClientEntitlementRoute from '@/components/portal/ClientEntitlementRoute';
+import ClientDashboard from '@/pages/portal/Dashboard';
+import ClientEngagements from '@/pages/portal/Engagements';
+import ClientEngagementDetail from '@/pages/portal/EngagementDetail';
+import ClientRecovery from '@/pages/portal/Recovery';
+import ClientPOCs from '@/pages/portal/POCs';
+import ClientWorkProducts from '@/pages/portal/WorkProducts';
+import ClientEvidence from '@/pages/portal/Evidence';
+import ClientAudits from '@/pages/portal/Audits';
+import ClientTasks from '@/pages/portal/Tasks';
+import ClientReadiness from '@/pages/portal/Readiness';
+import ClientDocuments from '@/pages/portal/Documents';
+import ClientAccount from '@/pages/portal/Account';
+import AccessPending from '@/pages/AccessPending';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -97,6 +115,31 @@ const AuthenticatedApp = () => {
         <Route path="/accessibility" element={<Accessibility />} />
       </Route>
 
+      {/* Access pending — for users with no role assignment */}
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        <Route path="/access-pending" element={<AccessPending />} />
+      </Route>
+
+      {/* Client portal — authenticated + client-entitled */}
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        <Route element={<ClientEntitlementRoute />}>
+          <Route element={<ClientPortalLayout />}>
+            <Route path="/client" element={<ClientDashboard />} />
+            <Route path="/client/engagements" element={<ClientEngagements />} />
+            <Route path="/client/engagements/:id" element={<ClientEngagementDetail />} />
+            <Route path="/client/recovery" element={<ClientRecovery />} />
+            <Route path="/client/pocs" element={<ClientPOCs />} />
+            <Route path="/client/work-products" element={<ClientWorkProducts />} />
+            <Route path="/client/evidence" element={<ClientEvidence />} />
+            <Route path="/client/audits" element={<ClientAudits />} />
+            <Route path="/client/tasks" element={<ClientTasks />} />
+            <Route path="/client/readiness" element={<ClientReadiness />} />
+            <Route path="/client/documents" element={<ClientDocuments />} />
+            <Route path="/client/account" element={<ClientAccount />} />
+          </Route>
+        </Route>
+      </Route>
+
       {/* Private command center — authenticated + role-authorized */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route element={<RoleProtectedRoute roles={['admin', 'business_development', 'clinical', 'finance', 'read_only']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
@@ -126,6 +169,7 @@ const AuthenticatedApp = () => {
             </Route>
             <Route element={<RoleProtectedRoute roles={['admin']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
               <Route path="/command-center/launch-readiness" element={<LaunchReadiness />} />
+              <Route path="/command-center/client-accounts" element={<ClientAccounts />} />
               <Route path="/command-center/settings" element={<Settings />} />
             </Route>
           </Route>

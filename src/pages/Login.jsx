@@ -43,12 +43,9 @@ export default function Login() {
       subtitle="Log in to your account"
       footer={
         <>
-          Don't have an account?{" "}
-          <Link
-            to={"/register" + (returnTo !== "/" ? "?returnTo=" + encodeURIComponent(returnTo) : "")}
-            className="text-primary font-medium hover:underline"
-          >
-            Create one
+          Client access is provided by invitation.{" "}
+          <Link to="/contact" className="text-primary font-medium hover:underline">
+            Need access? Contact Clinical SOS.
           </Link>
         </>
       }

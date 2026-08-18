@@ -22,6 +22,7 @@ const NAV = [
   { label: "Outreach", path: "/command-center/outreach", icon: Send, roles: ["admin", "business_development", "clinical"] },
   { label: "Proposals", path: "/command-center/proposals", icon: FileText, roles: ["admin", "business_development", "finance"] },
   { label: "Engagements", path: "/command-center/engagements", icon: ShieldCheck, roles: ["admin", "clinical", "finance", "read_only"] },
+  { label: "Client Accounts", path: "/command-center/client-accounts", icon: Users, roles: ["admin"] },
   { label: "Recovery Studio", path: "/command-center/recovery", icon: Stethoscope, roles: ["admin", "clinical", "read_only"] },
   { label: "Regulatory Cases", path: "/command-center/cases", icon: ClipboardList, roles: ["admin", "clinical", "read_only"] },
   { label: "Knowledge Library", path: "/command-center/knowledge", icon: BookOpen, roles: ["admin", "clinical", "read_only"] },
