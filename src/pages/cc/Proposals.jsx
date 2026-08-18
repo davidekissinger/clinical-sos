@@ -3,7 +3,7 @@ import { PageHeader, Badge, Table, EmptyState, LoadingState } from "@/components
 import { useEntities } from "@/hooks/useEntities";
 
 export default function Proposals() {
-  const proposals = useEntities("Proposal", { sort: "-created_date", limit: 200 });
+  const proposals = useEntities("Proposal", { sort: "-created_date", limit: 200, excludeTestData: true });
   if (proposals.loading) return <LoadingState />;
 
   return (

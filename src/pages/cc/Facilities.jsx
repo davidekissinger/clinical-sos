@@ -3,7 +3,7 @@ import { PageHeader, Badge, Table, EmptyState, LoadingState } from "@/components
 import { useEntities } from "@/hooks/useEntities";
 
 export default function Facilities() {
-  const facilities = useEntities("Facility", { sort: "-created_date", limit: 200 });
+  const facilities = useEntities("Facility", { sort: "-created_date", limit: 200, excludeTestData: true });
   if (facilities.loading) return <LoadingState />;
 
   return (

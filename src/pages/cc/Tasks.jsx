@@ -11,7 +11,7 @@ const COLUMNS = [
 ];
 
 export default function Tasks() {
-  const tasks = useEntities("Task", { sort: "-due_date", limit: 200 });
+  const tasks = useEntities("Task", { sort: "-due_date", limit: 200, excludeTestData: true });
   const [updating, setUpdating] = useState(null);
 
   if (tasks.loading) return <LoadingState />;

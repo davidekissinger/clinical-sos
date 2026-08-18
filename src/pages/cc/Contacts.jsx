@@ -3,7 +3,7 @@ import { PageHeader, Badge, Table, EmptyState, LoadingState } from "@/components
 import { useEntities } from "@/hooks/useEntities";
 
 export default function Contacts() {
-  const contacts = useEntities("Contact", { sort: "-created_date", limit: 200 });
+  const contacts = useEntities("Contact", { sort: "-created_date", limit: 200, excludeTestData: true });
   if (contacts.loading) return <LoadingState />;
 
   return (

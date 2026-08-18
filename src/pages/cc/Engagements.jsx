@@ -3,7 +3,7 @@ import { PageHeader, Badge, Table, EmptyState, LoadingState } from "@/components
 import { useEntities } from "@/hooks/useEntities";
 
 export default function Engagements() {
-  const engagements = useEntities("Engagement", { sort: "-created_date", limit: 200 });
+  const engagements = useEntities("Engagement", { sort: "-created_date", limit: 200, excludeTestData: true });
   if (engagements.loading) return <LoadingState />;
 
   return (

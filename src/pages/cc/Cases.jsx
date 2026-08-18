@@ -6,7 +6,7 @@ import { useEntities } from "@/hooks/useEntities";
 import { Plus, Search, FilePlus } from "lucide-react";
 
 export default function Cases() {
-  const cases = useEntities("RegulatoryCase", { sort: "-created_date", limit: 200 });
+  const cases = useEntities("RegulatoryCase", { sort: "-created_date", limit: 200, excludeTestData: true });
   const [showNew, setShowNew] = useState(false);
   const [search, setSearch] = useState("");
   const [form, setForm] = useState({ case_name: "", facility_name: "", client_name: "", survey_date: "", case_status: "Intake" });

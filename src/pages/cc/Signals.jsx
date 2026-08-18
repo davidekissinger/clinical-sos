@@ -3,7 +3,7 @@ import { PageHeader, Badge, Table, EmptyState, LoadingState } from "@/components
 import { useEntities } from "@/hooks/useEntities";
 
 export default function Signals() {
-  const signals = useEntities("RegulatorySignal", { sort: "-date_retrieved", limit: 200 });
+  const signals = useEntities("RegulatorySignal", { sort: "-date_retrieved", limit: 200, excludeTestData: true });
   if (signals.loading) return <LoadingState />;
 
   return (

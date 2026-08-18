@@ -7,7 +7,7 @@ import { base44 } from "@/api/base44Client";
 const TIERS = ["All", "Tier 1", "Tier 2", "Tier 3", "Nurture"];
 
 export default function Leads() {
-  const leads = useEntities("Lead", { sort: "-lead_score", limit: 200 });
+  const leads = useEntities("Lead", { sort: "-lead_score", limit: 200, excludeTestData: true });
   const [tier, setTier] = useState("All");
   const [updating, setUpdating] = useState(null);
 
