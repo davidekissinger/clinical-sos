@@ -4,7 +4,8 @@ import { base44 } from "@/api/base44Client";
 import { AlertTriangle } from "lucide-react";
 
 export default function ClientEvidence() {
-  const { entitlement } = useOutletContext();
+  const outletContext = useOutletContext();
+  const entitlement = outletContext?.entitlement;
   const [evidence, setEvidence] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionResult, setActionResult] = useState(null);

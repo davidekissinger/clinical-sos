@@ -3,7 +3,8 @@ import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 
 export default function ClientWorkProducts() {
-  const { entitlement } = useOutletContext();
+  const outletContext = useOutletContext();
+  const entitlement = outletContext?.entitlement;
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 

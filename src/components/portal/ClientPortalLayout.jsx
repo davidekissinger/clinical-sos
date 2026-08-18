@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import { Menu, X, LogOut, Home, Briefcase, ClipboardList, FileText, FolderCheck, ClipboardCheck, ListChecks, ShieldCheck, FolderOpen, UserCircle } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/lib/AuthContext";
 import { cn } from "@/lib/utils";
 import AccountStatusBanner from "@/components/portal/AccountStatusBanner";
+import ClientPortalErrorBoundary from "@/components/portal/ClientPortalErrorBoundary";
 
 const NAV = [
   { label: "Home", path: "/client", icon: Home },
@@ -26,6 +27,7 @@ export default function ClientPortalLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const outletContext = useOutletContext();
 
   const handleLogout = () => {
     logout(false);
@@ -94,7 +96,9 @@ export default function ClientPortalLayout() {
         </header>
         <AccountStatusBanner />
         <main id="client-main-content" className="flex-1 p-5 lg:p-8 overflow-x-hidden">
-          <Outlet />
+          <ClientPortalErrorBoundary>
+            <Outlet context={outletContext} />
+          </ClientPortalErrorBoundary>
         </main>
       </div>
     </div>

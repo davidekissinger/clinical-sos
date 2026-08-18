@@ -3,7 +3,8 @@ import { useOutletContext } from "react-router-dom";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 export default function ClientAccount() {
-  const { entitlement } = useOutletContext();
+  const outletContext = useOutletContext();
+  const entitlement = outletContext?.entitlement;
 
   const facilities = entitlement?.authorized_facilities || [];
   const engagements = entitlement?.authorized_engagements || [];

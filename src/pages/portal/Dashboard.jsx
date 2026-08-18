@@ -5,7 +5,8 @@ import { base44 } from "@/api/base44Client";
 import { Briefcase, ClipboardList, ClipboardCheck, FolderCheck, ListChecks, AlertTriangle } from "lucide-react";
 
 export default function ClientDashboard() {
-  const { entitlement } = useOutletContext();
+  const outletContext = useOutletContext();
+  const entitlement = outletContext?.entitlement;
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
