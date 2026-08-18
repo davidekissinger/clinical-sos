@@ -147,6 +147,15 @@
               "data.client_visibility": true
             },
             {
+              "data.document_status": {
+                "$in": [
+                  "CLIENT REVIEW",
+                  "APPROVED",
+                  "FINAL"
+                ]
+              }
+            },
+            {
               "$or": [
                 {
                   "data.facility_id": {
