@@ -1,40 +1,31 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 
-// Text-based logo honoring the Clinical SOS identity:
-// light lavender "CLINICAL" + darker purple "SOS" with integrated medical cross.
-// Uses the described brand palette; no distortion/effects applied.
-export default function Logo({ variant = "horizontal", className, onDark = false }) {
-  if (variant === "vertical") {
-    return (
-      <div className={cn("flex flex-col items-center gap-1", className)}>
-        <WordMark onDark={onDark} />
-      </div>
-    );
-  }
-  return <WordMark className={className} onDark={onDark} />;
-}
+const LOGOS = {
+  horizontal: "https://media.base44.com/images/public/6a81d38c272422709e43236f/534ee6237_ClinicalSOS-final-Horiz.jpg",
+  horizontalDark: "https://media.base44.com/images/public/6a81d38c272422709e43236f/18e9988d9_ClinicalSOS-final-Horiz.png",
+  vertical: "https://media.base44.com/images/public/6a81d38c272422709e43236f/c6e1187c7_ClinicalSOS-final-Vert.jpg",
+  verticalDark: "https://media.base44.com/images/public/6a81d38c272422709e43236f/189258794_ClinicalSOS-final-Vert-cut-Reverse.png",
+};
 
-function WordMark({ className, onDark }) {
+export default function Logo({ variant = "horizontal", className, onDark = false }) {
+  const src = onDark
+    ? variant === "vertical"
+      ? LOGOS.verticalDark
+      : LOGOS.horizontalDark
+    : variant === "vertical"
+      ? LOGOS.vertical
+      : LOGOS.horizontal;
+
   return (
-    <span className={cn("inline-flex items-center gap-1.5 select-none", className)}>
-      <span className={cn("font-heading font-extrabold tracking-tight text-[1.15rem] leading-none",
-        onDark ? "text-[hsl(258_70%_92%)]" : "text-[hsl(262_45%_45%)]")}>
-        CLINICAL
-      </span>
-      <span className="relative inline-flex items-center justify-center">
-        <span className={cn("font-heading font-extrabold tracking-tight text-[1.15rem] leading-none",
-          onDark ? "text-white" : "text-[hsl(262_58%_34%)]")}>
-          SOS
-        </span>
-        <span className={cn("absolute -right-2.5 top-1/2 -translate-y-1/2 h-3 w-3 rounded-[2px]",
-          onDark ? "bg-[hsl(258_70%_92%)]" : "bg-[hsl(262_58%_44%)]")}>
-          <span className="absolute inset-0 flex items-center justify-center text-white">
-            <span className="absolute h-[1.5px] w-[7px] bg-white rounded-full" />
-            <span className="absolute h-[7px] w-[1.5px] bg-white rounded-full" />
-          </span>
-        </span>
-      </span>
-    </span>
+    <img
+      src={src}
+      alt="Clinical SOS"
+      className={cn(
+        "object-contain select-none",
+        variant === "vertical" ? "h-12" : "h-8",
+        className
+      )}
+    />
   );
 }
