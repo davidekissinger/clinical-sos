@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { PageHero } from "@/components/PageCta";
 import PageCta from "@/components/PageCta";
 import { TEAM } from "@/lib/siteContent";
+import { Image } from "@/components/ui/image";
 
 export default function About() {
   return (
@@ -49,22 +50,36 @@ export default function About() {
         <div className="container-prose">
           <p className="section-eyebrow">Leadership Team</p>
           <h2 className="mt-3 text-3xl font-bold">The team behind Clinical SOS</h2>
-          <div className="mt-10 grid md:grid-cols-3 gap-5">
+          <div className="mt-10 grid md:grid-cols-3 gap-6">
             {TEAM.map((m) => (
-              <div key={m.name} className="card-elevated p-6">
-                <div className="h-14 w-14 rounded-full bg-accent flex items-center justify-center text-[hsl(262_50%_45%)] font-bold">
-                  {m.initials}
+              <div key={m.name} className="card-elevated overflow-hidden flex flex-col">
+                <div className="relative w-full bg-secondary/40" style={{ aspectRatio: "4 / 5" }}>
+                  {m.photo ? (
+                    <Image
+                      src={m.photo}
+                      alt={`${m.name} — ${m.role}`}
+                      fittingType="fill"
+                      focalPointY={0.3}
+                      className="absolute inset-0 w-full h-full"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-3xl font-bold text-[hsl(262_50%_45%)]">
+                      {m.initials}
+                    </div>
+                  )}
                 </div>
-                <h3 className="mt-4 font-semibold">{m.name}</h3>
-                <p className="text-sm text-[hsl(262_50%_45%)] font-medium">{m.role}</p>
-                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{m.bio}</p>
-                <ul className="mt-4 space-y-1.5">
-                  {m.focus.map((f) => (
-                    <li key={f} className="text-sm text-muted-foreground flex gap-2 items-start">
-                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[hsl(262_58%_44%)] flex-shrink-0" />{f}
-                    </li>
-                  ))}
-                </ul>
+                <div className="p-6 flex flex-col flex-1">
+                  <h3 className="font-semibold">{m.name}</h3>
+                  <p className="text-sm text-[hsl(262_50%_45%)] font-medium">{m.role}</p>
+                  <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{m.bio}</p>
+                  <ul className="mt-4 space-y-1.5">
+                    {m.focus.map((f) => (
+                      <li key={f} className="text-sm text-muted-foreground flex gap-2 items-start">
+                        <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[hsl(262_58%_44%)] flex-shrink-0" />{f}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             ))}
           </div>

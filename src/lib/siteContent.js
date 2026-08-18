@@ -103,6 +103,7 @@ export const TEAM = [
     name: "Mindy Jensen, RN",
     role: "Co-Founder | Clinical Leadership",
     initials: "MJ",
+    photo: "https://static.wixstatic.com/media/99322d_4962391effc14625a3272ac6e80eb1ba~mv2.jpg",
     focus: [
       "Long-term care clinical leadership",
       "Skilled nursing operations",
@@ -115,6 +116,7 @@ export const TEAM = [
     name: "David Kissinger, BSHA, RN",
     role: "Co-Founder | Strategy and Business Development",
     initials: "DK",
+    photo: "https://static.wixstatic.com/media/99322d_907dc51bd7d544d0be18c0b0c5f0df71~mv2.jpg",
     focus: [
       "Business development and strategy",
       "Client engagement",
@@ -127,6 +129,7 @@ export const TEAM = [
     name: "Matthew Bartow",
     role: "Co-Founder | Operations and Finance",
     initials: "MB",
+    photo: "https://static.wixstatic.com/media/99322d_425b50ada8b54e21aee5db280bb76e47~mv2.jpg",
     focus: [
       "Operations",
       "Finance and billing",
