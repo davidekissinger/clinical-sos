@@ -13,7 +13,11 @@
         "Verification",
         "Communication",
         "Workflow",
-        "Infrastructure"
+        "Infrastructure",
+        "Regulatory Integrity",
+        "Work Product Integrity",
+        "Test Data",
+        "Route Security"
       ]
     },
     "status": {
@@ -21,16 +25,48 @@
       "enum": [
         "PASS",
         "WARNING",
-        "FAIL"
+        "FAIL",
+        "NOT TESTED"
       ],
-      "default": "WARNING"
+      "default": "NOT TESTED"
+    },
+    "implementation_status": {
+      "type": "string",
+      "enum": [
+        "Not Implemented",
+        "Implemented",
+        "N/A"
+      ],
+      "default": "Not Implemented"
+    },
+    "test_status": {
+      "type": "string",
+      "enum": [
+        "Not Tested",
+        "Passed",
+        "Failed",
+        "Blocked"
+      ],
+      "default": "Not Tested"
     },
     "last_tested_date": {
       "type": "string",
       "format": "date-time"
     },
-    "evidence": {
+    "test_method": {
+      "type": "string",
+      "title": "Test Method"
+    },
+    "test_evidence": {
+      "type": "string",
+      "title": "Test Evidence"
+    },
+    "tester": {
       "type": "string"
+    },
+    "result": {
+      "type": "string",
+      "title": "Result / Notes"
     },
     "unresolved_issue": {
       "type": "string"

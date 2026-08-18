@@ -1,0 +1,133 @@
+{
+  "name": "RevisitReadinessCriterion",
+  "type": "object",
+  "properties": {
+    "deficiency_id": {
+      "type": "string",
+      "title": "Deficiency ID"
+    },
+    "regulatory_case_id": {
+      "type": "string"
+    },
+    "facility_id": {
+      "type": "string"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "criterion_label": {
+      "type": "string",
+      "title": "Criterion Label"
+    },
+    "criterion_key": {
+      "type": "string",
+      "title": "Criterion Key"
+    },
+    "derivation_source": {
+      "type": "string",
+      "enum": [
+        "Automatic",
+        "Manual"
+      ],
+      "default": "Automatic",
+      "title": "Derivation Source"
+    },
+    "source_entity": {
+      "type": "string",
+      "title": "Source Entity (e.g. AuditTool, EvidenceItem, EducationPlan)"
+    },
+    "source_record_id": {
+      "type": "string"
+    },
+    "is_met": {
+      "type": "boolean",
+      "default": false
+    },
+    "met_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidence_summary": {
+      "type": "string"
+    },
+    "manual_reviewer": {
+      "type": "string"
+    },
+    "manual_review_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "blocks_readiness": {
+      "type": "boolean",
+      "default": true,
+      "title": "Blocks Readiness if Unmet"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "is_test_data": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "deficiency_id",
+    "criterion_label",
+    "criterion_key",
+    "is_met"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "read_only"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

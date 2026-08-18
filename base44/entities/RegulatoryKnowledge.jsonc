@@ -7,10 +7,16 @@
       "title": "F-Tag"
     },
     "title": {
-      "type": "string"
+      "type": "string",
+      "title": "Official / Current Title"
     },
     "regulation_reference": {
-      "type": "string"
+      "type": "string",
+      "title": "CFR Reference"
+    },
+    "cms_appendix_pp_reference": {
+      "type": "string",
+      "title": "CMS Appendix PP Reference"
     },
     "plain_language_regulatory_focus": {
       "type": "string"
@@ -40,14 +46,22 @@
       "type": "string"
     },
     "source": {
-      "type": "string"
+      "type": "string",
+      "title": "Authoritative Source"
     },
     "source_url": {
-      "type": "string"
+      "type": "string",
+      "title": "Source URL"
     },
     "source_date": {
       "type": "string",
-      "format": "date"
+      "format": "date",
+      "title": "Effective / Revision Date"
+    },
+    "last_verified_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Last Verified Date"
     },
     "last_reviewed": {
       "type": "string",
@@ -60,11 +74,12 @@
       "type": "string",
       "enum": [
         "Draft",
+        "Verification Required",
         "Clinical Review",
         "Approved",
         "Retired"
       ],
-      "default": "Draft"
+      "default": "Verification Required"
     },
     "version": {
       "type": "string"

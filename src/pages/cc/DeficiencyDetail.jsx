@@ -3,8 +3,12 @@ import { Link, useParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
-import { ArrowLeft, Save, AlertTriangle, FileText, ClipboardCheck, GraduationCap, FolderCheck, Stethoscope, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Save, AlertTriangle, FileText, ClipboardCheck, GraduationCap, FolderCheck, Stethoscope, ShieldCheck, Lock } from "lucide-react";
 import POCBuilder from "@/components/cc/POCBuilder";
+import AuditToolForm from "@/components/cc/AuditToolForm";
+import EducationPlanForm from "@/components/cc/EducationPlanForm";
+import EvidenceItemForm from "@/components/cc/EvidenceItemForm";
+import QAPIReviewForm from "@/components/cc/QAPIReviewForm";
 
 const TABS = [
   { key: "identification", label: "Identification", icon: FileText },
@@ -31,18 +35,55 @@ export default function DeficiencyDetail() {
   const education = useEntities("EducationPlan", { limit: 100 });
   const evidence = useEntities("EvidenceItem", { sort: "-created_date", limit: 200 });
   const qapi = useEntities("QAPIReview", { limit: 100 });
+  const readiness = useEntities("RevisitReadinessCriterion", { limit: 50 });
   const [tab, setTab] = useState("identification");
   const [rcaText, setRcaText] = useState("");
   const [saving, setSaving] = useState(false);
+  const [showAuditForm, setShowAuditForm] = useState(false);
+  const [showEducationForm, setShowEducationForm] = useState(false);
+  const [showEvidenceForm, setShowEvidenceForm] = useState(false);
+  const [showQapiForm, setShowQapiForm] = useState(false);
+  const [closureResult, setClosureResult] = useState(null);
+  const [closing, setClosing] = useState(false);
 
   const def = deficiencies.data.find(d => d.id === id);
   const defAudits = audits.data.filter(a => a.deficiency_id === id);
   const defEducation = education.data.filter(e => e.deficiency_id === id);
   const defEvidence = evidence.data.filter(e => e.deficiency_id === id);
   const defQapi = qapi.data.filter(q => q.deficiency_id === id);
+  const defReadiness = readiness.data.filter(r => r.deficiency_id === id);
 
   if (deficiencies.loading) return <LoadingState />;
   if (!def) return <div><Link to="/command-center/cases" className="text-sm text-muted-foreground hover:text-primary">← Back</Link><EmptyState text="Deficiency not found" /></div>;
+
+  const reloadAll = () => { deficiencies.reload(); audits.reload(); education.reload(); evidence.reload(); qapi.reload(); readiness.reload(); };
+
+  const attemptClosure = async (force = false, reason = "") => {
+    setClosing(true);
+    setClosureResult(null);
+    try {
+      const result = await base44.functions.invoke("closeDeficiency", {
+        deficiency_id: def.id,
+        force,
+        override_reason: reason,
+      });
+      const data = result.data || result;
+      setClosureResult(data);
+      if (data.closed) { deficiencies.reload(); }
+    } catch (e) { console.error(e); }
+    finally { setClosing(false); }
+  };
+
+  const assessReadiness = async (manualCriteria = {}) => {
+    try {
+      await base44.functions.invoke("updateRevisitReadiness", {
+        deficiency_id: def.id,
+        manual_criteria: manualCriteria,
+      });
+      readiness.reload();
+      deficiencies.reload();
+    } catch (e) { console.error(e); }
+  };
 
   return (
     <div>
@@ -55,25 +96,19 @@ export default function DeficiencyDetail() {
         subtitle={`${def.facility_name || "—"} · ${def.scope_severity || "—"} · ${def.deficiency_status}`}
       />
 
-      {/* Status badges */}
       <div className="flex flex-wrap items-center gap-2 mb-5">
         {def.immediate_jeopardy === "Yes" && <Badge tone="red">Immediate Jeopardy</Badge>}
         {def.immediate_safety_concern && <Badge tone="red">Immediate Safety Concern</Badge>}
         <Badge tone={def.deficiency_status === "Closed" ? "green" : def.deficiency_status === "Approved" ? "blue" : "default"}>{def.deficiency_status}</Badge>
         <Badge tone={def.revisit_readiness_status === "Ready" ? "green" : def.revisit_readiness_status === "Not Ready" || def.revisit_readiness_status === "Significant Gaps" ? "red" : "amber"}>Revisit: {def.revisit_readiness_status}</Badge>
         {def.is_test_data && <Badge tone="amber">TEST DATA</Badge>}
+        {def.closure_override && <Badge tone="red">Closure Override</Badge>}
+        {!def.regulatory_mapping_verified && <Badge tone="amber">REGULATORY MAPPING REQUIRES VERIFICATION</Badge>}
       </div>
 
-      {/* Tab Navigation */}
       <div className="flex flex-wrap gap-1 mb-5 border-b border-border overflow-x-auto">
         {TABS.map(t => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium border-b-2 transition whitespace-nowrap ${
-              tab === t.key ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
+          <button key={t.key} onClick={() => setTab(t.key)} className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium border-b-2 transition whitespace-nowrap ${tab === t.key ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
             <t.icon className="h-4 w-4" /> {t.label}
             {t.key === "audits" && defAudits.length > 0 && <span className="ml-1 text-xs bg-secondary rounded-full px-1.5">{defAudits.length}</span>}
             {t.key === "evidence" && defEvidence.length > 0 && <span className="ml-1 text-xs bg-secondary rounded-full px-1.5">{defEvidence.length}</span>}
@@ -81,15 +116,14 @@ export default function DeficiencyDetail() {
         ))}
       </div>
 
-      {/* Tab Content */}
       {tab === "identification" && <IdentificationTab def={def} />}
-      {tab === "poc" && <POCBuilder deficiency={def} />}
+      {tab === "poc" && <POCBuilder deficiency={def} onSaved={reloadAll} />}
       {tab === "rca" && <RCATab def={def} rcaText={rcaText} setRcaText={setRcaText} />}
-      {tab === "audits" && <AuditsTab def={def} audits={defAudits} />}
-      {tab === "education" && <EducationTab def={def} education={defEducation} />}
-      {tab === "evidence" && <EvidenceTab def={def} evidence={defEvidence} />}
-      {tab === "qapi" && <QAPITab def={def} qapi={defQapi} />}
-      {tab === "revisit" && <RevisitTab def={def} />}
+      {tab === "audits" && <AuditsTab def={def} audits={defAudits} showForm={showAuditForm} setShowForm={setShowAuditForm} onSaved={reloadAll} />}
+      {tab === "education" && <EducationTab def={def} education={defEducation} showForm={showEducationForm} setShowForm={setShowEducationForm} onSaved={reloadAll} />}
+      {tab === "evidence" && <EvidenceTab def={def} evidence={defEvidence} showForm={showEvidenceForm} setShowForm={setShowEvidenceForm} onSaved={reloadAll} />}
+      {tab === "qapi" && <QAPITab def={def} qapi={defQapi} showForm={showQapiForm} setShowForm={setShowQapiForm} onSaved={reloadAll} />}
+      {tab === "revisit" && <RevisitTab def={def} readiness={defReadiness} onAssess={assessReadiness} />}
     </div>
   );
 }
@@ -110,7 +144,10 @@ function IdentificationTab({ def }) {
     { key: "f_tag", label: "F-Tag" },
     { key: "regulation_reference", label: "Regulation Reference" },
     { key: "deficiency_title", label: "Deficiency Title" },
-    { key: "scope_severity", label: "Scope & Severity" },
+    { key: "scope_severity", label: "Scope & Severity (source wording)" },
+    { key: "scope_severity_letter", label: "Scope & Severity Letter", type: "select", options: ["", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "Unknown"] },
+    { key: "harm_level", label: "Harm Level", type: "select", options: ["", "No actual harm with potential for minimal harm", "Minimal harm", "No actual harm with potential for more than minimal harm", "Actual harm", "Immediate jeopardy", "Unknown"] },
+    { key: "scope_level", label: "Scope", type: "select", options: ["", "Isolated", "Pattern", "Widespread", "Unknown"] },
     { key: "immediate_jeopardy", label: "Immediate Jeopardy", type: "select", options: ["Yes", "No", "Unknown"] },
     { key: "source_cms_2567", label: "Source CMS-2567" },
     { key: "page_reference", label: "Page Reference" },
@@ -146,7 +183,7 @@ function IdentificationTab({ def }) {
                 <textarea value={form[f.key] || ""} onChange={e => setForm({...form, [f.key]: e.target.value})} rows={3} className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
               ) : f.type === "select" ? (
                 <select value={form[f.key] || ""} onChange={e => setForm({...form, [f.key]: e.target.value})} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white">
-                  {f.options.map(o => <option key={o} value={o}>{o}</option>)}
+                  {f.options.map(o => <option key={o} value={o}>{o || "—"}</option>)}
                 </select>
               ) : f.type === "boolean" ? (
                 <select value={form[f.key] ? "true" : "false"} onChange={e => setForm({...form, [f.key]: e.target.value === "true"})} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white">
@@ -171,9 +208,7 @@ function RCATab({ def, rcaText, setRcaText }) {
   const [contributingFactors, setContributingFactors] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const toggleCat = (cat) => {
-    setCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
-  };
+  const toggleCat = (cat) => setCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
 
   const save = async () => {
     setSaving(true);
@@ -192,24 +227,14 @@ function RCATab({ def, rcaText, setRcaText }) {
         <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
         <p className="text-xs text-amber-800">AI may assist with questions and draft analysis, but the consultant must approve the final root cause. Never invent contributing factors not supported by evidence.</p>
       </div>
-
       <div className="bg-white rounded-xl border border-border p-5">
         <h3 className="font-semibold text-foreground text-sm mb-3">Root Cause Categories</h3>
         <div className="flex flex-wrap gap-2">
           {ROOT_CAUSE_CATEGORIES.map(cat => (
-            <button
-              key={cat}
-              onClick={() => toggleCat(cat)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
-                categories.includes(cat) ? "bg-primary text-primary-foreground border-primary" : "bg-white text-muted-foreground border-border hover:border-primary"
-              }`}
-            >
-              {cat}
-            </button>
+            <button key={cat} onClick={() => toggleCat(cat)} className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${categories.includes(cat) ? "bg-primary text-primary-foreground border-primary" : "bg-white text-muted-foreground border-border hover:border-primary"}`}>{cat}</button>
           ))}
         </div>
       </div>
-
       <div className="bg-white rounded-xl border border-border p-5">
         <h3 className="font-semibold text-foreground text-sm mb-3">5 Whys Analysis</h3>
         <div className="space-y-3">
@@ -221,24 +246,23 @@ function RCATab({ def, rcaText, setRcaText }) {
           ))}
         </div>
       </div>
-
       <div className="bg-white rounded-xl border border-border p-5">
         <h3 className="font-semibold text-foreground text-sm mb-3">Contributing Factor Summary</h3>
         <textarea value={contributingFactors} onChange={e => setContributingFactors(e.target.value)} rows={4} placeholder="Summarize the contributing factors identified…" className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
       </div>
-
       <button onClick={save} disabled={saving} className="btn-primary text-sm disabled:opacity-60"><Save className="h-4 w-4" /> {saving ? "Saving…" : "Save Root Cause Analysis"}</button>
     </div>
   );
 }
 
-function AuditsTab({ def, audits }) {
+function AuditsTab({ def, audits, showForm, setShowForm, onSaved }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-semibold text-foreground">Audit Tools</h2>
-        <button className="btn-primary text-sm"><ClipboardCheck className="h-4 w-4" /> New Audit</button>
+        <button onClick={() => setShowForm(!showForm)} className="btn-primary text-sm"><ClipboardCheck className="h-4 w-4" /> New Audit</button>
       </div>
+      {showForm && <div className="mb-4"><AuditToolForm deficiency={def} onSaved={() => { setShowForm(false); onSaved(); }} onCancel={() => setShowForm(false)} /></div>}
       <div className="space-y-3">
         {audits.map(a => (
           <div key={a.id} className="bg-white rounded-xl border border-border p-4">
@@ -253,19 +277,20 @@ function AuditsTab({ def, audits }) {
             {a.what_remains_unresolved && <p className="mt-1 text-xs text-rose-600">Unresolved: {a.what_remains_unresolved}</p>}
           </div>
         ))}
-        {audits.length === 0 && <EmptyState text="No audit tools created yet" icon={ClipboardCheck} />}
+        {audits.length === 0 && <EmptyState text="No audit tools created yet" />}
       </div>
     </div>
   );
 }
 
-function EducationTab({ def, education }) {
+function EducationTab({ def, education, showForm, setShowForm, onSaved }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-semibold text-foreground">Education & Competency</h2>
-        <button className="btn-primary text-sm"><GraduationCap className="h-4 w-4" /> New Education Plan</button>
+        <button onClick={() => setShowForm(!showForm)} className="btn-primary text-sm"><GraduationCap className="h-4 w-4" /> New Education Plan</button>
       </div>
+      {showForm && <div className="mb-4"><EducationPlanForm deficiency={def} onSaved={() => { setShowForm(false); onSaved(); }} onCancel={() => setShowForm(false)} /></div>}
       <div className="space-y-3">
         {education.map(e => (
           <div key={e.id} className="bg-white rounded-xl border border-border p-4">
@@ -278,7 +303,7 @@ function EducationTab({ def, education }) {
             </div>
           </div>
         ))}
-        {education.length === 0 && <EmptyState text="No education plans created yet" icon={GraduationCap} />}
+        {education.length === 0 && <EmptyState text="No education plans created yet" />}
       </div>
       <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
         <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
@@ -288,7 +313,7 @@ function EducationTab({ def, education }) {
   );
 }
 
-function EvidenceTab({ def, evidence }) {
+function EvidenceTab({ def, evidence, showForm, setShowForm, onSaved }) {
   const accepted = evidence.filter(e => e.review_status === "Accepted");
   const pending = evidence.filter(e => e.review_status === "Required" || e.review_status === "Requested" || e.review_status === "Received" || e.review_status === "Under Review");
   return (
@@ -298,8 +323,9 @@ function EvidenceTab({ def, evidence }) {
           <h2 className="font-semibold text-foreground">Evidence Binder</h2>
           <p className="text-xs text-muted-foreground">{accepted.length} accepted · {pending.length} pending</p>
         </div>
-        <button className="btn-primary text-sm"><FolderCheck className="h-4 w-4" /> Add Evidence</button>
+        <button onClick={() => setShowForm(!showForm)} className="btn-primary text-sm"><FolderCheck className="h-4 w-4" /> Add Evidence</button>
       </div>
+      {showForm && <div className="mb-4"><EvidenceItemForm deficiency={def} onSaved={() => { setShowForm(false); onSaved(); }} onCancel={() => setShowForm(false)} /></div>}
       <div className="space-y-3">
         {evidence.map(e => (
           <div key={e.id} className="bg-white rounded-xl border border-border p-4">
@@ -313,7 +339,7 @@ function EvidenceTab({ def, evidence }) {
             </div>
           </div>
         ))}
-        {evidence.length === 0 && <EmptyState text="No evidence items recorded" icon={FolderCheck} />}
+        {evidence.length === 0 && <EmptyState text="No evidence items recorded" />}
       </div>
       <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
         <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
@@ -323,13 +349,14 @@ function EvidenceTab({ def, evidence }) {
   );
 }
 
-function QAPITab({ def, qapi }) {
+function QAPITab({ def, qapi, showForm, setShowForm, onSaved }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-semibold text-foreground">QAPI Reviews</h2>
-        <button className="btn-primary text-sm"><Stethoscope className="h-4 w-4" /> New QAPI Review</button>
+        <button onClick={() => setShowForm(!showForm)} className="btn-primary text-sm"><Stethoscope className="h-4 w-4" /> New QAPI Review</button>
       </div>
+      {showForm && <div className="mb-4"><QAPIReviewForm deficiency={def} onSaved={() => { setShowForm(false); onSaved(); }} onCancel={() => setShowForm(false)} /></div>}
       <div className="space-y-3">
         {qapi.map(q => (
           <div key={q.id} className="bg-white rounded-xl border border-border p-4">
@@ -343,46 +370,25 @@ function QAPITab({ def, qapi }) {
             </div>
           </div>
         ))}
-        {qapi.length === 0 && <EmptyState text="No QAPI reviews recorded" icon={Stethoscope} />}
+        {qapi.length === 0 && <EmptyState text="No QAPI reviews recorded" />}
       </div>
     </div>
   );
 }
 
-function RevisitTab({ def }) {
-  const readinessItems = [
-    { label: "Resident-specific correction complete", key: "resident_correction" },
-    { label: "Affected universe review complete", key: "universe_review" },
-    { label: "Systemic changes implemented", key: "systemic_changes" },
-    { label: "Policy changes complete", key: "policy_changes" },
-    { label: "Education complete", key: "education_complete" },
-    { label: "Competencies complete", key: "competencies" },
-    { label: "Required audits complete", key: "audits" },
-    { label: "Audit compliance acceptable", key: "audit_compliance" },
-    { label: "Failed audits corrected", key: "failed_audits_corrected" },
-    { label: "Evidence complete", key: "evidence" },
-    { label: "QAPI reviewed", key: "qapi" },
-    { label: "Staff interview readiness", key: "staff_interview" },
-    { label: "Record review readiness", key: "record_review" },
-    { label: "Environmental readiness", key: "environmental" },
-  ];
-  const [checks, setChecks] = useState({});
-  const [saving, setSaving] = useState(false);
+function RevisitTab({ def, readiness, onAssess }) {
+  const [manualCriteria, setManualCriteria] = useState({
+    staff_interview: false, record_review: false, environmental: false,
+  });
+  const [assessing, setAssessing] = useState(false);
 
-  const completed = Object.values(checks).filter(Boolean).length;
-  const total = readinessItems.length;
-  const score = Math.round((completed / total) * 100);
-  const status = score >= 90 ? "Ready" : score >= 70 ? "Nearly Ready" : score >= 40 ? "Significant Gaps" : "Not Ready";
+  const score = def.revisit_readiness_score || 0;
+  const status = def.revisit_readiness_status || "Not Assessed";
 
-  const save = async () => {
-    setSaving(true);
-    try {
-      await base44.entities.Deficiency.update(def.id, {
-        revisit_readiness_status: status,
-        priority_explanation: `Revisit Readiness Score: ${score}/100 (${status}). ${completed}/${total} items complete.`,
-      });
-    } catch (e) { console.error(e); }
-    finally { setSaving(false); }
+  const assess = async () => {
+    setAssessing(true);
+    await onAssess(manualCriteria);
+    setAssessing(false);
   };
 
   return (
@@ -390,16 +396,17 @@ function RevisitTab({ def }) {
       <div className={`rounded-2xl border-2 p-5 ${status === "Ready" ? "border-emerald-300 bg-emerald-50" : status === "Nearly Ready" ? "border-blue-300 bg-blue-50" : "border-rose-300 bg-rose-50"}`}>
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Clinical SOS Internal Readiness Assessment</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Clinical SOS Internal Revisit Readiness Assessment</p>
             <p className={`text-3xl font-bold ${status === "Ready" ? "text-emerald-700" : status === "Nearly Ready" ? "text-blue-700" : "text-rose-700"}`}>{status}</p>
-            <p className="text-sm text-muted-foreground mt-1">{score}/100 — {completed} of {total} items complete</p>
+            <p className="text-sm text-muted-foreground mt-1">{score}/100</p>
           </div>
           <div className="text-right">
-            <div className="w-24 h-24 rounded-full border-8 border-current flex items-center justify-center text-2xl font-bold" style={{ color: status === "Ready" ? "#059669" : status === "Nearly Ready" ? "#2563eb" : "#e11d48" }}>
-              {score}
-            </div>
+            <div className="w-24 h-24 rounded-full border-8 border-current flex items-center justify-center text-2xl font-bold" style={{ color: status === "Ready" ? "#059669" : status === "Nearly Ready" ? "#2563eb" : "#e11d48" }}>{score}</div>
           </div>
         </div>
+        {def.revisit_readiness_explanation && (
+          <div className="mt-4 text-xs text-muted-foreground whitespace-pre-wrap bg-white/60 p-3 rounded-lg">{def.revisit_readiness_explanation}</div>
+        )}
       </div>
 
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
@@ -407,19 +414,40 @@ function RevisitTab({ def }) {
         <p className="text-xs text-amber-800">This is a Clinical SOS internal readiness assessment. Clinical SOS does not guarantee that a facility will pass a regulatory revisit.</p>
       </div>
 
+      {readiness.length > 0 && (
+        <div className="bg-white rounded-xl border border-border p-5">
+          <h3 className="font-semibold text-foreground text-sm mb-3">Readiness Criteria (Evidence-Driven)</h3>
+          <div className="space-y-2">
+            {readiness.map(c => (
+              <div key={c.id} className="flex items-center gap-3 p-2 rounded-lg">
+                <span className={`h-4 w-4 rounded-full ${c.is_met ? "bg-emerald-500" : "bg-rose-400"}`} />
+                <span className="text-sm text-foreground flex-1">{c.criterion_label}</span>
+                <Badge tone={c.derivation_source === "Automatic" ? "blue" : "amber"}>{c.derivation_source}</Badge>
+                {c.blocks_readiness && !c.is_met && <Badge tone="red">Blocks</Badge>}
+                <span className="text-xs text-muted-foreground">{c.evidence_summary}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-xl border border-border p-5">
-        <h3 className="font-semibold text-foreground text-sm mb-3">Readiness Checklist</h3>
+        <h3 className="font-semibold text-foreground text-sm mb-3">Manual Judgment Items</h3>
         <div className="space-y-2">
-          {readinessItems.map(item => (
+          {[
+            { key: "staff_interview", label: "Staff interview readiness" },
+            { key: "record_review", label: "Record review readiness" },
+            { key: "environmental", label: "Environmental readiness" },
+          ].map(item => (
             <label key={item.key} className="flex items-center gap-3 p-2 rounded-lg hover:bg-secondary/30 cursor-pointer">
-              <input type="checkbox" checked={checks[item.key] || false} onChange={e => setChecks({...checks, [item.key]: e.target.checked})} className="h-4 w-4 rounded border-border" />
+              <input type="checkbox" checked={manualCriteria[item.key]} onChange={e => setManualCriteria({...manualCriteria, [item.key]: e.target.checked})} className="h-4 w-4 rounded border-border" />
               <span className="text-sm text-foreground">{item.label}</span>
             </label>
           ))}
         </div>
       </div>
 
-      <button onClick={save} disabled={saving} className="btn-primary text-sm disabled:opacity-60"><Save className="h-4 w-4" /> {saving ? "Saving…" : "Save Readiness Assessment"}</button>
+      <button onClick={assess} disabled={assessing} className="btn-primary text-sm disabled:opacity-60"><ShieldCheck className="h-4 w-4" /> {assessing ? "Assessing…" : "Run Evidence-Driven Assessment"}</button>
     </div>
   );
 }

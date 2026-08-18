@@ -40,10 +40,10 @@ export default function Contact() {
       if (data?.error) throw new Error(data.error);
 
       try {
-        await base44.analytics.track({ eventName: "contact_form_submitted", properties: { urgency: form.urgency_level, tier: data.tier, score: data.score, service: form.service_needed, source_page: sourcePage } });
+        await base44.analytics.track({ eventName: "contact_form_submitted", properties: { urgency: form.urgency_level, service: form.service_needed, source_page: sourcePage } });
       } catch (err) { /* best-effort */ }
 
-      setResult({ score: data.score, tier: data.tier, consultationId: data.consultation_id });
+      setResult({ consultationId: data.consultation_id });
       setStatus("success");
     } catch (err) {
       setError(err?.message || "Something went wrong. Please try again or email us directly.");
@@ -67,7 +67,7 @@ export default function Contact() {
                 Based on your urgency, we'll respond accordingly.
               </p>
               <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm font-medium text-[hsl(262_50%_40%)]">
-                Priority: {result.tier} · Score {result.score}
+                Your request has been received and routed based on the urgency you indicated.
               </div>
               <div className="mt-8 rounded-xl border border-border p-5 text-left">
                 <h3 className="font-semibold flex items-center gap-2"><Calendar className="h-4 w-4 text-[hsl(262_50%_45%)]" /> What happens next</h3>

@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import RoleProtectedRoute from '@/components/RoleProtectedRoute';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
@@ -92,27 +93,37 @@ const AuthenticatedApp = () => {
         <Route path="/contact" element={<Contact />} />
       </Route>
 
-      {/* Private command center — authenticated only */}
+      {/* Private command center — authenticated + role-authorized */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        <Route element={<CommandCenterLayout />}>
-          <Route path="/command-center" element={<Dashboard />} />
-          <Route path="/command-center/leads" element={<Leads />} />
-          <Route path="/command-center/pipeline" element={<Pipeline />} />
-          <Route path="/command-center/facilities" element={<Facilities />} />
-          <Route path="/command-center/contacts" element={<Contacts />} />
-          <Route path="/command-center/tasks" element={<Tasks />} />
-          <Route path="/command-center/signals" element={<Signals />} />
-          <Route path="/command-center/agents" element={<Agents />} />
-          <Route path="/command-center/outreach" element={<Outreach />} />
-          <Route path="/command-center/proposals" element={<Proposals />} />
-          <Route path="/command-center/launch-readiness" element={<LaunchReadiness />} />
-          <Route path="/command-center/engagements" element={<Engagements />} />
-          <Route path="/command-center/recovery" element={<RecoveryDashboard />} />
-          <Route path="/command-center/cases" element={<Cases />} />
-          <Route path="/command-center/cases/:id" element={<CaseDetail />} />
-          <Route path="/command-center/deficiencies/:id" element={<DeficiencyDetail />} />
-          <Route path="/command-center/knowledge" element={<Knowledge />} />
-          <Route path="/command-center/settings" element={<Settings />} />
+        <Route element={<RoleProtectedRoute roles={['admin', 'business_development', 'clinical', 'finance', 'read_only']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
+          <Route element={<CommandCenterLayout />}>
+            <Route path="/command-center" element={<Dashboard />} />
+            <Route path="/command-center/pipeline" element={<Pipeline />} />
+            <Route path="/command-center/facilities" element={<Facilities />} />
+            <Route path="/command-center/tasks" element={<Tasks />} />
+            <Route path="/command-center/engagements" element={<Engagements />} />
+            <Route path="/command-center/cases/:id" element={<CaseDetail />} />
+            <Route path="/command-center/deficiencies/:id" element={<DeficiencyDetail />} />
+            <Route element={<RoleProtectedRoute roles={['admin', 'business_development', 'clinical']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
+              <Route path="/command-center/leads" element={<Leads />} />
+              <Route path="/command-center/contacts" element={<Contacts />} />
+              <Route path="/command-center/outreach" element={<Outreach />} />
+              <Route path="/command-center/agents" element={<Agents />} />
+            </Route>
+            <Route element={<RoleProtectedRoute roles={['admin', 'clinical', 'read_only']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
+              <Route path="/command-center/signals" element={<Signals />} />
+              <Route path="/command-center/recovery" element={<RecoveryDashboard />} />
+              <Route path="/command-center/cases" element={<Cases />} />
+              <Route path="/command-center/knowledge" element={<Knowledge />} />
+            </Route>
+            <Route element={<RoleProtectedRoute roles={['admin', 'business_development', 'finance']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
+              <Route path="/command-center/proposals" element={<Proposals />} />
+            </Route>
+            <Route element={<RoleProtectedRoute roles={['admin']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
+              <Route path="/command-center/launch-readiness" element={<LaunchReadiness />} />
+              <Route path="/command-center/settings" element={<Settings />} />
+            </Route>
+          </Route>
         </Route>
       </Route>
 

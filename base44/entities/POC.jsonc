@@ -1,0 +1,196 @@
+{
+  "name": "POC",
+  "type": "object",
+  "properties": {
+    "regulatory_case_id": {
+      "type": "string"
+    },
+    "regulatory_case_name": {
+      "type": "string"
+    },
+    "deficiency_id": {
+      "type": "string",
+      "title": "Deficiency ID"
+    },
+    "facility_id": {
+      "type": "string"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "f_tag": {
+      "type": "string",
+      "title": "F-Tag"
+    },
+    "version": {
+      "type": "number",
+      "default": 1,
+      "title": "Version Number"
+    },
+    "element_1_specific_correction": {
+      "type": "string",
+      "title": "Element 1 \u2014 Affected Resident / Specific Correction"
+    },
+    "element_2_others_potentially_affected": {
+      "type": "string",
+      "title": "Element 2 \u2014 Others Potentially Affected"
+    },
+    "element_3_systemic_correction": {
+      "type": "string",
+      "title": "Element 3 \u2014 Systemic Corrective Action"
+    },
+    "element_4_monitoring": {
+      "type": "string",
+      "title": "Element 4 \u2014 Monitoring"
+    },
+    "element_5_responsibility_qapi_completion": {
+      "type": "string",
+      "title": "Element 5 \u2014 Responsibility / QAPI / Completion"
+    },
+    "education_plan": {
+      "type": "string"
+    },
+    "competency_plan": {
+      "type": "string"
+    },
+    "evidence_requirements": {
+      "type": "string"
+    },
+    "generated_narrative": {
+      "type": "string",
+      "title": "Generated Narrative (AI Draft)"
+    },
+    "source_snapshot": {
+      "type": "string",
+      "title": "Source Snapshot (JSON)"
+    },
+    "source_fields_used": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Fields Used"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "AI Draft",
+        "Clinical Review",
+        "Client Review",
+        "Approved for Use",
+        "Submitted",
+        "Accepted",
+        "Revision Requested",
+        "Superseded"
+      ],
+      "default": "AI Draft"
+    },
+    "prepared_by": {
+      "type": "string"
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "clinical_approved_by": {
+      "type": "string"
+    },
+    "client_reviewed_by": {
+      "type": "string"
+    },
+    "submitted_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "submission_source": {
+      "type": "string",
+      "title": "Submission Source / Confirmation Note"
+    },
+    "submitted_by": {
+      "type": "string"
+    },
+    "accepted_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "acceptance_source": {
+      "type": "string",
+      "title": "Acceptance Source / Evidence"
+    },
+    "accepted_by": {
+      "type": "string"
+    },
+    "revision_requested_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "revision_notes": {
+      "type": "string"
+    },
+    "superseded_by_version": {
+      "type": "number"
+    },
+    "is_test_data": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "deficiency_id",
+    "f_tag",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "read_only"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

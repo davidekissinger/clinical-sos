@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { PageHeader, Badge, LoadingState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
+import { X, CheckCircle2 } from "lucide-react";
 
 const STAGES = [
   "New", "Researching", "Verified", "Qualified", "Outreach Review",
@@ -11,20 +12,62 @@ const STAGES = [
 
 export default function Pipeline() {
   const opportunities = useEntities("Opportunity", { sort: "-created_date", limit: 300 });
+  const engagements = useEntities("Engagement", { sort: "-created_date", limit: 100 });
   const [view, setView] = useState("kanban");
   const [dragId, setDragId] = useState(null);
+  const [wonModal, setWonModal] = useState(null);
+  const [engagementResult, setEngagementResult] = useState(null);
 
   if (opportunities.loading) return <LoadingState />;
 
   const byStage = (stage) => opportunities.data.filter((o) => o.stage === stage);
+
   const onDrop = async (stage) => {
     if (!dragId) return;
     const opp = opportunities.data.find((o) => o.id === dragId);
     if (opp?.stage === stage) { setDragId(null); return; }
+
+    // If moving to Won, open the engagement creation modal
+    if (stage === "Won") {
+      // Check if engagement already exists
+      const existingEng = engagements.data.find(e => e.opportunity_id === dragId);
+      if (existingEng) {
+        setEngagementResult({ duplicate: true, engagement_name: existingEng.engagement_name });
+      } else {
+        setWonModal({ opportunity_id: dragId, opportunity: opp });
+        setDragId(null);
+        return;
+      }
+    }
+
     try {
       await base44.entities.Opportunity.update(dragId, { stage });
       opportunities.reload();
     } finally { setDragId(null); }
+  };
+
+  const createEngagement = async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const payload = {
+      opportunity_id: wonModal.opportunity_id,
+      service_type: form.service_type.value,
+      start_date: form.start_date.value,
+      clinical_lead_name: form.clinical_lead_name.value,
+      engagement_model: form.engagement_model.value,
+    };
+    try {
+      const res = await base44.functions.invoke("createEngagementFromOpportunity", payload);
+      const data = res.data || res;
+      setEngagementResult(data);
+      setWonModal(null);
+      // Update opportunity stage to Won
+      await base44.entities.Opportunity.update(wonModal.opportunity_id, { stage: "Won" });
+      opportunities.reload();
+      engagements.reload();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const totalValue = opportunities.data.filter((o) => o.stage !== "Won" && o.stage !== "Lost" && o.stage !== "Suppressed").reduce((s, o) => s + (o.estimated_value || 0), 0);
@@ -48,24 +91,14 @@ export default function Pipeline() {
             const items = byStage(stage);
             const stageValue = items.reduce((s, o) => s + (o.estimated_value || 0), 0);
             return (
-              <div
-                key={stage}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => onDrop(stage)}
-                className="flex-shrink-0 w-64 bg-secondary/40 rounded-xl border border-border"
-              >
+              <div key={stage} onDragOver={(e) => e.preventDefault()} onDrop={() => onDrop(stage)} className="flex-shrink-0 w-64 bg-secondary/40 rounded-xl border border-border">
                 <div className="px-3 py-2.5 border-b border-border flex items-center justify-between">
                   <span className="text-sm font-semibold text-foreground">{stage}</span>
                   <span className="text-xs text-muted-foreground">{items.length}</span>
                 </div>
                 <div className="p-2 space-y-2 min-h-[60px]">
                   {items.map((o) => (
-                    <div
-                      key={o.id}
-                      draggable
-                      onDragStart={() => setDragId(o.id)}
-                      className="bg-white rounded-lg border border-border p-3 cursor-grab active:cursor-grabbing hover:border-primary/40 transition"
-                    >
+                    <div key={o.id} draggable onDragStart={() => setDragId(o.id)} className="bg-white rounded-lg border border-border p-3 cursor-grab active:cursor-grabbing hover:border-primary/40 transition">
                       <p className="text-sm font-medium text-foreground leading-snug">{o.opportunity_name}</p>
                       <div className="mt-2 flex items-center justify-between">
                         <Badge tone={o.lead_tier === "Tier 1" ? "red" : o.lead_tier === "Tier 2" ? "amber" : "default"}>{o.lead_tier || "—"}</Badge>
@@ -100,6 +133,60 @@ export default function Pipeline() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Won → Engagement Modal */}
+      {wonModal && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl border border-border p-6 max-w-md w-full">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-foreground">Create Engagement — Won Opportunity</h3>
+              <button onClick={() => { setWonModal(null); setDragId(null); }} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">Opportunity: <span className="font-medium text-foreground">{wonModal.opportunity?.opportunity_name}</span></p>
+            <form onSubmit={createEngagement} className="space-y-3">
+              <label className="block">
+                <span className="block text-xs font-medium text-muted-foreground mb-1">Service Type *</span>
+                <input name="service_type" required placeholder="e.g. Rapid Survey Recovery" className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
+              </label>
+              <label className="block">
+                <span className="block text-xs font-medium text-muted-foreground mb-1">Start Date *</span>
+                <input name="start_date" type="date" required className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
+              </label>
+              <label className="block">
+                <span className="block text-xs font-medium text-muted-foreground mb-1">Clinical Lead</span>
+                <input name="clinical_lead_name" placeholder="Clinical lead name" className="w-full border border-border rounded-lg px-3 py-2 text-sm" />
+              </label>
+              <label className="block">
+                <span className="block text-xs font-medium text-muted-foreground mb-1">Engagement Model</span>
+                <select name="engagement_model" className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white">
+                  <option value="Fixed Fee">Fixed Fee</option>
+                  <option value="Hourly">Hourly</option>
+                  <option value="Time and Expense">Time and Expense</option>
+                  <option value="Hybrid">Hybrid</option>
+                </select>
+              </label>
+              <div className="flex gap-2">
+                <button type="submit" className="btn-primary text-sm flex-1">Create Engagement & Mark Won</button>
+                <button type="button" onClick={() => { setWonModal(null); setDragId(null); }} className="btn-ghost text-sm">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Engagement Result */}
+      {engagementResult && (
+        <div className="fixed bottom-4 right-4 bg-white rounded-xl border border-border p-4 shadow-lg z-50 max-w-sm">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-foreground">{engagementResult.duplicate ? "Engagement already exists" : "Engagement created"}</p>
+              {engagementResult.engagement_name && <p className="text-xs text-muted-foreground mt-0.5">{engagementResult.engagement_name}</p>}
+            </div>
+            <button onClick={() => setEngagementResult(null)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+          </div>
         </div>
       )}
     </div>

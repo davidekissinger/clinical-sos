@@ -3,12 +3,13 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 // Handles public (unauthenticated) consultation form submissions.
 // Runs as service role so public visitors can submit without auth,
 // while keeping all CRM entities private from public reads.
+// Performs contact deduplication by normalized email.
+// Does NOT return internal scoring to the public caller.
 export default async function(req: Request): Promise<Response> {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
 
-    // Basic validation
     const required = ["name", "business_email", "urgency_level"];
     for (const f of required) {
       if (!body[f] || !String(body[f]).trim()) {
@@ -47,19 +48,34 @@ export default async function(req: Request): Promise<Response> {
       lead_score: score, lead_tier: tier, status: "New",
     });
 
-    // 2. Contact
+    // 2. Contact — deduplicate by normalized email
     let contact = null;
+    let contactMatchMethod = "new";
+    const normalizedEmail = String(body.business_email).toLowerCase().trim();
     try {
-      const parts = String(body.name).split(" ");
-      const firstName = parts[0] || body.name;
-      const lastName = parts.slice(1).join(" ");
-      contact = await svc.entities.Contact.create({
-        first_name: firstName, last_name: lastName, title: body.title,
-        organization_name: body.organization || body.facility_or_org_name,
-        business_email: body.business_email, business_phone: body.business_phone,
-        contact_confidence: 100, inferred: false,
-        notes: `Inbound consultation request. Urgency: ${body.urgency_level}. State: ${body.state || "—"}.`,
-      });
+      const existingContacts = await svc.entities.Contact.filter({ business_email: normalizedEmail });
+      if (existingContacts && existingContacts.length > 0) {
+        // Update existing contact with new info
+        contact = await svc.entities.Contact.update(existingContacts[0].id, {
+          title: body.title || existingContacts[0].title,
+          organization_name: body.organization || body.facility_or_org_name || existingContacts[0].organization_name,
+          business_phone: body.business_phone || existingContacts[0].business_phone,
+          contact_confidence: 100,
+          notes: (existingContacts[0].notes ? existingContacts[0].notes + "\n" : "") + `New consultation request — ${body.urgency_level}. State: ${body.state || "—"}.`,
+        });
+        contactMatchMethod = "existing_email_match";
+      } else {
+        const parts = String(body.name).split(" ");
+        const firstName = parts[0] || body.name;
+        const lastName = parts.slice(1).join(" ");
+        contact = await svc.entities.Contact.create({
+          first_name: firstName, last_name: lastName, title: body.title,
+          organization_name: body.organization || body.facility_or_org_name,
+          business_email: normalizedEmail, business_phone: body.business_phone,
+          contact_confidence: 100, inferred: false,
+          notes: `Inbound consultation request. Urgency: ${body.urgency_level}. State: ${body.state || "—"}.`,
+        });
+      }
     } catch (e) { /* best-effort */ }
 
     // 3. Opportunity
@@ -68,8 +84,8 @@ export default async function(req: Request): Promise<Response> {
       opportunity = await svc.entities.Opportunity.create({
         opportunity_name: `${body.organization || body.facility_or_org_name || body.name} — ${body.service_needed || "Consultation"}`,
         facility_name: body.facility_or_org_name, organization_name: body.organization,
-        primary_contact_name: body.name, stage: "New",
-        service_interest: body.service_needed, source: "Website Contact Form",
+        primary_contact_name: body.name, primary_contact_id: contact?.id,
+        stage: "New", service_interest: body.service_needed, source: "Website Contact Form",
         estimated_value: 0, probability: score / 100, lead_tier: tier,
       });
     } catch (e) { /* best-effort */ }
@@ -78,8 +94,8 @@ export default async function(req: Request): Promise<Response> {
     try {
       await svc.entities.Interaction.create({
         interaction_type: "Inbound Form", direction: "Inbound",
-        contact_name: body.name, facility_name: body.facility_or_org_name,
-        opportunity_id: opportunity?.id,
+        contact_name: body.name, contact_id: contact?.id,
+        facility_name: body.facility_or_org_name, opportunity_id: opportunity?.id,
         summary: `Inbound consultation request — ${body.urgency_level}. Challenge: ${body.current_challenge || "Not specified"}. Service: ${body.service_needed || "Not specified"}.`,
         next_step: "Acknowledge request and offer consultation scheduling.",
         date: new Date().toISOString(),
@@ -96,16 +112,18 @@ export default async function(req: Request): Promise<Response> {
         status: "Not Started",
         start_date: new Date().toISOString().slice(0, 10),
         due_date: due.toISOString().slice(0, 10),
-        notes: `Inbound consultation request. Lead score ${score} (${tier}). Preferred contact: ${body.preferred_contact_method || "—"}. Preferred time: ${body.preferred_consultation_time || "Not specified"}.`,
+        notes: `Inbound consultation request. Preferred contact: ${body.preferred_contact_method || "—"}. Preferred time: ${body.preferred_consultation_time || "Not specified"}. Contact match: ${contactMatchMethod}.`,
         linked_opportunity_id: opportunity?.id,
       });
     } catch (e) { /* best-effort */ }
 
+    // Return only public-safe info — NO internal scores, tiers, or routing logic
     return Response.json({
-      ok: true, score, tier,
+      ok: true,
       consultation_id: consultation?.id,
       contact_id: contact?.id,
       opportunity_id: opportunity?.id,
+      contact_match_method: contactMatchMethod,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

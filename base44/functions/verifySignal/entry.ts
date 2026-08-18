@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { requireAdminOrClinical } from '../../shared/roleAuth.ts';
 
 // Verification Agent backend: cross-checks a RegulatorySignal claim using LLM,
 // assigns a confidence score, and marks it verified or "research required".
@@ -9,6 +10,9 @@ export default async function(req: Request): Promise<Response> {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const authCheck = requireAdminOrClinical(user);
+    if (!authCheck.authorized) return Response.json({ error: authCheck.error }, { status: authCheck.status });
+
     const body = await req.json();
     const signalId = body.signal_id;
     if (!signalId) return Response.json({ error: 'signal_id is required' }, { status: 400 });
@@ -17,7 +21,6 @@ export default async function(req: Request): Promise<Response> {
     const signal = await svc.entities.RegulatorySignal.get(signalId);
     if (!signal) return Response.json({ error: 'Signal not found' }, { status: 404 });
 
-    // Build verification prompt
     const prompt = `You are a verification analyst for a long-term care consulting firm. Your job is to assess whether a regulatory signal about a healthcare facility is credible and verifiable based on the information provided.
 
 REGULATORY SIGNAL:
@@ -73,44 +76,24 @@ RULES:
     const result = llmResponse || {};
     const confidence = Math.round(Number(result.confidence_score) || 0);
 
-    // Evidence completeness check — required fields for a verifiable signal.
-    // If any core evidence field is missing, the signal cannot be verified
-    // and must be classified as "Research Required" regardless of LLM output.
     const evidenceFields = {
-      ccn: signal.ccn,
-      event_date: signal.event_date,
-      source: signal.source,
-      source_url: signal.source_url,
-      factual_evidence_summary: signal.factual_evidence_summary,
+      ccn: signal.ccn, event_date: signal.event_date, source: signal.source,
+      source_url: signal.source_url, factual_evidence_summary: signal.factual_evidence_summary,
       date_retrieved: signal.date_retrieved,
     };
-    const missingEvidence = Object.entries(evidenceFields)
-      .filter(([, v]) => !v || !String(v).trim())
-      .map(([k]) => k);
+    const missingEvidence = Object.entries(evidenceFields).filter(([, v]) => !v || !String(v).trim()).map(([k]) => k);
     const evidenceComplete = missingEvidence.length === 0;
 
-    // Determine final verified status
-    // Only mark verified if: confidence >= 80, source URL present, government source,
-    // evidence is complete, and LLM recommends Verified with no human review required.
     const hasGovSource = signal.source_url && /\.(gov|state\.\w+|medicaid)/i.test(signal.source_url);
     const hasSourceUrl = !!signal.source_url;
     let verified = false;
     let finalStatus = result.recommended_status || "Research Required";
 
-    // Force Research Required if evidence is incomplete
-    if (!evidenceComplete) {
-      finalStatus = "Research Required";
-      verified = false;
-    } else if (confidence >= 80 && hasSourceUrl && hasGovSource && finalStatus === "Verified" && !result.human_review_required) {
-      verified = true;
-    } else if (confidence >= 80 && finalStatus === "Verified" && result.human_review_required) {
-      finalStatus = "Research Required";
-      verified = false;
-    } else {
-      verified = false;
-    }
+    if (!evidenceComplete) { finalStatus = "Research Required"; verified = false; }
+    else if (confidence >= 80 && hasSourceUrl && hasGovSource && finalStatus === "Verified" && !result.human_review_required) { verified = true; }
+    else if (confidence >= 80 && finalStatus === "Verified" && result.human_review_required) { finalStatus = "Research Required"; verified = false; }
+    else { verified = false; }
 
-    // Update the signal
     const updateData = {
       confidence_score: confidence,
       verification_method: result.verification_method || "LLM-assisted verification",
@@ -121,34 +104,22 @@ RULES:
       status: finalStatus === "Suppressed" ? "Unknown" : (signal.status || "Current"),
     };
 
-    const updated = await svc.entities.RegulatorySignal.update(signalId, updateData);
+    await svc.entities.RegulatorySignal.update(signalId, updateData);
 
-    // Log
     try {
       await svc.entities.AutomationLog.create({
-        automation: "Signal Verification",
-        started: new Date().toISOString(),
-        completed: new Date().toISOString(),
-        status: "Success",
-        records_processed: 1,
-        affected_record_ids: [signalId],
+        automation: "Signal Verification", started: new Date().toISOString(), completed: new Date().toISOString(),
+        status: "Success", records_processed: 1, affected_record_ids: [signalId],
         triggered_by: user.full_name || user.email || "system",
         errors: missingEvidence.length > 0 ? `Missing evidence fields: ${missingEvidence.join(", ")}` : null,
       });
     } catch (e) { /* best-effort */ }
 
     return Response.json({
-      ok: true,
-      signal_id: signalId,
-      confidence_score: confidence,
-      verification_method: result.verification_method,
-      evidence_assessment: result.evidence_assessment,
-      recommended_status: finalStatus,
-      verified,
-      stale_data_flag: result.stale_data_flag,
-      human_review_required: result.human_review_required,
-      evidence_complete: evidenceComplete,
-      missing_evidence_fields: missingEvidence,
+      ok: true, signal_id: signalId, confidence_score: confidence, verification_method: result.verification_method,
+      evidence_assessment: result.evidence_assessment, recommended_status: finalStatus, verified,
+      stale_data_flag: result.stale_data_flag, human_review_required: result.human_review_required,
+      evidence_complete: evidenceComplete, missing_evidence_fields: missingEvidence,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

@@ -49,6 +49,10 @@
     "f_tag": {
       "type": "string"
     },
+    "poc_id": {
+      "type": "string",
+      "title": "Linked POC ID"
+    },
     "generation_date": {
       "type": "string",
       "format": "date-time"
@@ -76,6 +80,24 @@
     },
     "content": {
       "type": "string"
+    },
+    "source_snapshot": {
+      "type": "string",
+      "title": "Source Snapshot (JSON of all structured inputs used)"
+    },
+    "source_fields_used": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Fields Used"
+    },
+    "source_record_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Record IDs"
     },
     "is_test_data": {
       "type": "boolean",

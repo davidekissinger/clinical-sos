@@ -21,12 +21,65 @@
     "regulation_reference": {
       "type": "string"
     },
+    "regulatory_knowledge_id": {
+      "type": "string",
+      "title": "Linked Regulatory Knowledge Record"
+    },
+    "regulatory_mapping_verified": {
+      "type": "boolean",
+      "default": false,
+      "title": "Regulatory Mapping Verified"
+    },
     "deficiency_title": {
       "type": "string"
     },
     "scope_severity": {
       "type": "string",
-      "title": "Scope & Severity"
+      "title": "Scope & Severity (source wording)"
+    },
+    "scope_severity_letter": {
+      "type": "string",
+      "title": "Scope & Severity Letter",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "Unknown",
+        ""
+      ]
+    },
+    "harm_level": {
+      "type": "string",
+      "title": "Harm Level",
+      "enum": [
+        "No actual harm with potential for minimal harm",
+        "Minimal harm",
+        "No actual harm with potential for more than minimal harm",
+        "Actual harm",
+        "Immediate jeopardy",
+        "Unknown",
+        ""
+      ]
+    },
+    "scope_level": {
+      "type": "string",
+      "title": "Scope",
+      "enum": [
+        "Isolated",
+        "Pattern",
+        "Widespread",
+        "Unknown",
+        ""
+      ]
     },
     "immediate_jeopardy": {
       "type": "string",
@@ -146,6 +199,14 @@
       ],
       "default": "Not Assessed"
     },
+    "revisit_readiness_score": {
+      "type": "number",
+      "title": "Revisit Readiness Score (0-100)"
+    },
+    "revisit_readiness_explanation": {
+      "type": "string",
+      "title": "Revisit Readiness Explanation"
+    },
     "deficiency_status": {
       "type": "string",
       "enum": [
@@ -160,6 +221,23 @@
         "Closed"
       ],
       "default": "Draft"
+    },
+    "closure_override": {
+      "type": "boolean",
+      "default": false,
+      "title": "Closure Override Applied"
+    },
+    "closure_override_reason": {
+      "type": "string",
+      "title": "Closure Override Reason"
+    },
+    "closure_override_by": {
+      "type": "string",
+      "title": "Closure Override By"
+    },
+    "closure_override_date": {
+      "type": "string",
+      "format": "date-time"
     },
     "priority_ranking": {
       "type": "number"

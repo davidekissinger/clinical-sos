@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { requireAdminBDorClinical } from '../../shared/roleAuth.ts';
 
 // Transparent lead scoring: takes a facility_id, gathers its regulatory signals,
 // computes an explainable 0-100 score, assigns a tier, and upserts a Lead record.
@@ -9,30 +10,24 @@ export default async function(req: Request): Promise<Response> {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const authCheck = requireAdminBDorClinical(user);
+    if (!authCheck.authorized) return Response.json({ error: authCheck.error }, { status: authCheck.status });
+
     const body = await req.json();
     const facilityId = body.facility_id;
     if (!facilityId) return Response.json({ error: 'facility_id is required' }, { status: 400 });
 
     const svc = base44.asServiceRole;
 
-    // Load facility
     const facility = await svc.entities.Facility.get(facilityId);
     if (!facility) return Response.json({ error: 'Facility not found' }, { status: 404 });
 
-    // Load all regulatory signals for this facility
     const signals = await svc.entities.RegulatorySignal.filter({ facility_id: facilityId });
 
     if (!signals || signals.length === 0) {
-      return Response.json({
-        ok: true,
-        score: 0,
-        tier: "Nurture",
-        explanation: "No regulatory signals on file for this facility.",
-        signals_count: 0,
-      });
+      return Response.json({ ok: true, score: 0, tier: "Nurture", explanation: "No regulatory signals on file for this facility.", signals_count: 0 });
     }
 
-    // Load config for weights
     let config = null;
     try {
       const configs = await svc.entities.LeadEngineConfig.list();
@@ -55,10 +50,7 @@ export default async function(req: Request): Promise<Response> {
     let highSeverityCount = 0;
 
     for (const sig of signals) {
-      // Skip resolved signals entirely
       if (sig.status === "Resolved") continue;
-
-      // Determine signal weight
       let weight = 0;
       const st = sig.signal_type;
       if (st === "Immediate Jeopardy") weight = w.immediate_jeopardy;
@@ -73,7 +65,6 @@ export default async function(req: Request): Promise<Response> {
       else if (st === "Leadership/Operational Signal") weight = w.leadership_signal;
       else weight = 8;
 
-      // Recency factor: full weight if within lookback, decay after
       let recencyFactor = 1;
       if (sig.event_date) {
         const eventDate = new Date(sig.event_date);
@@ -81,45 +72,30 @@ export default async function(req: Request): Promise<Response> {
           const daysOld = (now.getTime() - eventDate.getTime()) / 86400000;
           recencyFactor = Math.max(0.2, 1 - (daysOld - lookbackDays) / (lookbackDays * 2));
         }
-      } else {
-        recencyFactor = 0.5; // unknown date = less confidence
-      }
+      } else { recencyFactor = 0.5; }
 
-      // Severity multiplier
       let severityMult = 1;
       if (sig.severity === "High") { severityMult = 1.2; highSeverityCount++; }
       else if (sig.severity === "Medium") severityMult = 1;
       else if (sig.severity === "Low") severityMult = 0.6;
 
-      // Verification factor
       let verifyFactor = 0.5;
       if (sig.verified === true) { verifyFactor = 1; verifiedCount++; }
       else if (sig.confidence_score && sig.confidence_score >= 70) verifyFactor = 0.75;
 
       const component = Math.round(weight * recencyFactor * severityMult * verifyFactor);
       score += component;
-
-      breakdown.push({
-        signal_type: sig.signal_type,
-        severity: sig.severity,
-        event_date: sig.event_date,
-        verified: sig.verified,
-        weight, recencyFactor, severityMult, verifyFactor, component,
-        source: sig.source,
-      });
+      breakdown.push({ signal_type: sig.signal_type, severity: sig.severity, event_date: sig.event_date, verified: sig.verified, weight, recencyFactor, severityMult, verifyFactor, component, source: sig.source });
     }
 
-    // Cap at 100
     score = Math.min(100, score);
 
-    // Determine tier
     let tier = "Nurture";
     const minScore = config?.minimum_lead_score || 40;
     if (score >= 75 && verifiedCount > 0) tier = "Tier 1";
     else if (score >= 55) tier = "Tier 2";
     else if (score >= minScore) tier = "Tier 3";
 
-    // Build explanation
     const explanation = [
       `Lead score: ${score}/100 (Tier: ${tier}).`,
       `Based on ${signals.length} regulatory signal(s) — ${verifiedCount} verified, ${highSeverityCount} high-severity.`,
@@ -135,78 +111,45 @@ export default async function(req: Request): Promise<Response> {
       score === 0 && signals.length > 0 ? `All signals are resolved — no active regulatory concern detected.` : ``,
     ].filter(Boolean).join("\n");
 
-    // Determine recommended service
     const serviceMap = {
-      "Immediate Jeopardy": "Rapid Survey Recovery",
-      "CMP": "Survey Response and Plan of Correction Support",
-      "DPNA": "Clinical Operations Stabilization",
-      "Special Focus Facility": "Mock Surveys and Readiness Reviews",
-      "SFF Candidate": "Mock Surveys and Readiness Reviews",
-      "Repeat Deficiency": "Compliance Monitoring and Root Cause Analysis",
-      "Infection-Control Deficiency": "Policy and Workflow Development",
-      "Low Health Inspection Rating": "Mock Surveys and Readiness Reviews",
-      "Follow-Up Survey": "Survey Response and Plan of Correction Support",
-      "Ownership Change": "Interim Leadership and Subject Matter Support",
+      "Immediate Jeopardy": "Rapid Survey Recovery", "CMP": "Survey Response and Plan of Correction Support",
+      "DPNA": "Clinical Operations Stabilization", "Special Focus Facility": "Mock Surveys and Readiness Reviews",
+      "SFF Candidate": "Mock Surveys and Readiness Reviews", "Repeat Deficiency": "Compliance Monitoring and Root Cause Analysis",
+      "Infection-Control Deficiency": "Policy and Workflow Development", "Low Health Inspection Rating": "Mock Surveys and Readiness Reviews",
+      "Follow-Up Survey": "Survey Response and Plan of Correction Support", "Ownership Change": "Interim Leadership and Subject Matter Support",
       "Leadership/Operational Signal": "Interim Leadership and Subject Matter Support",
     };
     let recommendedService = "Survey Response and Plan of Correction Support";
-    for (const b of breakdown) {
-      if (serviceMap[b.signal_type]) { recommendedService = serviceMap[b.signal_type]; break; }
-    }
+    for (const b of breakdown) { if (serviceMap[b.signal_type]) { recommendedService = serviceMap[b.signal_type]; break; } }
 
-    // Determine urgency
     let urgency = "General Inquiry";
-    if (tier === "Tier 1") urgency = "Urgent";
-    else if (tier === "Tier 2") urgency = "Regulatory";
-    else if (tier === "Tier 3") urgency = "Proactive";
+    if (tier === "Tier 1") urgency = "Urgent"; else if (tier === "Tier 2") urgency = "Regulatory"; else if (tier === "Tier 3") urgency = "Proactive";
 
-    // Upsert Lead
+    const isTestData = !!facility.is_test_data;
     const existing = await svc.entities.Lead.filter({ facility_id: facilityId });
     const leadData = {
-      facility_id: facilityId,
-      facility_name: facility.facility_name,
-      organization_name: facility.operator_name,
-      lead_score: score,
-      lead_tier: tier,
-      score_explanation: explanation,
+      facility_id: facilityId, facility_name: facility.facility_name, organization_name: facility.operator_name,
+      lead_score: score, lead_tier: tier, score_explanation: explanation,
       verification_status: verifiedCount > 0 ? "Verified" : "Research Required",
-      recommended_service: recommendedService,
-      potential_urgency: urgency,
-      next_action: tier === "Tier 1" ? "Immediate outreach review required" :
-                   tier === "Tier 2" ? "Queue for outreach approval" :
-                   tier === "Tier 3" ? "Add to proactive outreach list" :
-                   "Monitor for changes",
+      recommended_service: recommendedService, potential_urgency: urgency,
+      next_action: tier === "Tier 1" ? "Immediate outreach review required" : tier === "Tier 2" ? "Queue for outreach approval" : tier === "Tier 3" ? "Add to proactive outreach list" : "Monitor for changes",
       next_action_date: new Date().toISOString().slice(0, 10),
+      is_test_data: isTestData,
     };
 
     let lead;
-    if (existing && existing.length > 0) {
-      lead = await svc.entities.Lead.update(existing[0].id, leadData);
-    } else {
-      lead = await svc.entities.Lead.create(leadData);
-    }
+    if (existing && existing.length > 0) lead = await svc.entities.Lead.update(existing[0].id, leadData);
+    else lead = await svc.entities.Lead.create(leadData);
 
-    // Log automation
     try {
       await svc.entities.AutomationLog.create({
-        automation: "Lead Scoring",
-        started: new Date().toISOString(),
-        completed: new Date().toISOString(),
-        status: "Success",
-        records_processed: 1,
-        affected_record_ids: [facilityId, lead?.id].filter(Boolean),
+        automation: "Lead Scoring", started: new Date().toISOString(), completed: new Date().toISOString(),
+        status: "Success", records_processed: 1, affected_record_ids: [facilityId, lead?.id].filter(Boolean),
         triggered_by: user.full_name || user.email || "system",
       });
     } catch (e) { /* best-effort */ }
 
-    return Response.json({
-      ok: true,
-      score, tier, explanation,
-      lead_id: lead?.id,
-      signals_count: signals.length,
-      verified_count: verifiedCount,
-      recommended_service: recommendedService,
-    });
+    return Response.json({ ok: true, score, tier, explanation, lead_id: lead?.id, signals_count: signals.length, verified_count: verifiedCount, recommended_service: recommendedService });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
