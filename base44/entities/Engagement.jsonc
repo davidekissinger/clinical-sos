@@ -8,6 +8,26 @@
     "client_name": {
       "type": "string"
     },
+    "client_account_id": {
+      "type": "string",
+      "title": "Client Account ID"
+    },
+    "organization_id": {
+      "type": "string",
+      "title": "Organization ID"
+    },
+    "organization_name": {
+      "type": "string",
+      "title": "Organization Name"
+    },
+    "facility_id": {
+      "type": "string",
+      "title": "Facility ID"
+    },
+    "facility_name": {
+      "type": "string",
+      "title": "Facility Name"
+    },
     "opportunity_id": {
       "type": "string"
     },
@@ -116,23 +136,6 @@
           "user_condition": {
             "role": "read_only"
           }
-        },
-        {
-          "$and": [
-            {
-              "user_condition": {
-                "role": "client"
-              }
-            },
-            {
-              "data.client_visibility": true
-            },
-            {
-              "id": {
-                "$in": "{{user.data.authorized_engagement_ids}}"
-              }
-            }
-          ]
         }
       ]
     },
