@@ -147,23 +147,6 @@
           "user_condition": {
             "role": "read_only"
           }
-        },
-        {
-          "$and": [
-            {
-              "user_condition": {
-                "role": "client"
-              }
-            },
-            {
-              "data.client_visibility": true
-            },
-            {
-              "data.facility_id": {
-                "$in": "{{user.data.authorized_facility_ids}}"
-              }
-            }
-          ]
         }
       ]
     },
