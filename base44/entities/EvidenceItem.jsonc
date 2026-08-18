@@ -20,6 +20,10 @@
     "facility_name": {
       "type": "string"
     },
+    "engagement_id": {
+      "type": "string",
+      "title": "Engagement ID"
+    },
     "evidence_type": {
       "type": "string",
       "enum": [
@@ -78,6 +82,35 @@
     "accepted_as_sufficient": {
       "type": "boolean",
       "default": false
+    },
+    "client_response_status": {
+      "type": "string",
+      "enum": [
+        "Pending",
+        "Prepared",
+        "Available",
+        "Clarification Requested",
+        "Noted"
+      ],
+      "default": "Pending",
+      "title": "Client Response Status"
+    },
+    "client_response_note": {
+      "type": "string",
+      "title": "Client Response Note"
+    },
+    "client_responded_by": {
+      "type": "string",
+      "title": "Client Responded By"
+    },
+    "client_responded_by_id": {
+      "type": "string",
+      "title": "Client Responded By (User ID)"
+    },
+    "client_response_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Client Response Date"
     },
     "notes": {
       "type": "string"

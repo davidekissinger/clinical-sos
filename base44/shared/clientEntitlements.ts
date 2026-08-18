@@ -129,33 +129,66 @@ export async function resolveClientEntitlement(base44, user, options = {}) {
   // 6. Evaluate manual override expiration
   let effectiveAccessStatus = account.access_status;
   const now = new Date();
+  let overrideExpired = false;
 
   if (account.manual_access_override && account.manual_access_override !== "None") {
-    // Check if override has expired
-    if (account.manual_override_expiration) {
-      const expiration = new Date(account.manual_override_expiration);
-      if (expiration < now) {
-        // Override expired — recalculate normal entitlement
-        effectiveAccessStatus = account.access_status;
-      } else {
-        // Override is active — apply it
-        if (account.manual_access_override === "Suspend") effectiveAccessStatus = "Suspended";
-        else if (account.manual_access_override === "Terminate") effectiveAccessStatus = "Terminated";
-        else if (account.manual_access_override === "Reactivate") effectiveAccessStatus = "Active";
-        else if (account.manual_access_override === "Extend Access") effectiveAccessStatus = "Active";
-        else if (account.manual_access_override === "Maintain Access") effectiveAccessStatus = account.access_status;
-      }
+    const overrideType = account.manual_access_override;
+    const expiration = account.manual_override_expiration ? new Date(account.manual_override_expiration) : null;
+    const isExpired = expiration && expiration < now;
+
+    if (isExpired) {
+      // Override expired — clear it and recalculate from base access_status
+      overrideExpired = true;
+      effectiveAccessStatus = account.access_status;
+      // Clear the expired override on the account (non-blocking)
+      try {
+        await base44.asServiceRole.entities.ClientAccount.update(account.id, {
+          manual_access_override: "None",
+          manual_override_reason: null,
+          manual_override_by: null,
+          manual_override_by_id: null,
+          manual_override_effective_date: null,
+          manual_override_expiration: null,
+          last_entitlement_check: now.toISOString()
+        });
+      } catch (e) { /* non-blocking */ }
     } else {
-      // No expiration — override is active indefinitely
-      if (account.manual_access_override === "Suspend") effectiveAccessStatus = "Suspended";
-      else if (account.manual_access_override === "Terminate") effectiveAccessStatus = "Terminated";
-      else if (account.manual_access_override === "Reactivate") effectiveAccessStatus = "Active";
-      else if (account.manual_access_override === "Extend Access") effectiveAccessStatus = "Active";
-      else if (account.manual_access_override === "Maintain Access") effectiveAccessStatus = account.access_status;
+      // Override is active — apply it
+      if (overrideType === "Suspend") effectiveAccessStatus = "Suspended";
+      else if (overrideType === "Terminate") effectiveAccessStatus = "Terminated";
+      else if (overrideType === "Reactivate") effectiveAccessStatus = "Active";
+      else if (overrideType === "Extend Access") effectiveAccessStatus = "Active";
+      else if (overrideType === "Maintain Access") effectiveAccessStatus = account.access_status;
     }
   }
 
-  // 7. Suspended / Terminated — no portal data access
+  // 6a. If override expired, re-sync user authorization arrays
+  if (overrideExpired) {
+    try {
+      const syncedUser = await base44.asServiceRole.entities.User.get(membership.client_user_id);
+      if (syncedUser) {
+        const shouldBeClient = effectiveAccessStatus !== "Suspended" && effectiveAccessStatus !== "Terminated";
+        await base44.asServiceRole.entities.User.update(membership.client_user_id, {
+          authorized_facility_ids: shouldBeClient ? (membership.authorized_facility_ids || []) : [],
+          authorized_engagement_ids: shouldBeClient ? (membership.authorized_engagement_ids || []) : [],
+          role: shouldBeClient ? "client" : (syncedUser.role === "client" ? "pending" : syncedUser.role)
+        });
+      }
+      await auditAccessChange(base44, {
+        client_account_id: account.id,
+        previous_access_state: account.manual_access_override,
+        new_access_state: effectiveAccessStatus,
+        reason: "Manual override expired — automatic recalculation",
+        triggering_source: "resolveClientEntitlement:override_expired",
+        acting_user_id: "system",
+        acting_user_name: "System — Override Expiration",
+        manual_override: true,
+        manual_override_details: "Override expired and was automatically cleared"
+      });
+    } catch (e) { /* non-blocking */ }
+  }
+
+  // 7. Suspended / Terminated — no portal data access, no tenant IDs exposed
   if (effectiveAccessStatus === "Suspended" || effectiveAccessStatus === "Terminated") {
     return {
       authorized: false,
@@ -163,8 +196,8 @@ export async function resolveClientEntitlement(base44, user, options = {}) {
       membership_status: membership.membership_status,
       effective_capabilities: {},
       reason: `Account is ${effectiveAccessStatus}`,
-      facility_ids: membership.authorized_facility_ids || [],
-      engagement_ids: membership.authorized_engagement_ids || [],
+      facility_ids: [],
+      engagement_ids: [],
       account_name: account.account_name
     };
   }

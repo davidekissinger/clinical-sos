@@ -25,14 +25,16 @@ export default async function(req) {
     }
 
     // Sanitize — never expose internal notes, override rationale, finance details, scoring
+    // For Suspended / Terminated, never expose tenant IDs
+    const isNoDataAccess = entitlement.access_status === "Suspended" || entitlement.access_status === "Terminated";
     const sanitized = {
       authorized: entitlement.authorized,
       access_status: entitlement.access_status,
       account_name: entitlement.account_name,
       membership_status: entitlement.membership_status,
-      effective_capabilities: entitlement.effective_capabilities,
-      engagement_ids: entitlement.engagement_ids || [],
-      facility_ids: entitlement.facility_ids || [],
+      effective_capabilities: isNoDataAccess ? {} : entitlement.effective_capabilities,
+      engagement_ids: isNoDataAccess ? [] : (entitlement.engagement_ids || []),
+      facility_ids: isNoDataAccess ? [] : (entitlement.facility_ids || []),
       portal_message: getPortalMessage(entitlement.access_status),
       reason: entitlement.authorized ? null : entitlement.reason
     };

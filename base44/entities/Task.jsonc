@@ -52,6 +52,19 @@
     "linked_engagement_id": {
       "type": "string"
     },
+    "client_completion_note": {
+      "type": "string",
+      "title": "Client Completion Note"
+    },
+    "client_completed_by": {
+      "type": "string",
+      "title": "Client Completed By"
+    },
+    "client_completed_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Client Completed Date"
+    },
     "client_visibility": {
       "type": "boolean",
       "default": false,
