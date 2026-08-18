@@ -52,7 +52,7 @@ export default function InviteClientUserDialog({ isOpen, onClose, accounts, onRe
     try {
       const res = await base44.entities.User.list("-created_date", 50);
       const list = Array.isArray(res) ? res : (res?.data || []);
-      setPendingUsers(list.filter(u => u.email?.toLowerCase().includes(searchEmail.toLowerCase()) && u.role === "pending"));
+      setPendingUsers(list.filter(u => u.email?.toLowerCase().includes(searchEmail.toLowerCase()) && (u.role === "pending" || u.role === "user")));
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
@@ -106,7 +106,7 @@ export default function InviteClientUserDialog({ isOpen, onClose, accounts, onRe
     <AccessibleDialog isOpen={isOpen} onClose={onClose} title="Invite Client User" titleId="invite-form-title" closeLabel="Close">
       <div className="space-y-4">
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1">Search pending users by email</label>
+          <label className="block text-xs font-medium text-muted-foreground mb-1">Search unprovisioned users by email</label>
           <div className="flex gap-2">
             <input type="email" value={searchEmail} onChange={e => setSearchEmail(e.target.value)} placeholder="user@example.com" className="cc-input flex-1" />
             <button type="button" onClick={searchUsers} className="btn-secondary text-xs">Search</button>

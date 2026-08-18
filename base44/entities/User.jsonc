@@ -4,6 +4,7 @@
       "type": "string",
       "description": "The role of the user in the app",
       "enum": [
+        "user",
         "pending",
         "admin",
         "business_development",

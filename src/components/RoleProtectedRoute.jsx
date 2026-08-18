@@ -36,8 +36,8 @@ export default function RoleProtectedRoute({ roles, fallback = <DefaultFallback 
   }
 
   const userRole = user?.role || 'user';
-  // Pending users should never access command center — redirect to access-pending
-  if (userRole === 'pending') {
+  // Unprovisioned users (Base44 native "user" or Clinical SOS "pending") must never access Command Center
+  if (userRole === 'pending' || userRole === 'user') {
     return <Navigate to="/access-pending" replace />;
   }
   if (!roles.includes(userRole)) {
