@@ -63,6 +63,11 @@
     "summary": {
       "type": "string"
     },
+    "client_visibility": {
+      "type": "boolean",
+      "default": false,
+      "title": "Client Visible"
+    },
     "is_test_data": {
       "type": "boolean",
       "default": false
@@ -88,6 +93,23 @@
           "user_condition": {
             "role": "read_only"
           }
+        },
+        {
+          "$and": [
+            {
+              "user_condition": {
+                "role": "client"
+              }
+            },
+            {
+              "data.client_visibility": true
+            },
+            {
+              "data.facility_id": {
+                "$in": "{{user.data.authorized_facility_ids}}"
+              }
+            }
+          ]
         }
       ]
     },
