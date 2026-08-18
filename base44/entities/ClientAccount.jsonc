@@ -138,6 +138,7 @@
   },
   "required": [
     "account_name",
+    "organization_id",
     "access_status"
   ],
   "rls": {
