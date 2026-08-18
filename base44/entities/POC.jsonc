@@ -12,6 +12,14 @@
       "type": "string",
       "title": "Deficiency ID"
     },
+    "engagement_id": {
+      "type": "string",
+      "title": "Engagement ID"
+    },
+    "engagement_name": {
+      "type": "string",
+      "title": "Engagement Name"
+    },
     "facility_id": {
       "type": "string"
     },
@@ -185,34 +193,6 @@
           "user_condition": {
             "role": "read_only"
           }
-        },
-        {
-          "$and": [
-            {
-              "user_condition": {
-                "role": "client"
-              }
-            },
-            {
-              "data.client_visibility": true
-            },
-            {
-              "data.status": {
-                "$in": [
-                  "Client Review",
-                  "Approved for Use",
-                  "Submitted",
-                  "Accepted",
-                  "Revision Requested"
-                ]
-              }
-            },
-            {
-              "data.facility_id": {
-                "$in": "{{user.data.authorized_facility_ids}}"
-              }
-            }
-          ]
         }
       ]
     },
