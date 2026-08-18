@@ -56,8 +56,9 @@ export default async function(req) {
 
     // After access change, re-sync all memberships for this account
     const memberships = await base44.asServiceRole.entities.ClientMembership.filter({ client_account_id });
+    const isNoDataAccess = new_access_status === 'Suspended' || new_access_status === 'Terminated';
     for (const m of memberships) {
-      const shouldBeClient = m.membership_status === 'Active' && new_access_status !== 'Terminated';
+      const shouldBeClient = m.membership_status === 'Active' && !isNoDataAccess;
       const currentMember = await base44.asServiceRole.entities.User.get(m.client_user_id);
       if (currentMember) {
         const newRole = shouldBeClient ? 'client' : (currentMember.role === 'client' ? 'pending' : currentMember.role);

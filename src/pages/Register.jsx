@@ -128,8 +128,8 @@ export default function Register() {
   return (
     <AuthLayout
       icon={UserPlus}
-      title="Create your account"
-      subtitle="Sign up to get started"
+      title="Create Your Account"
+      subtitle="Account creation does not grant access to private Clinical SOS services. Client access requires authorization."
       footer={
         <>
           Already have an account?{" "}

@@ -21,17 +21,18 @@ function getEffectiveTheme(theme) {
 }
 
 /**
- * Theme is scoped to the Command Center only.
+ * Theme is scoped to the Command Center and Client Portal.
  * Public website always uses light branded presentation.
  * This prevents dark semantic text colors from applying to public pages
  * that use hard-coded light backgrounds.
  */
-function isCommandCenterPath(pathname) {
-  return pathname && pathname.startsWith('/command-center');
+function isPrivateAppPath(pathname) {
+  if (!pathname) return false;
+  return pathname.startsWith('/command-center') || pathname.startsWith('/client');
 }
 
 function applyDarkClass(theme, pathname) {
-  const shouldApplyDark = isCommandCenterPath(pathname) && getEffectiveTheme(theme) === 'dark';
+  const shouldApplyDark = isPrivateAppPath(pathname) && getEffectiveTheme(theme) === 'dark';
   document.documentElement.classList.toggle('dark', shouldApplyDark);
 }
 
@@ -49,8 +50,14 @@ export function ThemeProvider({ children }) {
     if (theme !== 'system') return;
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = () => applyDarkClass('system', window.location.pathname);
+    // Also listen for route changes (pushState)
+    const popHandler = () => applyDarkClass('system', window.location.pathname);
     mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
+    window.addEventListener('popstate', popHandler);
+    return () => {
+      mq.removeEventListener('change', handler);
+      window.removeEventListener('popstate', popHandler);
+    };
   }, [theme]);
 
   const setTheme = useCallback((newTheme) => {

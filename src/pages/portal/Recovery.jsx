@@ -10,19 +10,23 @@ export default function ClientRecovery() {
 
   useEffect(() => {
     async function load() {
+      const engIds = entitlement?.engagement_ids || [];
+      const facIds = entitlement?.facility_ids || [];
+      if (engIds.length === 0 && facIds.length === 0) { setLoading(false); return; }
       try {
         const [caseRes, defRes] = await Promise.all([
           base44.entities.RegulatoryCase.list("-created_date", 200),
           base44.entities.Deficiency.list("-created_date", 200),
         ]);
         const flt = (r) => Array.isArray(r) ? r : (r?.data || []);
-        setCases(flt(caseRes).filter(c => c.client_visibility));
-        setDeficiencies(flt(defRes).filter(d => d.client_visibility));
+        // Scope to authorized engagements and facilities
+        setCases(flt(caseRes).filter(c => c.client_visibility && (c.engagement_id && engIds.includes(c.engagement_id))));
+        setDeficiencies(flt(defRes).filter(d => d.client_visibility && (d.facility_id && facIds.includes(d.facility_id))));
       } catch (e) { console.error(e); }
       finally { setLoading(false); }
     }
     load();
-  }, []);
+  }, [entitlement]);
 
   if (loading) return <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-4 border-accent border-t-primary rounded-full animate-spin" /></div>;
 

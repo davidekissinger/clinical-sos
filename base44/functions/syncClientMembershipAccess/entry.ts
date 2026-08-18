@@ -28,12 +28,29 @@ export default async function(req) {
       account = await base44.asServiceRole.entities.ClientAccount.get(membership.client_account_id);
     }
 
-    // 4. Calculate effective facilities and engagements
+    // 4. Calculate effective access status (including manual override expiration)
+    let effectiveAccessStatus = account ? account.access_status : null;
+    const now = new Date();
+    if (account && account.manual_access_override && account.manual_access_override !== 'None') {
+      const overrideType = account.manual_access_override;
+      const expiration = account.manual_override_expiration ? new Date(account.manual_override_expiration) : null;
+      const isExpired = expiration && expiration < now;
+      if (!isExpired) {
+        if (overrideType === 'Suspend') effectiveAccessStatus = 'Suspended';
+        else if (overrideType === 'Terminate') effectiveAccessStatus = 'Terminated';
+        else if (overrideType === 'Reactivate') effectiveAccessStatus = 'Active';
+        else if (overrideType === 'Extend Access') effectiveAccessStatus = 'Active';
+        else if (overrideType === 'Maintain Access') effectiveAccessStatus = account.access_status;
+      }
+    }
+
+    // 5. Determine if client role should be assigned or removed based on EFFECTIVE status
     const facilityIds = membership.authorized_facility_ids || [];
     const engagementIds = membership.authorized_engagement_ids || [];
 
-    // 5. Determine if client role should be assigned or removed
-    const shouldBeClient = membership.membership_status === 'Active' && account && account.access_status !== 'Terminated';
+    // Suspended / Terminated → arrays must be cleared
+    const isNoDataAccess = effectiveAccessStatus === 'Suspended' || effectiveAccessStatus === 'Terminated';
+    const shouldBeClient = membership.membership_status === 'Active' && account && !isNoDataAccess;
 
     // 6. Update the associated User authorization arrays + role
     const userUpdate = {
@@ -55,7 +72,7 @@ export default async function(req) {
     await auditAccessChange(base44, {
       client_account_id: membership.client_account_id,
       previous_access_state: account?.access_status || 'Unknown',
-      new_access_state: shouldBeClient ? 'Active' : 'Suspended',
+      new_access_state: isNoDataAccess ? effectiveAccessStatus : (shouldBeClient ? 'Active' : 'Suspended'),
       reason: `Membership sync: ${membership.membership_status}`,
       triggering_source: 'syncClientMembershipAccess',
       acting_user_id: user.id,

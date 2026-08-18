@@ -66,6 +66,8 @@ import ClientTasks from '@/pages/portal/Tasks';
 import ClientReadiness from '@/pages/portal/Readiness';
 import ClientDocuments from '@/pages/portal/Documents';
 import ClientAccount from '@/pages/portal/Account';
+import ClientCaseDetail from '@/pages/portal/CaseDetail';
+import ClientDeficiencyDetail from '@/pages/portal/DeficiencyDetail';
 import AccessPending from '@/pages/AccessPending';
 
 const AuthenticatedApp = () => {
@@ -127,6 +129,8 @@ const AuthenticatedApp = () => {
             <Route path="/client" element={<ClientDashboard />} />
             <Route path="/client/engagements" element={<ClientEngagements />} />
             <Route path="/client/engagements/:id" element={<ClientEngagementDetail />} />
+            <Route path="/client/cases/:id" element={<ClientCaseDetail />} />
+            <Route path="/client/deficiencies/:id" element={<ClientDeficiencyDetail />} />
             <Route path="/client/recovery" element={<ClientRecovery />} />
             <Route path="/client/pocs" element={<ClientPOCs />} />
             <Route path="/client/work-products" element={<ClientWorkProducts />} />

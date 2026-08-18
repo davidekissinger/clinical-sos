@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, Navigate } from 'react-router-dom';
 import { ShieldX } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -36,6 +36,10 @@ export default function RoleProtectedRoute({ roles, fallback = <DefaultFallback 
   }
 
   const userRole = user?.role || 'user';
+  // Pending users should never access command center — redirect to access-pending
+  if (userRole === 'pending') {
+    return <Navigate to="/access-pending" replace />;
+  }
   if (!roles.includes(userRole)) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center p-8">

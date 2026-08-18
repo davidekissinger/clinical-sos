@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { AlertTriangle, MessageSquare, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 export default function ClientAccount() {
   const { entitlement } = useOutletContext();
@@ -12,14 +12,37 @@ export default function ClientAccount() {
   useEffect(() => {
     async function load() {
       if (!entitlement) { setLoading(false); return; }
+      // For Suspended/Terminated, facility_ids and engagement_ids are already empty
+      // Use entitlement data rather than direct Facility.list() which may fail for clients
+      const facilityIds = entitlement.facility_ids || [];
+      const engagementIds = entitlement.engagement_ids || [];
+
+      if (facilityIds.length === 0 && engagementIds.length === 0) {
+        setFacilities([]);
+        setEngagements([]);
+        setLoading(false);
+        return;
+      }
+
       try {
-        const [facRes, engRes] = await Promise.all([
-          base44.entities.Facility.list("-facility_name", 100),
-          base44.entities.Engagement.list("-created_date", 100),
-        ]);
-        const flt = (r) => Array.isArray(r) ? r : (r?.data || []);
-        setFacilities(flt(facRes).filter(f => entitlement.facility_ids?.includes(f.id)));
-        setEngagements(flt(engRes).filter(e => entitlement.engagement_ids?.includes(e.id)));
+        const promises = [];
+        if (facilityIds.length > 0) {
+          promises.push(
+            base44.entities.Facility.list("-facility_name", 100).then(res => {
+              const list = Array.isArray(res) ? res : (res?.data || []);
+              setFacilities(list.filter(f => facilityIds.includes(f.id)));
+            }).catch(() => setFacilities([]))
+          );
+        }
+        if (engagementIds.length > 0) {
+          promises.push(
+            base44.entities.Engagement.list("-created_date", 100).then(res => {
+              const list = Array.isArray(res) ? res : (res?.data || []);
+              setEngagements(list.filter(e => engagementIds.includes(e.id)));
+            }).catch(() => setEngagements([]))
+          );
+        }
+        await Promise.all(promises);
       } catch (e) { console.error(e); }
       finally { setLoading(false); }
     }
@@ -78,11 +101,11 @@ export default function ClientAccount() {
         </dl>
       </div>
 
-      {facilities.length > 0 && (
+      {facilities.length > 0 && !isSuspended && !isTerminated && (
         <div className="bg-white dark:bg-card rounded-xl border border-border p-6 mb-4">
           <h2 className="font-semibold text-foreground mb-3">Authorized Facilities</h2>
           <ul className="space-y-2">
-            {facilities.map(f => <li key={f.id} className="text-sm text-foreground">{f.facility_name} — {f.city}, {f.state}</li>)}
+            {facilities.map(f => <li key={f.id} className="text-sm text-foreground">{f.facility_name} — {f.city || ""}, {f.state || ""}</li>)}
           </ul>
         </div>
       )}

@@ -34,7 +34,12 @@ export default function ClientEntitlementRoute() {
 
   if (!user) return <Navigate to="/login?returnTo=/client" replace />;
 
-  // Non-client roles should not access client portal
+  // Pending users go directly to access-pending — never bounce through staff routes
+  if (user.role === "pending") {
+    return <Navigate to="/access-pending" replace />;
+  }
+
+  // Non-client staff roles go to command center
   if (user.role !== "client") {
     return <Navigate to="/command-center" replace />;
   }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, ClipboardList, FileText, ClipboardCheck, FolderCheck, ShieldCheck, ListChecks } from "lucide-react";
+import { ArrowLeft, ClipboardList, FileText, ClipboardCheck, FolderCheck, ListChecks } from "lucide-react";
 
 export default function ClientEngagementDetail() {
   const { id } = useParams();
@@ -34,11 +34,12 @@ export default function ClientEngagementDetail() {
           base44.entities.Task.list("-due_date", 100),
         ]);
         const flt = (r) => Array.isArray(r) ? r : (r?.data || []);
+        // Every related item must belong to THIS exact engagement
         setCases(flt(caseRes).filter(c => c.client_visibility && c.engagement_id === id));
-        setDeficiencies(flt(defRes).filter(d => d.client_visibility));
-        setPocs(flt(pocRes).filter(p => p.client_visibility && p.status !== "AI Draft" && p.status !== "Clinical Review"));
-        setWorkProducts(flt(wpRes).filter(w => w.client_visibility && w.document_status !== "DRAFT" && w.document_status !== "CLINICAL REVIEW"));
-        setEvidence(flt(evRes).filter(e => e.client_visibility));
+        setDeficiencies(flt(defRes).filter(d => d.client_visibility && d.engagement_id === id));
+        setPocs(flt(pocRes).filter(p => p.client_visibility));
+        setWorkProducts(flt(wpRes).filter(w => w.client_visibility && w.engagement_id === id));
+        setEvidence(flt(evRes).filter(e => e.client_visibility && e.engagement_id === id));
         setTasks(flt(taskRes).filter(t => t.client_visibility && t.linked_engagement_id === id));
       } catch (e) { console.error(e); setDenied(true); }
       finally { setLoading(false); }
