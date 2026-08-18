@@ -9,17 +9,15 @@ export default function ClientTasks() {
   const [actionResult, setActionResult] = useState(null);
   const [submitting, setSubmitting] = useState(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await base44.entities.Task.list("-due_date", 100);
-        const list = Array.isArray(res) ? res : (res?.data || []);
-        setTasks(list.filter(t => t.client_visibility && entitlement?.engagement_ids?.includes(t.linked_engagement_id)));
-      } catch (e) { console.error(e); }
-      finally { setLoading(false); }
-    }
-    load();
-  }, [entitlement]);
+  const loadTasks = async () => {
+    try {
+      const res = await base44.functions.invoke("getClientPortalData", { resource: "tasks" });
+      setTasks(Array.isArray(res) ? res : (res?.data || []));
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { loadTasks(); }, []);
 
   const updateTask = async (task, newStatus) => {
     if (!entitlement?.effective_capabilities?.can_complete_tasks) {
@@ -28,14 +26,9 @@ export default function ClientTasks() {
     }
     setSubmitting(task.id);
     try {
-      await base44.functions.invoke("clientUpdateTask", {
-        task_id: task.id,
-        status: newStatus
-      });
+      await base44.functions.invoke("clientUpdateTask", { task_id: task.id, status: newStatus });
       setActionResult({ success: "Task updated." });
-      const res = await base44.entities.Task.list("-due_date", 100);
-      const list = Array.isArray(res) ? res : (res?.data || []);
-      setTasks(list.filter(t => t.client_visibility && entitlement?.engagement_ids?.includes(t.linked_engagement_id)));
+      await loadTasks();
     } catch (e) { setActionResult({ error: e.message || "Failed to update task" }); }
     finally { setSubmitting(null); }
   };

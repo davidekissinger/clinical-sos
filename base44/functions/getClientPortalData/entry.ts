@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.42';
-import { resolveClientEntitlement } from "../../shared/clientEntitlements.ts";
+import { resolveClientEntitlement, RESOURCE_CAPABILITY_MAP } from "../../shared/clientEntitlements.ts";
 import {
   sanitizeEngagement, sanitizeCase, sanitizeDeficiency, sanitizePOC,
   sanitizeWorkProduct, sanitizeEvidence, sanitizeTask, sanitizeAudit,
@@ -13,19 +13,26 @@ export default async function(req) {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
     if (user.role !== 'client') return Response.json({ error: 'Forbidden — client role required' }, { status: 403 });
 
-    const url = new URL(req.url);
-    const resource = url.searchParams.get('resource') || 'dashboard';
+    // Accept JSON body (preferred) or URL query params (compatibility)
+    let body = {};
+    try { body = await req.json(); } catch (e) {
+      const url = new URL(req.url);
+      body = { resource: url.searchParams.get('resource') || 'dashboard' };
+    }
+    const resource = body.resource || 'dashboard';
 
-    // Resolve base entitlement (no specific record — just tenant scope)
-    const entitlement = await resolveClientEntitlement(base44, user);
+    // Resolve resource-specific VIEW capability
+    const requiredCap = RESOURCE_CAPABILITY_MAP[resource];
+    const entitlement = await resolveClientEntitlement(base44, user, { resourceCapability: requiredCap });
     if (!entitlement.authorized) {
       return Response.json({ error: 'Access denied', reason: entitlement.reason, access_status: entitlement.access_status }, { status: 403 });
     }
 
     const facilityIds = entitlement.facility_ids || [];
     const engagementIds = entitlement.engagement_ids || [];
+    const flt = (r) => Array.isArray(r) ? r : (r?.data || []);
 
-    // For dashboard — return summary counts
+    // ── Dashboard ──
     if (resource === 'dashboard') {
       const [engagements, cases, tasks, pocs, evidence] = await Promise.all([
         base44.asServiceRole.entities.Engagement.list("-created_date", 200),
@@ -34,7 +41,6 @@ export default async function(req) {
         base44.asServiceRole.entities.POC.list("-created_date", 200),
         base44.asServiceRole.entities.EvidenceItem.list("-created_date", 200),
       ]);
-      const flt = (r) => Array.isArray(r) ? r : (r?.data || []);
       const scopedEngagements = flt(engagements).filter(e => engagementIds.includes(e.id) && e.client_visibility);
       const scopedCases = filterByTenantScope(filterClientVisible(flt(cases)), facilityIds, engagementIds);
       const scopedTasks = filterByTenantScope(filterClientVisible(flt(tasks)), facilityIds, engagementIds);
@@ -54,12 +60,12 @@ export default async function(req) {
       });
     }
 
-    // For list resources — return sanitized DTOs
+    // ── List resources ──
     let rawRecords;
     switch (resource) {
       case 'engagements':
         rawRecords = await base44.asServiceRole.entities.Engagement.list("-created_date", 200);
-        return Response.json(filterByTenantScope(filterClientVisible(flt(rawRecords)), [], engagementIds).map(sanitizeEngagement));
+        return Response.json(flt(rawRecords).filter(e => engagementIds.includes(e.id) && e.client_visibility).map(sanitizeEngagement));
 
       case 'cases':
         rawRecords = await base44.asServiceRole.entities.RegulatoryCase.list("-created_date", 200);
@@ -100,8 +106,6 @@ export default async function(req) {
       default:
         return Response.json({ error: `Unknown resource: ${resource}` }, { status: 400 });
     }
-
-    function flt(r) { return Array.isArray(r) ? r : (r?.data || []); }
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

@@ -1,32 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 
 export default function ClientRecovery() {
-  const { entitlement } = useOutletContext();
   const [cases, setCases] = useState([]);
   const [deficiencies, setDeficiencies] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
-      const engIds = entitlement?.engagement_ids || [];
-      const facIds = entitlement?.facility_ids || [];
-      if (engIds.length === 0 && facIds.length === 0) { setLoading(false); return; }
       try {
         const [caseRes, defRes] = await Promise.all([
-          base44.entities.RegulatoryCase.list("-created_date", 200),
-          base44.entities.Deficiency.list("-created_date", 200),
+          base44.functions.invoke("getClientPortalData", { resource: "cases" }),
+          base44.functions.invoke("getClientPortalData", { resource: "deficiencies" }),
         ]);
-        const flt = (r) => Array.isArray(r) ? r : (r?.data || []);
-        // Scope to authorized engagements and facilities
-        setCases(flt(caseRes).filter(c => c.client_visibility && (c.engagement_id && engIds.includes(c.engagement_id))));
-        setDeficiencies(flt(defRes).filter(d => d.client_visibility && (d.facility_id && facIds.includes(d.facility_id))));
+        setCases(Array.isArray(caseRes) ? caseRes : (caseRes?.data || []));
+        setDeficiencies(Array.isArray(defRes) ? defRes : (defRes?.data || []));
       } catch (e) { console.error(e); }
       finally { setLoading(false); }
     }
     load();
-  }, [entitlement]);
+  }, []);
 
   if (loading) return <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-4 border-accent border-t-primary rounded-full animate-spin" /></div>;
 

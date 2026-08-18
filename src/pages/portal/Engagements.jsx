@@ -10,16 +10,14 @@ export default function ClientEngagements() {
 
   useEffect(() => {
     async function load() {
-      if (!entitlement?.engagement_ids?.length) { setLoading(false); return; }
       try {
-        const res = await base44.entities.Engagement.list("-created_date", 100);
-        const list = Array.isArray(res) ? res : (res?.data || []);
-        setEngagements(list.filter(e => entitlement.engagement_ids.includes(e.id)));
+        const res = await base44.functions.invoke("getClientPortalData", { resource: "engagements" });
+        setEngagements(Array.isArray(res) ? res : (res?.data || []));
       } catch (e) { console.error(e); }
       finally { setLoading(false); }
     }
     load();
-  }, [entitlement]);
+  }, []);
 
   if (loading) return <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-4 border-accent border-t-primary rounded-full animate-spin" /></div>;
 

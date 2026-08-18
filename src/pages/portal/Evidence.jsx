@@ -10,17 +10,15 @@ export default function ClientEvidence() {
   const [actionResult, setActionResult] = useState(null);
   const [submitting, setSubmitting] = useState(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await base44.entities.EvidenceItem.list("-created_date", 200);
-        const list = Array.isArray(res) ? res : (res?.data || []);
-        setEvidence(list.filter(e => e.client_visibility));
-      } catch (e) { console.error(e); }
-      finally { setLoading(false); }
-    }
-    load();
-  }, []);
+  const loadEvidence = async () => {
+    try {
+      const res = await base44.functions.invoke("getClientPortalData", { resource: "evidence" });
+      setEvidence(Array.isArray(res) ? res : (res?.data || []));
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { loadEvidence(); }, []);
 
   const respondToEvidence = async (item, responseStatus) => {
     if (!entitlement?.effective_capabilities?.can_submit_evidence) {
@@ -30,13 +28,10 @@ export default function ClientEvidence() {
     setSubmitting(item.id);
     try {
       await base44.functions.invoke("clientRespondEvidence", {
-        evidence_id: item.id,
-        response_status: responseStatus
+        evidence_id: item.id, response_status: responseStatus
       });
       setActionResult({ success: "Evidence response submitted." });
-      const res = await base44.entities.EvidenceItem.list("-created_date", 200);
-      const list = Array.isArray(res) ? res : (res?.data || []);
-      setEvidence(list.filter(e => e.client_visibility));
+      await loadEvidence();
     } catch (e) { setActionResult({ error: e.message || "Failed to submit response" }); }
     finally { setSubmitting(null); }
   };

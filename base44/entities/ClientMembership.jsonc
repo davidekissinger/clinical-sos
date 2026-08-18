@@ -72,6 +72,11 @@
       "default": true,
       "title": "Can Download Documents"
     },
+    "can_view_poc": {
+      "type": "boolean",
+      "default": true,
+      "title": "Can View POC"
+    },
     "can_review_poc": {
       "type": "boolean",
       "default": true,
@@ -91,6 +96,11 @@
       "type": "boolean",
       "default": false,
       "title": "Can Complete Tasks"
+    },
+    "can_view_evidence": {
+      "type": "boolean",
+      "default": true,
+      "title": "Can View Evidence"
     },
     "can_submit_evidence": {
       "type": "boolean",

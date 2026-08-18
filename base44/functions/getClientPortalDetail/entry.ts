@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.42';
-import { resolveClientEntitlement } from "../../shared/clientEntitlements.ts";
+import { resolveClientEntitlement, RESOURCE_CAPABILITY_MAP } from "../../shared/clientEntitlements.ts";
 import {
   sanitizeEngagement, sanitizeCase, sanitizeDeficiency, sanitizePOC,
   sanitizeWorkProduct, sanitizeEvidence, sanitizeTask, sanitizeAudit,
@@ -13,12 +13,18 @@ export default async function(req) {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
     if (user.role !== 'client') return Response.json({ error: 'Forbidden — client role required' }, { status: 403 });
 
-    const url = new URL(req.url);
-    const resource = url.searchParams.get('resource');
-    const id = url.searchParams.get('id');
+    // Accept JSON body (preferred) or URL query params (compatibility)
+    let body = {};
+    try { body = await req.json(); } catch (e) {
+      const url = new URL(req.url);
+      body = { resource: url.searchParams.get('resource'), id: url.searchParams.get('id') };
+    }
+    const { resource, id } = body;
     if (!resource || !id) return Response.json({ error: 'resource and id are required' }, { status: 400 });
 
-    const entitlement = await resolveClientEntitlement(base44, user);
+    // Resolve resource-specific VIEW capability
+    const requiredCap = RESOURCE_CAPABILITY_MAP[resource];
+    const entitlement = await resolveClientEntitlement(base44, user, { resourceCapability: requiredCap });
     if (!entitlement.authorized) {
       return Response.json({ error: 'Access denied', reason: entitlement.reason, access_status: entitlement.access_status }, { status: 403 });
     }
@@ -37,7 +43,6 @@ export default async function(req) {
         return Response.json({ error: 'Engagement not found or not published' }, { status: 404 });
       }
 
-      // Load all related records, filter to THIS engagement only
       const [cases, deficiencies, pocs, workProducts, evidence, tasks, audits, readiness] = await Promise.all([
         base44.asServiceRole.entities.RegulatoryCase.list("-created_date", 200),
         base44.asServiceRole.entities.Deficiency.list("-created_date", 200),
@@ -71,17 +76,24 @@ export default async function(req) {
       });
     }
 
-    // ── Case Detail ──
+    // ── Case Detail (engagement-first) ──
     if (resource === 'case') {
       const regCase = await base44.asServiceRole.entities.RegulatoryCase.get(id);
       if (!regCase || !regCase.client_visibility) {
         return Response.json({ error: 'Case not found or not published' }, { status: 404 });
       }
-      // Tenant scope check: case must belong to authorized facility or engagement
-      const inScope = (regCase.engagement_id && engagementIds.includes(regCase.engagement_id)) ||
-                      (regCase.facility_id && facilityIds.includes(regCase.facility_id));
-      if (!inScope) {
-        return Response.json({ error: 'Access denied — case not in authorized scope' }, { status: 403 });
+      // Engagement-first: if case has engagement_id, require engagement match
+      if (regCase.engagement_id) {
+        if (!engagementIds.includes(regCase.engagement_id)) {
+          return Response.json({ error: 'Access denied — case engagement not in authorized scope' }, { status: 403 });
+        }
+      } else if (regCase.facility_id) {
+        // Facility fallback only if no engagement relationship
+        if (!facilityIds.includes(regCase.facility_id)) {
+          return Response.json({ error: 'Access denied — case not in authorized scope' }, { status: 403 });
+        }
+      } else {
+        return Response.json({ error: 'Access denied — case has no tenant relationship' }, { status: 403 });
       }
 
       const defRes = await base44.asServiceRole.entities.Deficiency.list("-created_date", 200);
@@ -94,15 +106,24 @@ export default async function(req) {
       });
     }
 
-    // ── Deficiency Detail ──
+    // ── Deficiency Detail (engagement-first) ──
     if (resource === 'deficiency') {
       const deficiency = await base44.asServiceRole.entities.Deficiency.get(id);
       if (!deficiency || !deficiency.client_visibility) {
         return Response.json({ error: 'Deficiency not found or not published' }, { status: 404 });
       }
-      // Tenant scope: must be in authorized facility
-      if (!deficiency.facility_id || !facilityIds.includes(deficiency.facility_id)) {
-        return Response.json({ error: 'Access denied — deficiency not in authorized scope' }, { status: 403 });
+      // Engagement-first: if deficiency has engagement_id, require engagement match
+      if (deficiency.engagement_id) {
+        if (!engagementIds.includes(deficiency.engagement_id)) {
+          return Response.json({ error: 'Access denied — deficiency engagement not in authorized scope' }, { status: 403 });
+        }
+      } else if (deficiency.facility_id) {
+        // Facility fallback only if no engagement relationship
+        if (!facilityIds.includes(deficiency.facility_id)) {
+          return Response.json({ error: 'Access denied — deficiency not in authorized scope' }, { status: 403 });
+        }
+      } else {
+        return Response.json({ error: 'Access denied — deficiency has no tenant relationship' }, { status: 403 });
       }
 
       const pocRes = await base44.asServiceRole.entities.POC.list("-created_date", 200);

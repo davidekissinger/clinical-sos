@@ -4,12 +4,11 @@
 
 import { POC_INTERNAL_STATUSES, WORKPRODUCT_INTERNAL_STATUSES } from "./clientEntitlements.ts";
 
-// ── Field Allowlists ──────────────────────────────────────────
+// ── Field Allowlists (tightened — minimum necessary client data) ──
 
 const ENGAGEMENT_FIELDS = [
   "id", "engagement_name", "service_type", "phase", "status",
-  "start_date", "estimated_end_date", "client_name", "deliverables",
-  "milestones", "client_visibility"
+  "start_date", "estimated_end_date", "deliverables", "milestones"
 ];
 
 const CASE_FIELDS = [
@@ -17,7 +16,7 @@ const CASE_FIELDS = [
   "survey_event_type", "survey_date", "cms_2567_date", "state_agency",
   "revisit_date", "current_regulatory_status", "case_status",
   "ij_status", "cmp_status", "dpna_status", "sff_status",
-  "total_deficiencies", "high_priority_deficiencies", "client_visibility"
+  "total_deficiencies", "high_priority_deficiencies"
 ];
 
 const DEFICIENCY_FIELDS = [
@@ -26,11 +25,7 @@ const DEFICIENCY_FIELDS = [
   "scope_severity", "scope_severity_letter", "harm_level",
   "scope_level", "immediate_jeopardy", "survey_finding",
   "deficiency_date", "deficiency_status", "revisit_readiness_status",
-  "revisit_readiness_score", "revisit_readiness_explanation",
-  "immediate_correction", "systemic_correction", "education_training",
-  "competency_validation", "audit_monitoring", "evidence_needed",
-  "responsible_leader", "target_completion_date", "qapi_oversight",
-  "client_visibility"
+  "revisit_readiness_score"
 ];
 
 const POC_FIELDS = [
@@ -39,52 +34,40 @@ const POC_FIELDS = [
   "element_1_specific_correction", "element_2_others_potentially_affected",
   "element_3_systemic_correction", "element_4_monitoring",
   "element_5_responsibility_qapi_completion",
-  "education_plan", "competency_plan", "evidence_requirements",
   "generated_narrative", "status", "client_review_status",
-  "client_reviewed_by", "client_reviewed_date", "client_review_comment",
-  "submitted_date", "accepted_date", "revision_requested_date",
-  "client_visibility"
+  "client_reviewed_by", "client_reviewed_date", "client_review_comment"
 ];
 
 const WORKPRODUCT_FIELDS = [
   "id", "document_type", "document_status", "facility_name",
-  "engagement_name", "regulatory_case_name", "deficiency_name",
-  "f_tag", "version", "generation_date", "content", "client_visibility"
+  "engagement_name", "f_tag", "version", "generation_date"
 ];
 
 const EVIDENCE_FIELDS = [
   "id", "deficiency_id", "deficiency_name", "facility_name",
   "engagement_id", "evidence_type", "description", "date",
-  "responsible_person", "review_status", "client_response_status",
-  "client_response_note", "client_responded_by", "client_response_date",
-  "client_visibility"
+  "review_status", "client_response_status",
+  "client_response_note", "client_responded_by", "client_response_date"
 ];
 
 const TASK_FIELDS = [
-  "id", "task", "workstream", "owner_name", "start_date",
-  "due_date", "priority", "status", "notes",
+  "id", "task", "workstream", "start_date",
+  "due_date", "status",
   "linked_engagement_id", "client_completion_note",
-  "client_completed_by", "client_completed_date", "client_visibility"
+  "client_completed_by", "client_completed_date"
 ];
 
 const AUDIT_FIELDS = [
-  "id", "facility_name", "engagement_id", "regulatory_case_name",
-  "deficiency_name", "f_tag", "plain_language_regulatory_focus",
-  "specific_deficiency_focus", "corrective_action_focus",
-  "audit_date", "auditor", "unit_hall", "resident_record_area_reviewed",
-  "shift", "meal", "med_pass", "follow_up_due_date",
-  "training_topic", "training_date", "departments_staff_taught",
-  "educator", "competency_required", "competency_completed",
-  "monitoring_sample_size", "monitoring_frequency", "monitoring_duration",
-  "monitoring_responsible_person", "monitoring_reporting_route",
-  "audit_result", "what_was_corrected", "what_remains_unresolved",
-  "responsible_person", "don_qapi_review", "review_date", "client_visibility"
+  "id", "facility_name", "engagement_id",
+  "f_tag", "plain_language_regulatory_focus",
+  "audit_date", "auditor", "audit_result",
+  "what_was_corrected", "review_date"
 ];
 
 const READINESS_FIELDS = [
   "id", "deficiency_id", "facility_name", "engagement_id",
   "criterion_label", "criterion_key", "is_met", "met_date",
-  "evidence_summary", "blocks_readiness", "notes", "client_visibility"
+  "evidence_summary", "blocks_readiness"
 ];
 
 const FACILITY_DISPLAY_FIELDS = ["id", "facility_name", "city", "state"];
@@ -100,21 +83,12 @@ function pick(record, fields) {
   return dto;
 }
 
-export function sanitizeEngagement(record) {
-  return pick(record, ENGAGEMENT_FIELDS);
-}
-
-export function sanitizeCase(record) {
-  return pick(record, CASE_FIELDS);
-}
-
-export function sanitizeDeficiency(record) {
-  return pick(record, DEFICIENCY_FIELDS);
-}
+export function sanitizeEngagement(record) { return pick(record, ENGAGEMENT_FIELDS); }
+export function sanitizeCase(record) { return pick(record, CASE_FIELDS); }
+export function sanitizeDeficiency(record) { return pick(record, DEFICIENCY_FIELDS); }
 
 export function sanitizePOC(record) {
   if (!record) return null;
-  // Never expose internal POC statuses
   if (POC_INTERNAL_STATUSES.includes(record.status)) return null;
   return pick(record, POC_FIELDS);
 }
@@ -125,37 +99,26 @@ export function sanitizeWorkProduct(record) {
   return pick(record, WORKPRODUCT_FIELDS);
 }
 
-export function sanitizeEvidence(record) {
-  return pick(record, EVIDENCE_FIELDS);
-}
+export function sanitizeEvidence(record) { return pick(record, EVIDENCE_FIELDS); }
+export function sanitizeTask(record) { return pick(record, TASK_FIELDS); }
+export function sanitizeAudit(record) { return pick(record, AUDIT_FIELDS); }
+export function sanitizeReadinessCriterion(record) { return pick(record, READINESS_FIELDS); }
+export function sanitizeFacilityDisplay(record) { return pick(record, FACILITY_DISPLAY_FIELDS); }
 
-export function sanitizeTask(record) {
-  return pick(record, TASK_FIELDS);
-}
-
-export function sanitizeAudit(record) {
-  return pick(record, AUDIT_FIELDS);
-}
-
-export function sanitizeReadinessCriterion(record) {
-  return pick(record, READINESS_FIELDS);
-}
-
-export function sanitizeFacilityDisplay(record) {
-  return pick(record, FACILITY_DISPLAY_FIELDS);
-}
-
-// ── Tenant Filtering Helpers ───────────────────────────────────
+// ── Tenant Filtering Helpers (engagement-first) ────────────────
 
 /**
  * Filter records to only those within the client's authorized tenant scope.
- * Uses facility_id OR engagement_id matching.
+ * ENGAGEMENT TAKES PRECEDENCE: if a record has an engagement_id, it must match.
+ * Facility fallback is used ONLY for records with no engagement relationship.
  */
 export function filterByTenantScope(records, facilityIds, engagementIds) {
   return (records || []).filter(r => {
-    if (r.engagement_id && engagementIds.includes(r.engagement_id)) return true;
-    if (r.facility_id && facilityIds.includes(r.facility_id)) return true;
-    if (r.linked_engagement_id && engagementIds.includes(r.linked_engagement_id)) return true;
+    // If record has engagement_id, require engagement match (no facility fallback)
+    if (r.engagement_id) return engagementIds.includes(r.engagement_id);
+    if (r.linked_engagement_id) return engagementIds.includes(r.linked_engagement_id);
+    // Only use facility fallback if no engagement relationship exists
+    if (r.facility_id) return facilityIds.includes(r.facility_id);
     return false;
   });
 }

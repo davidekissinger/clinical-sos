@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.42';
-import { ACCESS_STATUSES, calculateEffectiveClientAccessStatus, auditAccessChange } from "../../shared/clientEntitlements.ts";
+import { ACCESS_STATUSES, calculateEffectiveClientAccessStatus, syncClientUserAuthorization, auditAccessChange } from "../../shared/clientEntitlements.ts";
 
 export default async function(req) {
   try {
@@ -51,21 +51,11 @@ export default async function(req) {
       manual_override_details: manual_override ? `${manual_override_type}${override_expiration ? ' (expires ' + override_expiration + ')' : ''}` : null
     });
 
-    // Re-sync all memberships using EFFECTIVE status (not just new_access_status)
+    // Re-sync all memberships using centralized sync helper
     const memberships = await base44.asServiceRole.entities.ClientMembership.filter({ client_account_id });
-    const isNoDataAccess = effective.effective_access_status === 'Suspended' || effective.effective_access_status === 'Terminated';
 
     for (const m of memberships) {
-      const shouldBeClient = m.membership_status === 'Active' && !isNoDataAccess;
-      const currentMember = await base44.asServiceRole.entities.User.get(m.client_user_id);
-      if (currentMember) {
-        const newRole = shouldBeClient ? 'client' : (currentMember.role === 'client' ? 'pending' : currentMember.role);
-        await base44.asServiceRole.entities.User.update(m.client_user_id, {
-          authorized_facility_ids: shouldBeClient ? (m.authorized_facility_ids || []) : [],
-          authorized_engagement_ids: shouldBeClient ? (m.authorized_engagement_ids || []) : [],
-          role: newRole
-        });
-      }
+      await syncClientUserAuthorization(base44, m, effective.effective_access_status, m.membership_status);
     }
 
     return Response.json({

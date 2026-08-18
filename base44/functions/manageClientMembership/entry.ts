@@ -1,7 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.42';
-import { calculateEffectiveClientAccessStatus, auditAccessChange } from "../../shared/clientEntitlements.ts";
-
-const VALID_MEMBERSHIP_STATUSES = ['Invited', 'Active', 'Suspended', 'Revoked', 'Expired'];
+import { calculateEffectiveClientAccessStatus, syncClientUserAuthorization, auditAccessChange } from "../../shared/clientEntitlements.ts";
 
 export default async function(req) {
   try {
@@ -21,17 +19,21 @@ export default async function(req) {
     if (action === 'create') {
       if (!client_user_id || !client_account_id) return Response.json({ error: 'client_user_id and client_account_id required' }, { status: 400 });
 
-      // Validate tenant: every facility/engagement must belong to the ClientAccount
       const account = await base44.asServiceRole.entities.ClientAccount.get(client_account_id);
       if (!account) return Response.json({ error: 'Client account not found' }, { status: 404 });
+
+      // STRICT: ClientAccount MUST have organization_id — no fallback
+      if (!account.organization_id) {
+        return Response.json({ error: 'Client Account must be linked to an Organization before tenant resources can be assigned.' }, { status: 400 });
+      }
 
       const validatedFacilityIds = await validateFacilityIds(base44, authorized_facility_ids || [], account);
       const validatedEngagementIds = await validateEngagementIds(base44, authorized_engagement_ids || [], account);
 
       const newMembership = {
         client_user_id, client_account_id,
-        organization_id: organization_id || account.organization_id,
-        organization_name: organization_name || account.organization_name,
+        organization_id: account.organization_id,
+        organization_name: account.organization_name,
         authorized_facility_ids: validatedFacilityIds,
         authorized_engagement_ids: validatedEngagementIds,
         membership_status: 'Invited', invited_date: new Date().toISOString(),
@@ -39,10 +41,12 @@ export default async function(req) {
         can_view_engagement: capabilities?.can_view_engagement ?? true,
         can_view_documents: capabilities?.can_view_documents ?? true,
         can_download_documents: capabilities?.can_download_documents ?? true,
+        can_view_poc: capabilities?.can_view_poc ?? true,
         can_review_poc: capabilities?.can_review_poc ?? true,
         can_approve_poc: capabilities?.can_approve_poc ?? false,
         can_view_tasks: capabilities?.can_view_tasks ?? true,
         can_complete_tasks: capabilities?.can_complete_tasks ?? false,
+        can_view_evidence: capabilities?.can_view_evidence ?? true,
         can_submit_evidence: capabilities?.can_submit_evidence ?? false,
         can_view_audits: capabilities?.can_view_audits ?? true,
         can_complete_audits: capabilities?.can_complete_audits ?? false,
@@ -69,29 +73,31 @@ export default async function(req) {
       await base44.asServiceRole.entities.ClientMembership.update(membership_id, {
         membership_status: 'Active', activated_date: new Date().toISOString()
       });
-      // Check EFFECTIVE account status before populating tenant arrays
       const account = await base44.asServiceRole.entities.ClientAccount.get(membership.client_account_id);
       const effective = calculateEffectiveClientAccessStatus(account);
-      const isNoDataAccess = effective.effective_access_status === 'Suspended' || effective.effective_access_status === 'Terminated';
-      await syncAccessToUser(base44, membership, 'Active', !isNoDataAccess);
+      await syncClientUserAuthorization(base44, membership, effective.effective_access_status, 'Active');
     } else if (action === 'suspend') {
       await base44.asServiceRole.entities.ClientMembership.update(membership_id, {
         membership_status: 'Suspended', suspended_date: new Date().toISOString(), suspension_reason: reason || null
       });
-      // Membership suspension = user loses client access entirely
-      await syncAccessToUser(base44, membership, 'Suspended', false);
+      await syncClientUserAuthorization(base44, membership, 'Active', 'Suspended');
     } else if (action === 'revoke') {
       await base44.asServiceRole.entities.ClientMembership.update(membership_id, {
         membership_status: 'Revoked', revoked_date: new Date().toISOString(), revocation_reason: reason || null
       });
-      await syncAccessToUser(base44, membership, 'Revoked', false);
+      await syncClientUserAuthorization(base44, membership, 'Active', 'Revoked');
     } else if (action === 'update_capabilities') {
       const update = {};
       const caps = capabilities || {};
       for (const [key, value] of Object.entries(caps)) { if (key.startsWith('can_')) update[key] = value; }
 
-      // Validate tenant for facility/engagement changes
+      // STRICT tenant validation — no fallback for missing organization_id
       const account = await base44.asServiceRole.entities.ClientAccount.get(membership.client_account_id);
+      if (!account) return Response.json({ error: 'Client account not found' }, { status: 404 });
+      if (!account.organization_id) {
+        return Response.json({ error: 'Client Account must be linked to an Organization before tenant resources can be assigned.' }, { status: 400 });
+      }
+
       if (authorized_facility_ids !== undefined) {
         update.authorized_facility_ids = await validateFacilityIds(base44, authorized_facility_ids, account);
       }
@@ -101,12 +107,11 @@ export default async function(req) {
 
       await base44.asServiceRole.entities.ClientMembership.update(membership_id, update);
 
-      // Re-sync using EFFECTIVE account status
+      // Re-sync using centralized helper
       if (membership.membership_status === 'Active') {
         const effective = calculateEffectiveClientAccessStatus(account);
-        const isNoDataAccess = effective.effective_access_status === 'Suspended' || effective.effective_access_status === 'Terminated';
         const updated = { ...membership, ...update };
-        await syncAccessToUser(base44, updated, 'Active', !isNoDataAccess);
+        await syncClientUserAuthorization(base44, updated, effective.effective_access_status, 'Active');
       }
     } else {
       return Response.json({ error: 'Unknown action: ' + action }, { status: 400 });
@@ -126,57 +131,43 @@ export default async function(req) {
 }
 
 /**
- * Sync access to user — distinguishes account suspension from membership suspension.
- * - canAccess=false: user arrays cleared, role→pending (membership-level)
- * - canAccess=true but account suspended: arrays still cleared (account-level)
- * - canAccess=true and account active: arrays populated, role=client
- */
-async function syncAccessToUser(base44, membership, newStatus, canAccess) {
-  const currentUser = await base44.asServiceRole.entities.User.get(membership.client_user_id);
-  if (!currentUser) return;
-
-  const shouldBeClient = newStatus === 'Active' && canAccess;
-  const newRole = shouldBeClient ? 'client' : (currentUser.role === 'client' ? 'pending' : currentUser.role);
-  await base44.asServiceRole.entities.User.update(membership.client_user_id, {
-    authorized_facility_ids: shouldBeClient ? (membership.authorized_facility_ids || []) : [],
-    authorized_engagement_ids: shouldBeClient ? (membership.authorized_engagement_ids || []) : [],
-    role: newRole
-  });
-}
-
-/**
- * Validate that every facility ID belongs to the ClientAccount's organization.
- * Rejects mismatches with 400.
+ * STRICT facility tenant validation.
+ * Facility.operator_id MUST match ClientAccount.organization_id.
+ * No fallback for missing organization_id — that is blocked before this function is called.
+ * Mismatches cause a hard 400 rejection.
  */
 async function validateFacilityIds(base44, facilityIds, account) {
   if (!facilityIds || facilityIds.length === 0) return [];
-  if (!account) return facilityIds; // can't validate without account
+  if (!account || !account.organization_id) {
+    throw new Error("Client Account must be linked to an Organization before tenant resources can be assigned.");
+  }
 
   const facRes = await base44.asServiceRole.entities.Facility.list("-facility_name", 200);
   const allFacilities = Array.isArray(facRes) ? facRes : (facRes?.data || []);
 
-  // Facilities must belong to the account's organization or have explicit client_account_id
   const validIds = facilityIds.filter(fid => {
     const fac = allFacilities.find(f => f.id === fid);
     if (!fac) return false;
-    // Accept if facility has matching organization_id, or if account has no organization_id (legacy)
-    if (!account.organization_id) return true;
     return fac.operator_id === account.organization_id;
   });
 
   if (validIds.length !== facilityIds.length) {
-    throw new Error(`Tenant validation failed: ${facilityIds.length - validIds.length} facility ID(s) do not belong to this client account`);
+    throw new Error(`Tenant validation failed: ${facilityIds.length - validIds.length} facility ID(s) do not belong to this client account's organization`);
   }
 
   return validIds;
 }
 
 /**
- * Validate that every engagement ID belongs to the ClientAccount.
+ * STRICT engagement tenant validation.
+ * Engagement.client_account_id must match (preferred), OR organization_id must match.
+ * No fallback for missing organization_id.
  */
 async function validateEngagementIds(base44, engagementIds, account) {
   if (!engagementIds || engagementIds.length === 0) return [];
-  if (!account) return engagementIds;
+  if (!account || !account.organization_id) {
+    throw new Error("Client Account must be linked to an Organization before tenant resources can be assigned.");
+  }
 
   const engRes = await base44.asServiceRole.entities.Engagement.list("-created_date", 200);
   const allEngagements = Array.isArray(engRes) ? engRes : (engRes?.data || []);
@@ -184,9 +175,9 @@ async function validateEngagementIds(base44, engagementIds, account) {
   const validIds = engagementIds.filter(eid => {
     const eng = allEngagements.find(e => e.id === eid);
     if (!eng) return false;
-    // Accept if engagement has matching client_account_id or organization_id
+    // Prefer client_account_id match
     if (eng.client_account_id && eng.client_account_id === account.id) return true;
-    if (!account.organization_id) return true;
+    // Fallback to organization_id match
     return eng.organization_id === account.organization_id;
   });
 

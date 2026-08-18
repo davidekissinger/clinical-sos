@@ -1,45 +1,36 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { ArrowLeft } from "lucide-react";
 
 export default function ClientCaseDetail() {
   const { id } = useParams();
-  const { entitlement } = useOutletContext();
-  const [regCase, setRegCase] = useState(null);
-  const [deficiencies, setDeficiencies] = useState([]);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [denied, setDenied] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
-        const c = await base44.entities.RegulatoryCase.get(id);
-        // Must be client-visible AND within authorized tenant scope
-        if (!c || !c.client_visibility ||
-            !entitlement?.engagement_ids?.includes(c.engagement_id) &&
-            !entitlement?.facility_ids?.includes(c.facility_id)) {
-          setDenied(true); setLoading(false); return;
-        }
-        setRegCase(c);
-        const defRes = await base44.entities.Deficiency.list("-created_date", 200);
-        const list = Array.isArray(defRes) ? defRes : (defRes?.data || []);
-        setDeficiencies(list.filter(d => d.client_visibility && d.regulatory_case_id === id));
+        const res = await base44.functions.invoke("getClientPortalDetail", { resource: "case", id });
+        setData(res.data || res);
       } catch (e) { console.error(e); setDenied(true); }
       finally { setLoading(false); }
     }
     load();
-  }, [id, entitlement]);
+  }, [id]);
 
   if (loading) return <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-4 border-accent border-t-primary rounded-full animate-spin" /></div>;
-  if (denied) return (
+  if (denied || !data) return (
     <div className="bg-white dark:bg-card rounded-xl border border-border p-12 text-center">
       <p className="font-medium text-foreground">Access Denied</p>
       <p className="mt-1 text-sm text-muted-foreground">This case is not available or you are not authorized to view it.</p>
       <Link to="/client/recovery" className="mt-4 inline-block text-primary hover:underline text-sm">← Back to Recovery</Link>
     </div>
   );
+
+  const regCase = data.case;
+  const deficiencies = data.deficiencies || [];
 
   return (
     <div>

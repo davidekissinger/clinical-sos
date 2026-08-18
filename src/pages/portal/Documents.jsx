@@ -10,9 +10,8 @@ export default function ClientDocuments() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await base44.entities.WorkProduct.list("-generation_date", 200);
-        const list = Array.isArray(res) ? res : (res?.data || []);
-        setDocuments(list.filter(w => w.client_visibility && w.document_status !== "DRAFT" && w.document_status !== "CLINICAL REVIEW"));
+        const res = await base44.functions.invoke("getClientPortalData", { resource: "documents" });
+        setDocuments(Array.isArray(res) ? res : (res?.data || []));
       } catch (e) { console.error(e); }
       finally { setLoading(false); }
     }

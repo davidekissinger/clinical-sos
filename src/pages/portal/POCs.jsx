@@ -11,17 +11,15 @@ export default function ClientPOCs() {
   const [comment, setComment] = useState("");
   const [commentPocId, setCommentPocId] = useState(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await base44.entities.POC.list("-created_date", 200);
-        const list = Array.isArray(res) ? res : (res?.data || []);
-        setPocs(list.filter(p => p.client_visibility));
-      } catch (e) { console.error(e); }
-      finally { setLoading(false); }
-    }
-    load();
-  }, []);
+  const loadPocs = async () => {
+    try {
+      const res = await base44.functions.invoke("getClientPortalData", { resource: "pocs" });
+      setPocs(Array.isArray(res) ? res : (res?.data || []));
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { loadPocs(); }, []);
 
   const submitReview = async (poc, action) => {
     const requiredCap = action === "client_approve" ? "can_approve_poc" : "can_review_poc";
@@ -32,16 +30,11 @@ export default function ClientPOCs() {
     setReviewing(poc.id);
     try {
       await base44.functions.invoke("clientReviewPOC", {
-        poc_id: poc.id,
-        action: action,
-        comment: commentPocId === poc.id ? comment : null
+        poc_id: poc.id, action, comment: commentPocId === poc.id ? comment : null
       });
       setActionResult({ success: "POC review submitted. Regulatory status unchanged." });
-      setComment("");
-      setCommentPocId(null);
-      const res = await base44.entities.POC.list("-created_date", 200);
-      const list = Array.isArray(res) ? res : (res?.data || []);
-      setPocs(list.filter(p => p.client_visibility));
+      setComment(""); setCommentPocId(null);
+      await loadPocs();
     } catch (e) { setActionResult({ error: e.message || "Failed to submit review" }); }
     finally { setReviewing(null); }
   };

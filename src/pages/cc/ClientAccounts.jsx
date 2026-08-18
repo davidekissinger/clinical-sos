@@ -136,11 +136,23 @@ export default function ClientAccounts() {
 }
 
 function NewAccountDialog({ isOpen, onClose, onResult, onReload }) {
+  const [organizations, setOrganizations] = useState([]);
+  useEffect(() => {
+    if (!isOpen) return;
+    async function loadOrgs() {
+      try {
+        const res = await base44.entities.Organization.list("-organization_name", 200);
+        setOrganizations(Array.isArray(res) ? res : (res?.data || []));
+      } catch (e) { console.error(e); }
+    }
+    loadOrgs();
+  }, [isOpen]);
+
   return (
     <AccessibleDialog isOpen={isOpen} onClose={onClose} title="New Client Account" titleId="acc-form-title" closeLabel="Close">
-      <form onSubmit={async (e) => { e.preventDefault(); const f = e.target; try { await base44.entities.ClientAccount.create({ account_name: f.account_name.value, organization_name: f.organization_name.value || null, access_status: f.access_status.value, billing_status: f.billing_status.value, subscription_status: f.subscription_status.value, subscription_plan: f.subscription_plan.value || null, subscription_start_date: f.subscription_start_date.value || null }); onClose(); onReload(); onResult({ success: "Account created" }); } catch (err) { onResult({ error: err.message }); } }} className="space-y-3">
+      <form onSubmit={async (e) => { e.preventDefault(); const f = e.target; const orgId = f.organization_id.value; if (!orgId) { onResult({ error: "Organization is required" }); return; } const org = organizations.find(o => o.id === orgId); try { await base44.entities.ClientAccount.create({ account_name: f.account_name.value, organization_id: orgId, organization_name: org?.organization_name || null, access_status: f.access_status.value, billing_status: f.billing_status.value, subscription_status: f.subscription_status.value, subscription_plan: f.subscription_plan.value || null, subscription_start_date: f.subscription_start_date.value || null }); onClose(); onReload(); onResult({ success: "Account created" }); } catch (err) { onResult({ error: err.message }); } }} className="space-y-3">
         <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Account Name *</span><input name="account_name" required className="cc-input" /></label>
-        <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Organization Name</span><input name="organization_name" className="cc-input" /></label>
+        <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Organization *</span><select name="organization_id" required className="cc-input"><option value="">— Select Organization —</option>{organizations.map(o => <option key={o.id} value={o.id}>{o.organization_name}</option>)}</select></label>
         <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Access Status *</span><select name="access_status" required className="cc-input"><option>Active</option><option>Grace Period</option><option>Restricted</option><option>Suspended</option><option>Terminated</option></select></label>
         <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Billing Status</span><select name="billing_status" className="cc-input"><option>Unknown</option><option>Current</option><option>Invoice Due</option><option>Past Due</option><option>Payment Arrangement</option><option>Paid</option><option>Disputed</option></select></label>
         <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Subscription Status</span><select name="subscription_status" className="cc-input"><option>Not Applicable</option><option>Active</option><option>Trial</option><option>Grace Period</option><option>Past Due</option><option>Cancelled</option><option>Expired</option></select></label>

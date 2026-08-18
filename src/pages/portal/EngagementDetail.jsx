@@ -1,60 +1,43 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, ClipboardList, FileText, ClipboardCheck, FolderCheck, ListChecks } from "lucide-react";
+import { ArrowLeft, ClipboardList, FileText, ClipboardCheck, FolderCheck, ListChecks, ShieldCheck, AlertTriangle } from "lucide-react";
 
 export default function ClientEngagementDetail() {
   const { id } = useParams();
-  const { entitlement } = useOutletContext();
-  const [engagement, setEngagement] = useState(null);
-  const [cases, setCases] = useState([]);
-  const [deficiencies, setDeficiencies] = useState([]);
-  const [pocs, setPocs] = useState([]);
-  const [workProducts, setWorkProducts] = useState([]);
-  const [evidence, setEvidence] = useState([]);
-  const [tasks, setTasks] = useState([]);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [denied, setDenied] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
-        const eng = await base44.entities.Engagement.get(id);
-        if (!eng || !eng.client_visibility || !entitlement?.engagement_ids?.includes(id)) {
-          setDenied(true); setLoading(false); return;
-        }
-        setEngagement(eng);
-        const [caseRes, defRes, pocRes, wpRes, evRes, taskRes] = await Promise.all([
-          base44.entities.RegulatoryCase.list("-created_date", 200),
-          base44.entities.Deficiency.list("-created_date", 200),
-          base44.entities.POC.list("-created_date", 200),
-          base44.entities.WorkProduct.list("-created_date", 200),
-          base44.entities.EvidenceItem.list("-created_date", 200),
-          base44.entities.Task.list("-due_date", 100),
-        ]);
-        const flt = (r) => Array.isArray(r) ? r : (r?.data || []);
-        // Every related item must belong to THIS exact engagement
-        setCases(flt(caseRes).filter(c => c.client_visibility && c.engagement_id === id));
-        setDeficiencies(flt(defRes).filter(d => d.client_visibility && d.engagement_id === id));
-        setPocs(flt(pocRes).filter(p => p.client_visibility));
-        setWorkProducts(flt(wpRes).filter(w => w.client_visibility && w.engagement_id === id));
-        setEvidence(flt(evRes).filter(e => e.client_visibility && e.engagement_id === id));
-        setTasks(flt(taskRes).filter(t => t.client_visibility && t.linked_engagement_id === id));
+        const res = await base44.functions.invoke("getClientPortalDetail", { resource: "engagement", id });
+        setData(res.data || res);
       } catch (e) { console.error(e); setDenied(true); }
       finally { setLoading(false); }
     }
     load();
-  }, [id, entitlement]);
+  }, [id]);
 
   if (loading) return <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-4 border-accent border-t-primary rounded-full animate-spin" /></div>;
-  if (denied) return (
+  if (denied || !data) return (
     <div className="bg-white dark:bg-card rounded-xl border border-border p-12 text-center">
       <p className="font-medium text-foreground">Access Denied</p>
       <p className="mt-1 text-sm text-muted-foreground">This engagement is not available or you are not authorized to view it.</p>
       <Link to="/client/engagements" className="mt-4 inline-block text-primary hover:underline text-sm">← Back to Engagements</Link>
     </div>
   );
+
+  const engagement = data.engagement;
+  const cases = data.cases || [];
+  const deficiencies = data.deficiencies || [];
+  const pocs = data.pocs || [];
+  const workProducts = data.work_products || [];
+  const evidence = data.evidence || [];
+  const tasks = data.tasks || [];
+  const audits = data.audits || [];
+  const readiness = data.readiness || [];
 
   return (
     <div>
@@ -64,10 +47,13 @@ export default function ClientEngagementDetail() {
 
       <div className="mt-6 space-y-6">
         <Section title="Regulatory Cases" icon={ClipboardList} items={cases.map(c => ({ id: c.id, title: c.case_name, sub: c.case_status, link: `/client/cases/${c.id}` }))} />
+        <Section title="Deficiencies" icon={AlertTriangle} items={deficiencies.map(d => ({ id: d.id, title: `${d.f_tag} — ${d.deficiency_title || "Untitled"}`, sub: d.deficiency_status, link: `/client/deficiencies/${d.id}` }))} />
         <Section title="Plans of Correction" icon={ClipboardCheck} items={pocs.map(p => ({ id: p.id, title: `${p.f_tag} — v${p.version}`, sub: p.status, link: `/client/pocs` }))} />
         <Section title="Work Products" icon={FileText} items={workProducts.map(w => ({ id: w.id, title: w.document_type, sub: w.document_status, link: `/client/work-products` }))} />
         <Section title="Evidence Requests" icon={FolderCheck} items={evidence.map(e => ({ id: e.id, title: e.evidence_type, sub: e.review_status, link: `/client/evidence` }))} />
         <Section title="Tasks" icon={ListChecks} items={tasks.map(t => ({ id: t.id, title: t.task, sub: t.status, link: `/client/tasks` }))} />
+        <Section title="Audits" icon={ClipboardList} items={audits.map(a => ({ id: a.id, title: a.plain_language_regulatory_focus || a.f_tag, sub: a.audit_result, link: `/client/audits` }))} />
+        <Section title="Readiness Criteria" icon={ShieldCheck} items={readiness.map(r => ({ id: r.id, title: r.criterion_label, sub: r.is_met ? "Met" : "Unmet", link: `/client/readiness` }))} />
       </div>
     </div>
   );

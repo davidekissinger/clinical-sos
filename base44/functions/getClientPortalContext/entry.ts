@@ -34,7 +34,7 @@ export default async function(req) {
       });
     }
 
-    // For authorized clients — return sanitized display objects with facility/engagement details
+    // For authorized clients — return sanitized display objects only (no raw ID arrays)
     const facilityIds = entitlement.facility_ids || [];
     const engagementIds = entitlement.engagement_ids || [];
 
@@ -63,8 +63,6 @@ export default async function(req) {
       account_name: entitlement.account_name,
       membership_status: entitlement.membership_status,
       effective_capabilities: entitlement.effective_capabilities,
-      engagement_ids: engagementIds,
-      facility_ids: facilityIds,
       authorized_facilities: authorizedFacilities,
       authorized_engagements: authorizedEngagements,
       portal_message: getPortalMessage(entitlement.access_status),

@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.42';
-import { calculateEffectiveClientAccessStatus, auditAccessChange } from "../../shared/clientEntitlements.ts";
+import { calculateEffectiveClientAccessStatus, syncClientUserAuthorization, auditAccessChange } from "../../shared/clientEntitlements.ts";
 
 export default async function(req) {
   try {
@@ -34,26 +34,13 @@ export default async function(req) {
       } catch (e) {}
     }
 
-    // Determine if user should have client role + tenant arrays
-    const isNoDataAccess = effective.effective_access_status === 'Suspended' || effective.effective_access_status === 'Terminated';
-    const shouldBeClient = membership.membership_status === 'Active' && !isNoDataAccess;
-    const facilityIds = membership.authorized_facility_ids || [];
-    const engagementIds = membership.authorized_engagement_ids || [];
-
-    const currentUser = await base44.asServiceRole.entities.User.get(membership.client_user_id);
-    if (currentUser) {
-      const newRole = shouldBeClient ? 'client' : (currentUser.role === 'client' ? 'pending' : currentUser.role);
-      await base44.asServiceRole.entities.User.update(membership.client_user_id, {
-        authorized_facility_ids: shouldBeClient ? facilityIds : [],
-        authorized_engagement_ids: shouldBeClient ? engagementIds : [],
-        role: newRole
-      });
-    }
+    // Use centralized sync helper
+    const syncResult = await syncClientUserAuthorization(base44, membership, effective.effective_access_status, membership.membership_status);
 
     await auditAccessChange(base44, {
       client_account_id: membership.client_account_id,
       previous_access_state: account?.access_status || 'Unknown',
-      new_access_state: isNoDataAccess ? effective.effective_access_status : (shouldBeClient ? 'Active' : 'Suspended'),
+      new_access_state: effective.effective_access_status,
       reason: `Membership sync: ${membership.membership_status} (effective: ${effective.effective_access_status})`,
       triggering_source: 'syncClientMembershipAccess',
       acting_user_id: user.id, acting_user_name: user.full_name || user.email,
@@ -63,9 +50,9 @@ export default async function(req) {
 
     return Response.json({
       synced: true, client_user_id: membership.client_user_id,
-      assigned_role: shouldBeClient ? 'client' : 'pending',
-      authorized_facility_ids: shouldBeClient ? facilityIds : [],
-      authorized_engagement_ids: shouldBeClient ? engagementIds : [],
+      assigned_role: syncResult.role,
+      authorized_facility_ids: syncResult.authorized_facility_ids,
+      authorized_engagement_ids: syncResult.authorized_engagement_ids,
       membership_status: membership.membership_status,
       effective_access_status: effective.effective_access_status
     });

@@ -6,10 +6,12 @@ const CAP_LABELS = {
   can_view_engagement: "View Engagements",
   can_view_documents: "View Documents",
   can_download_documents: "Download Documents",
+  can_view_poc: "View POCs",
   can_review_poc: "Review POCs",
   can_approve_poc: "Approve POCs",
   can_view_tasks: "View Tasks",
   can_complete_tasks: "Complete Tasks",
+  can_view_evidence: "View Evidence",
   can_submit_evidence: "Submit Evidence",
   can_view_audits: "View Audits",
   can_complete_audits: "Complete Audits",
@@ -20,10 +22,12 @@ const DEFAULT_CAPS = {
   can_view_engagement: true,
   can_view_documents: true,
   can_download_documents: true,
+  can_view_poc: true,
   can_review_poc: true,
   can_approve_poc: false,
   can_view_tasks: true,
   can_complete_tasks: false,
+  can_view_evidence: true,
   can_submit_evidence: false,
   can_view_audits: true,
   can_complete_audits: false,
@@ -56,7 +60,7 @@ export default function InviteClientUserDialog({ isOpen, onClose, accounts, onRe
   useEffect(() => {
     if (!selectedAccountId) { setFacilities([]); setEngagements([]); return; }
     const account = accounts.find(a => a.id === selectedAccountId);
-    if (!account) return;
+    if (!account || !account.organization_id) { setFacilities([]); setEngagements([]); return; }
     async function loadScope() {
       try {
         const [facRes, engRes] = await Promise.all([
@@ -65,8 +69,9 @@ export default function InviteClientUserDialog({ isOpen, onClose, accounts, onRe
         ]);
         const facList = Array.isArray(facRes) ? facRes : (facRes?.data || []);
         const engList = Array.isArray(engRes) ? engRes : (engRes?.data || []);
-        setFacilities(facList.filter(f => !account.organization_id || f.operator_id === account.organization_id || !f.operator_id));
-        setEngagements(engList.filter(e => !account.organization_id || e.organization_id === account.organization_id || !e.organization_id));
+        // Strict: only facilities/engagements matching the account's organization_id
+        setFacilities(facList.filter(f => f.operator_id === account.organization_id));
+        setEngagements(engList.filter(e => (e.organization_id === account.organization_id) || (e.client_account_id === account.id)));
       } catch (e) { console.error(e); }
     }
     loadScope();
@@ -80,14 +85,13 @@ export default function InviteClientUserDialog({ isOpen, onClose, accounts, onRe
   const handleCreate = async (e) => {
     e.preventDefault();
     if (!selectedUser || !selectedAccountId) { onResult({ error: "Select a user and account" }); return; }
+    const account = accounts.find(a => a.id === selectedAccountId);
+    if (!account.organization_id) { onResult({ error: "Client Account must be linked to an Organization before tenant resources can be assigned." }); return; }
     try {
-      const account = accounts.find(a => a.id === selectedAccountId);
       await base44.functions.invoke("manageClientMembership", {
         action: "create",
         client_user_id: selectedUser.id,
         client_account_id: selectedAccountId,
-        organization_id: account?.organization_id || null,
-        organization_name: account?.organization_name || null,
         authorized_facility_ids: selectedFacilityIds,
         authorized_engagement_ids: selectedEngagementIds,
         capabilities: { can_login: true, ...caps },
@@ -122,8 +126,11 @@ export default function InviteClientUserDialog({ isOpen, onClose, accounts, onRe
           <label className="block text-xs font-medium text-muted-foreground mb-1">Client Account *</label>
           <select value={selectedAccountId} onChange={e => setSelectedAccountId(e.target.value)} className="cc-input">
             <option value="">— Select Account —</option>
-            {accounts.map(a => <option key={a.id} value={a.id}>{a.account_name}</option>)}
+            {accounts.map(a => <option key={a.id} value={a.id}>{a.account_name}{a.organization_name ? ` (${a.organization_name})` : ""}</option>)}
           </select>
+          {selectedAccountId && !accounts.find(a => a.id === selectedAccountId)?.organization_id && (
+            <p className="mt-1 text-xs text-rose-600">This account has no Organization linked. Tenant resources cannot be assigned.</p>
+          )}
         </div>
         {facilities.length > 0 && (
           <ScopeList label="Authorized Facilities" items={facilities.map(f => ({ id: f.id, label: `${f.facility_name} — ${f.city || ""}, ${f.state || ""}` }))} selected={selectedFacilityIds} onToggle={(id) => toggleId(selectedFacilityIds, id, setSelectedFacilityIds)} />

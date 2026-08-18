@@ -1,55 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useOutletContext } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 export default function ClientAccount() {
   const { entitlement } = useOutletContext();
-  const [facilities, setFacilities] = useState([]);
-  const [engagements, setEngagements] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function load() {
-      if (!entitlement) { setLoading(false); return; }
-      // For Suspended/Terminated, facility_ids and engagement_ids are already empty
-      // Use entitlement data rather than direct Facility.list() which may fail for clients
-      const facilityIds = entitlement.facility_ids || [];
-      const engagementIds = entitlement.engagement_ids || [];
-
-      if (facilityIds.length === 0 && engagementIds.length === 0) {
-        setFacilities([]);
-        setEngagements([]);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const promises = [];
-        if (facilityIds.length > 0) {
-          promises.push(
-            base44.entities.Facility.list("-facility_name", 100).then(res => {
-              const list = Array.isArray(res) ? res : (res?.data || []);
-              setFacilities(list.filter(f => facilityIds.includes(f.id)));
-            }).catch(() => setFacilities([]))
-          );
-        }
-        if (engagementIds.length > 0) {
-          promises.push(
-            base44.entities.Engagement.list("-created_date", 100).then(res => {
-              const list = Array.isArray(res) ? res : (res?.data || []);
-              setEngagements(list.filter(e => engagementIds.includes(e.id)));
-            }).catch(() => setEngagements([]))
-          );
-        }
-        await Promise.all(promises);
-      } catch (e) { console.error(e); }
-      finally { setLoading(false); }
-    }
-    load();
-  }, [entitlement]);
-
-  if (loading) return <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-4 border-accent border-t-primary rounded-full animate-spin" /></div>;
+  const facilities = entitlement?.authorized_facilities || [];
+  const engagements = entitlement?.authorized_engagements || [];
 
   const isSuspended = entitlement?.access_status === "Suspended";
   const isTerminated = entitlement?.access_status === "Terminated";
@@ -61,13 +18,14 @@ export default function ClientAccount() {
     can_view_engagement: "View Engagements",
     can_view_documents: "View Documents",
     can_download_documents: "Download Documents",
+    can_view_poc: "View POCs",
     can_review_poc: "Review POCs",
     can_approve_poc: "Approve POCs",
     can_view_tasks: "View Tasks",
     can_complete_tasks: "Complete Tasks",
+    can_view_evidence: "View Evidence",
     can_submit_evidence: "Submit Evidence",
     can_view_audits: "View Audits",
-    can_complete_audits: "Complete Audits",
     can_message_consultant: "Message Consultant",
   };
 
@@ -78,15 +36,14 @@ export default function ClientAccount() {
       {isSuspended && (
         <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl p-6 mb-6" role="alert">
           <h2 className="text-lg font-semibold text-rose-800 dark:text-rose-300">Portal Access Suspended</h2>
-          <p className="mt-2 text-sm text-rose-700 dark:text-rose-400">Portal access is temporarily suspended. Please contact Clinical SOS regarding your account.</p>
-          <p className="mt-2 text-sm text-rose-700 dark:text-rose-400">Contact: support@clinical-sos.com or call your assigned consultant.</p>
+          <p className="mt-2 text-sm text-rose-700 dark:text-rose-400">{entitlement?.portal_message || "Portal access is temporarily suspended. Please contact Clinical SOS regarding your account."}</p>
         </div>
       )}
 
       {isTerminated && (
         <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl p-6 mb-6" role="alert">
           <h2 className="text-lg font-semibold text-rose-800 dark:text-rose-300">Portal Access Unavailable</h2>
-          <p className="mt-2 text-sm text-rose-700 dark:text-rose-400">Portal access is no longer available. Please contact Clinical SOS if you have questions.</p>
+          <p className="mt-2 text-sm text-rose-700 dark:text-rose-400">{entitlement?.portal_message || "Portal access is no longer available. Please contact Clinical SOS if you have questions."}</p>
         </div>
       )}
 

@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { ShieldCheck, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 
 export default function ClientReadiness() {
-  const { entitlement } = useOutletContext();
   const [deficiencies, setDeficiencies] = useState([]);
   const [criteria, setCriteria] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,12 +11,11 @@ export default function ClientReadiness() {
     async function load() {
       try {
         const [defRes, critRes] = await Promise.all([
-          base44.entities.Deficiency.list("-created_date", 200),
-          base44.entities.RevisitReadinessCriterion.list("-created_date", 200),
+          base44.functions.invoke("getClientPortalData", { resource: "deficiencies" }),
+          base44.functions.invoke("getClientPortalData", { resource: "readiness" }),
         ]);
-        const flt = (r) => Array.isArray(r) ? r : (r?.data || []);
-        setDeficiencies(flt(defRes).filter(d => d.client_visibility));
-        setCriteria(flt(critRes).filter(c => c.client_visibility));
+        setDeficiencies(Array.isArray(defRes) ? defRes : (defRes?.data || []));
+        setCriteria(Array.isArray(critRes) ? critRes : (critRes?.data || []));
       } catch (e) { console.error(e); }
       finally { setLoading(false); }
     }

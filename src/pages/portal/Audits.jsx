@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 
 export default function ClientAudits() {
-  const { entitlement } = useOutletContext();
   const [audits, setAudits] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const res = await base44.entities.AuditTool.list("-audit_date", 200);
-        const list = Array.isArray(res) ? res : (res?.data || []);
-        setAudits(list.filter(a => a.client_visibility));
+        const res = await base44.functions.invoke("getClientPortalData", { resource: "audits" });
+        setAudits(Array.isArray(res) ? res : (res?.data || []));
       } catch (e) { console.error(e); }
       finally { setLoading(false); }
     }

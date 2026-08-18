@@ -8,10 +8,12 @@ const CAP_LABELS = {
   can_view_engagement: "View Engagements",
   can_view_documents: "View Documents",
   can_download_documents: "Download Documents",
+  can_view_poc: "View POCs",
   can_review_poc: "Review POCs",
   can_approve_poc: "Approve POCs",
   can_view_tasks: "View Tasks",
   can_complete_tasks: "Complete Tasks",
+  can_view_evidence: "View Evidence",
   can_submit_evidence: "Submit Evidence",
   can_view_audits: "View Audits",
   can_complete_audits: "Complete Audits",
@@ -28,12 +30,19 @@ export default function ManageMembershipDialog({ membership, onClose, onResult, 
   useEffect(() => {
     async function loadScope() {
       try {
+        // Get the membership's ClientAccount to determine organization scope
+        const account = await base44.entities.ClientAccount.get(membership.client_account_id);
+        if (!account || !account.organization_id) { setFacilities([]); setEngagements([]); return; }
+
         const [facRes, engRes] = await Promise.all([
           base44.entities.Facility.list("-facility_name", 200),
           base44.entities.Engagement.list("-created_date", 200),
         ]);
-        setFacilities(Array.isArray(facRes) ? facRes : (facRes?.data || []));
-        setEngagements(Array.isArray(engRes) ? engRes : (engRes?.data || []));
+        const facList = Array.isArray(facRes) ? facRes : (facRes?.data || []);
+        const engList = Array.isArray(engRes) ? engRes : (engRes?.data || []);
+        // Strict: only facilities/engagements matching the account's organization_id
+        setFacilities(facList.filter(f => f.operator_id === account.organization_id));
+        setEngagements(engList.filter(e => (e.organization_id === account.organization_id) || (e.client_account_id === account.id)));
       } catch (e) { console.error(e); }
     }
     loadScope();
