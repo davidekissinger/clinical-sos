@@ -1,0 +1,193 @@
+{
+  "name": "ClientAccount",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "title": "Organization ID"
+    },
+    "organization_name": {
+      "type": "string",
+      "title": "Organization Name"
+    },
+    "account_name": {
+      "type": "string",
+      "title": "Account Display Name"
+    },
+    "access_status": {
+      "type": "string",
+      "enum": [
+        "Active",
+        "Grace Period",
+        "Restricted",
+        "Suspended",
+        "Terminated"
+      ],
+      "default": "Active",
+      "title": "Access Status"
+    },
+    "billing_status": {
+      "type": "string",
+      "enum": [
+        "Current",
+        "Invoice Due",
+        "Past Due",
+        "Payment Arrangement",
+        "Paid",
+        "Disputed",
+        "Unknown"
+      ],
+      "default": "Unknown",
+      "title": "Billing Status"
+    },
+    "subscription_status": {
+      "type": "string",
+      "enum": [
+        "Active",
+        "Trial",
+        "Grace Period",
+        "Past Due",
+        "Cancelled",
+        "Expired",
+        "Not Applicable"
+      ],
+      "default": "Not Applicable",
+      "title": "Subscription Status"
+    },
+    "subscription_plan": {
+      "type": "string",
+      "title": "Subscription Plan"
+    },
+    "subscription_start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Subscription Start Date"
+    },
+    "subscription_renewal_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Subscription Renewal Date"
+    },
+    "subscription_end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Subscription End Date"
+    },
+    "past_due_since": {
+      "type": "string",
+      "format": "date",
+      "title": "Past Due Since"
+    },
+    "grace_period_end": {
+      "type": "string",
+      "format": "date",
+      "title": "Grace Period End Date"
+    },
+    "access_restriction_reason": {
+      "type": "string",
+      "title": "Access Restriction Reason"
+    },
+    "access_restriction_effective_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Access Restriction Effective Date"
+    },
+    "manual_access_override": {
+      "type": "string",
+      "enum": [
+        "None",
+        "Extend Access",
+        "Maintain Access",
+        "Reactivate",
+        "Suspend",
+        "Terminate"
+      ],
+      "default": "None",
+      "title": "Manual Access Override"
+    },
+    "manual_override_reason": {
+      "type": "string",
+      "title": "Manual Override Reason"
+    },
+    "manual_override_by": {
+      "type": "string",
+      "title": "Manual Override By"
+    },
+    "manual_override_by_id": {
+      "type": "string",
+      "title": "Manual Override By (User ID)"
+    },
+    "manual_override_effective_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Manual Override Effective Date"
+    },
+    "manual_override_expiration": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Manual Override Expiration"
+    },
+    "last_entitlement_check": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Last Entitlement Check"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "account_name",
+    "access_status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "finance"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "read_only"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "finance"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

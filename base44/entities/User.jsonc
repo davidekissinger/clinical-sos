@@ -8,9 +8,26 @@
         "business_development",
         "clinical",
         "finance",
-        "read_only"
+        "read_only",
+        "client"
       ],
       "default": "read_only"
+    },
+    "authorized_facility_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Synced from ClientMembership \u2014 facilities this client user is authorized to view",
+      "default": []
+    },
+    "authorized_engagement_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Synced from ClientMembership \u2014 engagements this client user is authorized to view",
+      "default": []
     }
   },
   "required": [

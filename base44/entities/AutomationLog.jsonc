@@ -21,7 +21,8 @@
         "Failed",
         "Partial",
         "Retry"
-      ]
+      ],
+      "default": "Running"
     },
     "records_processed": {
       "type": "number"
@@ -40,6 +41,43 @@
     },
     "triggered_by": {
       "type": "string"
+    },
+    "client_account_id": {
+      "type": "string",
+      "title": "Client Account ID"
+    },
+    "previous_access_state": {
+      "type": "string",
+      "title": "Previous Access State"
+    },
+    "new_access_state": {
+      "type": "string",
+      "title": "New Access State"
+    },
+    "reason": {
+      "type": "string",
+      "title": "Reason"
+    },
+    "triggering_source": {
+      "type": "string",
+      "title": "Triggering Source"
+    },
+    "acting_user_id": {
+      "type": "string",
+      "title": "Acting User ID"
+    },
+    "acting_user_name": {
+      "type": "string",
+      "title": "Acting User Name"
+    },
+    "manual_override": {
+      "type": "boolean",
+      "default": false,
+      "title": "Manual Override Applied"
+    },
+    "manual_override_details": {
+      "type": "string",
+      "title": "Manual Override Details"
     }
   },
   "required": [
