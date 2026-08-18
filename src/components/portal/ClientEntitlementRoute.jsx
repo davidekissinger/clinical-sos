@@ -12,6 +12,12 @@ export default function ClientEntitlementRoute() {
   useEffect(() => {
     async function checkEntitlement() {
       if (!user) { setLoading(false); return; }
+      // Short-circuit: unprovisioned roles and staff roles never invoke client entitlement evaluation
+      if (user.role === "user" || user.role === "pending" || user.role !== "client") {
+        setEntitlement(null);
+        setLoading(false);
+        return;
+      }
       try {
         const res = await base44.functions.invoke("getClientPortalContext", {});
         setEntitlement(res.data || res);
