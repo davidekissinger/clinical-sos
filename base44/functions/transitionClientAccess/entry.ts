@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.42';
-import { ACCESS_STATUSES, auditAccessChange } from "../../shared/clientEntitlements.ts";
+import { ACCESS_STATUSES, calculateEffectiveClientAccessStatus, auditAccessChange } from "../../shared/clientEntitlements.ts";
 
 export default async function(req) {
   try {
@@ -16,20 +16,17 @@ export default async function(req) {
       return Response.json({ error: 'Valid new_access_status is required' }, { status: 400 });
     }
 
-    // Retrieve the account
     const account = await base44.asServiceRole.entities.ClientAccount.get(client_account_id);
     if (!account) return Response.json({ error: 'Client account not found' }, { status: 404 });
 
     const previousAccessState = account.access_status;
 
-    // Never delete records — only change access_status
     const update = {
       access_status: new_access_status,
       access_restriction_reason: reason || null,
       access_restriction_effective_date: new_access_status !== 'Active' ? new Date().toISOString() : null
     };
 
-    // Handle manual override fields
     if (manual_override && manual_override_type) {
       update.manual_access_override = manual_override_type;
       update.manual_override_reason = reason || null;
@@ -41,22 +38,23 @@ export default async function(req) {
 
     await base44.asServiceRole.entities.ClientAccount.update(client_account_id, update);
 
-    // Write audit log
+    // Recalculate effective status using centralized helper
+    const updatedAccount = { ...account, ...update };
+    const effective = calculateEffectiveClientAccessStatus(updatedAccount);
+
     await auditAccessChange(base44, {
-      client_account_id,
-      previous_access_state: previousAccessState,
-      new_access_state: new_access_status,
-      reason: reason || 'No reason provided',
+      client_account_id, previous_access_state: previousAccessState,
+      new_access_state: new_access_status, reason: reason || 'No reason provided',
       triggering_source: manual_override ? 'admin_manual_override' : 'admin_transition',
-      acting_user_id: user.id,
-      acting_user_name: user.full_name || user.email,
+      acting_user_id: user.id, acting_user_name: user.full_name || user.email,
       manual_override: manual_override || false,
       manual_override_details: manual_override ? `${manual_override_type}${override_expiration ? ' (expires ' + override_expiration + ')' : ''}` : null
     });
 
-    // After access change, re-sync all memberships for this account
+    // Re-sync all memberships using EFFECTIVE status (not just new_access_status)
     const memberships = await base44.asServiceRole.entities.ClientMembership.filter({ client_account_id });
-    const isNoDataAccess = new_access_status === 'Suspended' || new_access_status === 'Terminated';
+    const isNoDataAccess = effective.effective_access_status === 'Suspended' || effective.effective_access_status === 'Terminated';
+
     for (const m of memberships) {
       const shouldBeClient = m.membership_status === 'Active' && !isNoDataAccess;
       const currentMember = await base44.asServiceRole.entities.User.get(m.client_user_id);
@@ -71,10 +69,8 @@ export default async function(req) {
     }
 
     return Response.json({
-      success: true,
-      client_account_id,
-      previous_access_state: previousAccessState,
-      new_access_state: new_access_status,
+      success: true, client_account_id, previous_access_state: previousAccessState,
+      new_access_state: new_access_status, effective_access_status: effective.effective_access_status,
       memberships_synced: memberships.length
     });
   } catch (error) {
