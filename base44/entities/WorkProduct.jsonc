@@ -135,41 +135,6 @@
           "user_condition": {
             "role": "read_only"
           }
-        },
-        {
-          "$and": [
-            {
-              "user_condition": {
-                "role": "client"
-              }
-            },
-            {
-              "data.client_visibility": true
-            },
-            {
-              "data.document_status": {
-                "$in": [
-                  "CLIENT REVIEW",
-                  "APPROVED",
-                  "FINAL"
-                ]
-              }
-            },
-            {
-              "$or": [
-                {
-                  "data.facility_id": {
-                    "$in": "{{user.data.authorized_facility_ids}}"
-                  }
-                },
-                {
-                  "data.engagement_id": {
-                    "$in": "{{user.data.authorized_engagement_ids}}"
-                  }
-                }
-              ]
-            }
-          ]
         }
       ]
     },
