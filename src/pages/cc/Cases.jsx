@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
 import { Plus, Search, FilePlus } from "lucide-react";
+import MobileSelect from "@/components/MobileSelect";
 
 export default function Cases() {
   const cases = useEntities("RegulatoryCase", { sort: "-created_date", limit: 200, excludeTestData: true });
@@ -51,9 +52,7 @@ export default function Cases() {
           <input placeholder="Facility name" value={form.facility_name} onChange={e => setForm({...form, facility_name: e.target.value})} className="border border-border rounded-lg px-3 py-2 text-sm" />
           <input placeholder="Client name" value={form.client_name} onChange={e => setForm({...form, client_name: e.target.value})} className="border border-border rounded-lg px-3 py-2 text-sm" />
           <input type="date" value={form.survey_date} onChange={e => setForm({...form, survey_date: e.target.value})} className="border border-border rounded-lg px-3 py-2 text-sm" />
-          <select value={form.case_status} onChange={e => setForm({...form, case_status: e.target.value})} className="border border-border rounded-lg px-3 py-2 text-sm">
-            {["Intake","Source Documents Pending","Initial Review","Deficiencies Extracted","Clinical Analysis","Corrective Strategy","POC Development","Implementation","Monitoring","Revisit Preparation","Revisit Pending","Substantial Compliance Pending","Closed","On Hold"].map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
+          <MobileSelect value={form.case_status} onChange={v => setForm({...form, case_status: v})} options={["Intake","Source Documents Pending","Initial Review","Deficiencies Extracted","Clinical Analysis","Corrective Strategy","POC Development","Implementation","Monitoring","Revisit Preparation","Revisit Pending","Substantial Compliance Pending","Closed","On Hold"]} className="border border-border rounded-lg px-3 py-2 text-sm" ariaLabel="Case status" />
           <button type="submit" disabled={saving} className="btn-primary text-sm disabled:opacity-60">{saving ? "Saving…" : "Create Case"}</button>
         </form>
       )}
