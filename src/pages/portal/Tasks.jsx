@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function ClientTasks() {
   const outletContext = useOutletContext();
@@ -47,32 +48,34 @@ export default function ClientTasks() {
       {actionResult && (
         <div className={`mb-4 p-3 rounded-lg text-sm ${actionResult.error ? "bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400" : "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400"}`} role="status">{actionResult.error || actionResult.success}</div>
       )}
-      {tasks.length === 0 ? (
-        <div className="bg-white dark:bg-card rounded-xl border border-border p-12 text-center">
-          <p className="font-medium text-foreground">No tasks</p>
-          <p className="mt-1 text-sm text-muted-foreground">Client tasks will appear here when published.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {tasks.map(task => (
-            <div key={task.id} className="bg-white dark:bg-card rounded-xl border border-border p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-foreground">{task.task}</p>
-                  <p className="text-xs text-muted-foreground">{task.status} · Due: {task.due_date || "—"}</p>
-                  {task.client_completed_by && <p className="text-xs text-muted-foreground mt-1">Completed by: {task.client_completed_by}</p>}
-                </div>
-                {entitlement?.effective_capabilities?.can_complete_tasks && task.status !== "Complete" && (
-                  <div className="flex gap-2">
-                    {task.status === "Not Started" && <button onClick={() => updateTask(task, "In Progress")} disabled={submitting === task.id} className="btn-secondary text-xs disabled:opacity-60">Start</button>}
-                    <button onClick={() => updateTask(task, "Complete")} disabled={submitting === task.id} className="btn-primary text-xs disabled:opacity-60">Complete</button>
+      <PullToRefresh onRefresh={loadTasks}>
+        {tasks.length === 0 ? (
+          <div className="bg-white dark:bg-card rounded-xl border border-border p-12 text-center">
+            <p className="font-medium text-foreground">No tasks</p>
+            <p className="mt-1 text-sm text-muted-foreground">Client tasks will appear here when published.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {tasks.map(task => (
+              <div key={task.id} className="bg-white dark:bg-card rounded-xl border border-border p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{task.task}</p>
+                    <p className="text-xs text-muted-foreground">{task.status} · Due: {task.due_date || "—"}</p>
+                    {task.client_completed_by && <p className="text-xs text-muted-foreground mt-1">Completed by: {task.client_completed_by}</p>}
                   </div>
-                )}
+                  {entitlement?.effective_capabilities?.can_complete_tasks && task.status !== "Complete" && (
+                    <div className="flex gap-2">
+                      {task.status === "Not Started" && <button onClick={() => updateTask(task, "In Progress")} disabled={submitting === task.id} className="btn-secondary text-xs disabled:opacity-60">Start</button>}
+                      <button onClick={() => updateTask(task, "Complete")} disabled={submitting === task.id} className="btn-primary text-xs disabled:opacity-60">Complete</button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </PullToRefresh>
     </div>
   );
 }

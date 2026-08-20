@@ -100,7 +100,7 @@ export default function ThemeToggle({ compact = false }) {
           ref={buttonRef}
           onClick={() => setOpen(!open)}
           onKeyDown={handleButtonKeyDown}
-          className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition min-h-[36px] min-w-[36px]"
+          className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition min-h-[44px] min-w-[44px]"
           title={`Appearance: ${active.label}`}
           aria-label={`Appearance: ${active.label}. Press to change theme.`}
           aria-expanded={open}
@@ -129,7 +129,7 @@ export default function ThemeToggle({ compact = false }) {
                   onKeyDown={(e) => handleItemKeyDown(e, i)}
                   onClick={() => selectOption(o.value)}
                   className={cn(
-                    "w-full flex items-center gap-3 px-3 py-2 text-sm transition min-h-[36px]",
+                    "w-full flex items-center gap-3 px-3 py-2 text-sm transition min-h-[44px]",
                     isActive ? "text-primary font-medium bg-accent/50" : "text-foreground hover:bg-secondary/60"
                   )}
                 >

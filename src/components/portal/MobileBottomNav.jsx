@@ -33,6 +33,12 @@ function saveBackStack(tabPath, pathname) {
   sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stacks));
 }
 
+function clearBackStack(tabPath) {
+  const stacks = getBackStacks();
+  delete stacks[tabPath];
+  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stacks));
+}
+
 function getTabForPath(pathname) {
   for (const p of PRIMARY) {
     if (p.exact) {
@@ -62,8 +68,14 @@ export default function MobileBottomNav() {
 
   const handleTabClick = (path) => {
     setMoreOpen(false);
-    const stacks = getBackStacks();
-    navigate(stacks[path] || path);
+    const item = PRIMARY.find(p => p.path === path);
+    if (item && isActive(item)) {
+      clearBackStack(path);
+      navigate(path);
+    } else {
+      const stacks = getBackStacks();
+      navigate(stacks[path] || path);
+    }
   };
 
   const isMoreActive = SECONDARY.some(s => location.pathname.startsWith(s.path));
@@ -92,12 +104,12 @@ export default function MobileBottomNav() {
       <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white dark:bg-card border-t border-border safe-area-bottom" aria-label="Mobile bottom navigation">
         <div className="flex items-center justify-around">
           {PRIMARY.map(p => (
-            <button key={p.path} onClick={() => handleTabClick(p.path)} className={cn("flex flex-col items-center gap-0.5 py-2 px-3 text-xs", isActive(p) ? "text-primary" : "text-muted-foreground")}>
+            <button key={p.path} onClick={() => handleTabClick(p.path)} className={cn("flex flex-col items-center gap-0.5 py-2 px-3 text-xs min-h-[44px]", isActive(p) ? "text-primary" : "text-muted-foreground")}>
               <p.icon className="h-5 w-5" aria-hidden="true" />
               {p.label}
             </button>
           ))}
-          <button onClick={() => setMoreOpen(!moreOpen)} className={cn("flex flex-col items-center gap-0.5 py-2 px-3 text-xs", moreOpen || isMoreActive ? "text-primary" : "text-muted-foreground")} aria-expanded={moreOpen} aria-label="More options">
+          <button onClick={() => setMoreOpen(!moreOpen)} className={cn("flex flex-col items-center gap-0.5 py-2 px-3 text-xs min-h-[44px]", moreOpen || isMoreActive ? "text-primary" : "text-muted-foreground")} aria-expanded={moreOpen} aria-label="More options">
             <MoreHorizontal className="h-5 w-5" aria-hidden="true" />
             More
           </button>

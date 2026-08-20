@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import AccessibleDialog from "@/components/AccessibleDialog";
+import MobileSelect from "@/components/MobileSelect";
 
 const CAP_LABELS = {
   can_view_engagement: "View Engagements",
@@ -124,10 +125,7 @@ export default function InviteClientUserDialog({ isOpen, onClose, accounts, onRe
         </div>
         <div>
           <label className="block text-xs font-medium text-muted-foreground mb-1">Client Account *</label>
-          <select value={selectedAccountId} onChange={e => setSelectedAccountId(e.target.value)} className="cc-input">
-            <option value="">— Select Account —</option>
-            {accounts.map(a => <option key={a.id} value={a.id}>{a.account_name}{a.organization_name ? ` (${a.organization_name})` : ""}</option>)}
-          </select>
+          <MobileSelect value={selectedAccountId} onChange={setSelectedAccountId} options={[{ value: "", label: "— Select Account —" }, ...accounts.map(a => ({ value: a.id, label: `${a.account_name}${a.organization_name ? ` (${a.organization_name})` : ""}` }))]} className="cc-input" ariaLabel="Client Account" />
           {selectedAccountId && !accounts.find(a => a.id === selectedAccountId)?.organization_id && (
             <p className="mt-1 text-xs text-rose-600">This account has no Organization linked. Tenant resources cannot be assigned.</p>
           )}

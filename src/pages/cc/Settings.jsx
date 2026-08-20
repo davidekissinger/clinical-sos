@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { PageHeader, LoadingState } from "@/components/cc/ui";
 import ThemeToggle from "@/components/ThemeToggle";
+import MobileSelect from "@/components/MobileSelect";
 import { Save, CheckCircle2, FlaskConical, AlertTriangle, Palette } from "lucide-react";
 
 export default function Settings() {
@@ -190,9 +191,7 @@ function Select({ label, value, onChange, options }) {
   return (
     <label className="block">
       <span className="block text-sm font-medium text-foreground mb-1.5">{label}</span>
-      <select value={value} onChange={(e) => onChange(e.target.value)} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground focus:border-primary focus:ring-2 focus:ring-accent outline-none">
-        {options.map((o) => <option key={o} value={o}>{o}</option>)}
-      </select>
+      <MobileSelect value={value} onChange={onChange} options={options} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground focus:border-primary focus:ring-2 focus:ring-accent outline-none" ariaLabel={label} />
     </label>
   );
 }

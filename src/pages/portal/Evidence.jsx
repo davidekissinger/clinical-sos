@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { AlertTriangle } from "lucide-react";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function ClientEvidence() {
   const outletContext = useOutletContext();
@@ -54,37 +55,39 @@ export default function ClientEvidence() {
       {actionResult && (
         <div className={`mb-4 p-3 rounded-lg text-sm ${actionResult.error ? "bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400" : "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400"}`} role="status">{actionResult.error || actionResult.success}</div>
       )}
-      {evidence.length === 0 ? (
-        <div className="bg-white dark:bg-card rounded-xl border border-border p-12 text-center">
-          <p className="font-medium text-foreground">No evidence requests</p>
-          <p className="mt-1 text-sm text-muted-foreground">Evidence requests will appear here when published.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {evidence.map(item => (
-            <div key={item.id} className="bg-white dark:bg-card rounded-xl border border-border p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-foreground">{item.evidence_type}</p>
-                  <p className="text-xs text-muted-foreground">{item.description || "—"} · Due: {item.date || "—"}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Clinical SOS Review: {item.review_status}</p>
-                  {item.client_response_status && item.client_response_status !== "Pending" && (
-                    <p className="text-xs text-muted-foreground">Your Response: {item.client_response_status} by {item.client_responded_by || "—"}</p>
-                  )}
+      <PullToRefresh onRefresh={loadEvidence}>
+        {evidence.length === 0 ? (
+          <div className="bg-white dark:bg-card rounded-xl border border-border p-12 text-center">
+            <p className="font-medium text-foreground">No evidence requests</p>
+            <p className="mt-1 text-sm text-muted-foreground">Evidence requests will appear here when published.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {evidence.map(item => (
+              <div key={item.id} className="bg-white dark:bg-card rounded-xl border border-border p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{item.evidence_type}</p>
+                    <p className="text-xs text-muted-foreground">{item.description || "—"} · Due: {item.date || "—"}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Clinical SOS Review: {item.review_status}</p>
+                    {item.client_response_status && item.client_response_status !== "Pending" && (
+                      <p className="text-xs text-muted-foreground">Your Response: {item.client_response_status} by {item.client_responded_by || "—"}</p>
+                    )}
+                  </div>
+                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${item.review_status === "Accepted" ? "bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400" : item.review_status === "Insufficient" ? "bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-400" : "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400"}`}>{item.review_status}</span>
                 </div>
-                <span className={`text-xs px-2 py-1 rounded-full font-medium ${item.review_status === "Accepted" ? "bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400" : item.review_status === "Insufficient" ? "bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-400" : "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400"}`}>{item.review_status}</span>
+                {entitlement?.effective_capabilities?.can_submit_evidence && item.review_status !== "Accepted" && (
+                  <div className="mt-3 flex gap-2">
+                    <button onClick={() => respondToEvidence(item, "Prepared")} disabled={submitting === item.id} className="btn-secondary text-xs disabled:opacity-60">Mark Prepared</button>
+                    <button onClick={() => respondToEvidence(item, "Available")} disabled={submitting === item.id} className="btn-secondary text-xs disabled:opacity-60">Confirm Available</button>
+                    <button onClick={() => respondToEvidence(item, "Clarification Requested")} disabled={submitting === item.id} className="btn-secondary text-xs disabled:opacity-60">Request Clarification</button>
+                  </div>
+                )}
               </div>
-              {entitlement?.effective_capabilities?.can_submit_evidence && item.review_status !== "Accepted" && (
-                <div className="mt-3 flex gap-2">
-                  <button onClick={() => respondToEvidence(item, "Prepared")} disabled={submitting === item.id} className="btn-secondary text-xs disabled:opacity-60">Mark Prepared</button>
-                  <button onClick={() => respondToEvidence(item, "Available")} disabled={submitting === item.id} className="btn-secondary text-xs disabled:opacity-60">Confirm Available</button>
-                  <button onClick={() => respondToEvidence(item, "Clarification Requested")} disabled={submitting === item.id} className="btn-secondary text-xs disabled:opacity-60">Request Clarification</button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </PullToRefresh>
     </div>
   );
 }

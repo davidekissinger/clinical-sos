@@ -138,7 +138,7 @@ export default function AccessibleDialog({
               onClose();
               triggerRef.current?.focus();
             }}
-            className="text-muted-foreground hover:text-foreground min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg hover:bg-secondary/60"
+            className="text-muted-foreground hover:text-foreground min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-secondary/60"
             aria-label={closeLabel}
           >
             <X className="h-4 w-4" aria-hidden="true" />
