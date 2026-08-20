@@ -11,9 +11,9 @@ export default function PublicLayout() {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-background dark:text-foreground">
       <a href="#main-content" className="skip-link">Skip to main content</a>
-      <header className="safe-area-top sticky top-0 z-50 border-b border-border/70 bg-white/85 backdrop-blur-md">
+      <header className="safe-area-top sticky top-0 z-50 border-b border-border/70 bg-white/85 dark:bg-card/85 backdrop-blur-md">
         <div className="container-prose flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center" aria-label="Clinical SOS home">
             <Logo />

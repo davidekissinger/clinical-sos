@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Home, Briefcase, ListChecks, UserCircle, MoreHorizontal, X, ClipboardList, ClipboardCheck, FileText, FolderCheck, ShieldCheck, FolderOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTabBackstack } from "@/hooks/useTabBackstack";
 
 const PRIMARY = [
   { label: "Home", path: "/client", icon: Home, prefix: "/client", exact: true },
@@ -22,61 +23,10 @@ const SECONDARY = [
 
 const STORAGE_KEY = "csos_tab_backstack";
 
-function getBackStacks() {
-  try { return JSON.parse(sessionStorage.getItem(STORAGE_KEY) || "{}"); }
-  catch { return {}; }
-}
-
-function saveBackStack(tabPath, pathname) {
-  const stacks = getBackStacks();
-  stacks[tabPath] = pathname;
-  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stacks));
-}
-
-function clearBackStack(tabPath) {
-  const stacks = getBackStacks();
-  delete stacks[tabPath];
-  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stacks));
-}
-
-function getTabForPath(pathname) {
-  for (const p of PRIMARY) {
-    if (p.exact) {
-      if (pathname === p.prefix) return p.path;
-    } else if (pathname.startsWith(p.prefix)) {
-      return p.path;
-    }
-  }
-  return null;
-}
-
 export default function MobileBottomNav() {
   const location = useLocation();
-  const navigate = useNavigate();
   const [moreOpen, setMoreOpen] = useState(false);
-
-  // Persist the current route as the active tab's backstack entry
-  useEffect(() => {
-    const tabPath = getTabForPath(location.pathname);
-    if (tabPath) saveBackStack(tabPath, location.pathname);
-  }, [location.pathname]);
-
-  const isActive = (item) => {
-    if (item.exact) return location.pathname === item.prefix;
-    return location.pathname.startsWith(item.prefix);
-  };
-
-  const handleTabClick = (path) => {
-    setMoreOpen(false);
-    const item = PRIMARY.find(p => p.path === path);
-    if (item && isActive(item)) {
-      clearBackStack(path);
-      navigate(path);
-    } else {
-      const stacks = getBackStacks();
-      navigate(stacks[path] || path);
-    }
-  };
+  const { isActive, handleTabClick } = useTabBackstack(PRIMARY, STORAGE_KEY);
 
   const isMoreActive = SECONDARY.some(s => location.pathname.startsWith(s.path));
 
@@ -104,7 +54,7 @@ export default function MobileBottomNav() {
       <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white dark:bg-card border-t border-border safe-area-bottom" aria-label="Mobile bottom navigation">
         <div className="flex items-center justify-around">
           {PRIMARY.map(p => (
-            <button key={p.path} onClick={() => handleTabClick(p.path)} className={cn("flex flex-col items-center gap-0.5 py-2 px-3 text-xs min-h-[44px]", isActive(p) ? "text-primary" : "text-muted-foreground")}>
+            <button key={p.path} onClick={() => { setMoreOpen(false); handleTabClick(p.path); }} className={cn("flex flex-col items-center gap-0.5 py-2 px-3 text-xs min-h-[44px]", isActive(p) ? "text-primary" : "text-muted-foreground")}>
               <p.icon className="h-5 w-5" aria-hidden="true" />
               {p.label}
             </button>

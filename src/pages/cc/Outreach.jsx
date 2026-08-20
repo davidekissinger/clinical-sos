@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
 import { Mail, Phone, Linkedin, Plus, Pencil, Trash2, X, ChevronDown, ChevronRight, Copy } from "lucide-react";
+import MobileSelect from "@/components/MobileSelect";
 
 const CHANNEL_ICON = { Email: Mail, Phone, LinkedIn: Linkedin, "In-Person": Plus, Other: Mail };
 
@@ -170,9 +171,7 @@ function TemplateEditor({ template, isNewSequence, existingSequences, saving, on
               {isNewSequence ? (
                 <input required value={form.sequence_name} onChange={(e) => set("sequence_name", e.target.value)} className="ot-input" placeholder="e.g. IJ Rapid Response" />
               ) : (
-                <select value={form.sequence_name} onChange={(e) => set("sequence_name", e.target.value)} className="ot-input">
-                  {existingSequences.map((n) => <option key={n} value={n}>{n}</option>)}
-                </select>
+                <MobileSelect value={form.sequence_name} onChange={(v) => set("sequence_name", v)} options={existingSequences} className="ot-input" ariaLabel="Sequence name" />
               )}
             </label>
             <label className="block">
@@ -195,15 +194,11 @@ function TemplateEditor({ template, isNewSequence, existingSequences, saving, on
           <div className="grid sm:grid-cols-2 gap-4">
             <label className="block">
               <span className="block text-sm font-medium mb-1.5">Sales cycle stage *</span>
-              <select value={form.stage} onChange={(e) => set("stage", e.target.value)} className="ot-input">
-                {["New", "Researching", "Verified", "Qualified", "Outreach Review", "Contacted", "Engaged", "Discovery Scheduled", "Discovery Completed", "Proposal Draft", "Proposal Sent", "Negotiation", "Nurture"].map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
+              <MobileSelect value={form.stage} onChange={(v) => set("stage", v)} options={["New", "Researching", "Verified", "Qualified", "Outreach Review", "Contacted", "Engaged", "Discovery Scheduled", "Discovery Completed", "Proposal Draft", "Proposal Sent", "Negotiation", "Nurture"]} className="ot-input" ariaLabel="Sales cycle stage" />
             </label>
             <label className="block">
               <span className="block text-sm font-medium mb-1.5">Channel</span>
-              <select value={form.channel} onChange={(e) => set("channel", e.target.value)} className="ot-input">
-                {["Email", "Phone", "LinkedIn", "In-Person", "Other"].map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
+              <MobileSelect value={form.channel} onChange={(v) => set("channel", v)} options={["Email", "Phone", "LinkedIn", "In-Person", "Other"]} className="ot-input" ariaLabel="Channel" />
             </label>
           </div>
 

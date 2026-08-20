@@ -20,19 +20,8 @@ function getEffectiveTheme(theme) {
   return theme === 'system' ? getSystemTheme() : theme;
 }
 
-/**
- * Theme is scoped to the Command Center and Client Portal.
- * Public website always uses light branded presentation.
- * This prevents dark semantic text colors from applying to public pages
- * that use hard-coded light backgrounds.
- */
-function isPrivateAppPath(pathname) {
-  if (!pathname) return false;
-  return pathname.startsWith('/command-center') || pathname.startsWith('/client');
-}
-
-function applyDarkClass(theme, pathname) {
-  const shouldApplyDark = isPrivateAppPath(pathname) && getEffectiveTheme(theme) === 'dark';
+function applyDarkClass(theme) {
+  const shouldApplyDark = getEffectiveTheme(theme) === 'dark';
   document.documentElement.classList.toggle('dark', shouldApplyDark);
 }
 
@@ -42,16 +31,16 @@ export function ThemeProvider({ children }) {
 
   // Apply theme on mount, when theme changes, or when route changes
   useEffect(() => {
-    applyDarkClass(theme, location.pathname);
+    applyDarkClass(theme);
   }, [theme, location.pathname]);
 
   // Listen for system preference changes when in system mode
   useEffect(() => {
     if (theme !== 'system') return;
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = () => applyDarkClass('system', window.location.pathname);
+    const handler = () => applyDarkClass('system');
     // Also listen for route changes (pushState)
-    const popHandler = () => applyDarkClass('system', window.location.pathname);
+    const popHandler = () => applyDarkClass('system');
     mq.addEventListener('change', handler);
     window.addEventListener('popstate', popHandler);
     return () => {
