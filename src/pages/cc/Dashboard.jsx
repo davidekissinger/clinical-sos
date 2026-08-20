@@ -4,6 +4,7 @@ import { Target, Briefcase, Activity, ListChecks, FileText, ShieldCheck, AlertTr
 import { PageHeader, StatCard, Badge, EmptyState, LoadingState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
 import PullToRefresh from "@/components/PullToRefresh";
+import PipelineCharts from "@/components/cc/PipelineCharts";
 
 export default function Dashboard() {
   const leads = useEntities("Lead", { sort: "-created_date", limit: 100, excludeTestData: true });
@@ -56,6 +57,8 @@ export default function Dashboard() {
         <StatCard label="Active Engagements" value={activeEngagements} icon={ShieldCheck} tone="green" />
         <StatCard label="Overdue Tasks" value={overdueTasks} icon={ListChecks} tone={overdueTasks ? "red" : "default"} />
       </div>
+
+      <PipelineCharts leads={leads.data} opportunities={opportunities.data} />
 
       <div className="grid lg:grid-cols-2 gap-5 mt-6">
         <Panel title="Top Priority Leads" to="/command-center/leads">
