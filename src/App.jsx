@@ -55,6 +55,7 @@ const CaseDetail = lazy(() => import('@/pages/cc/CaseDetail'));
 const DeficiencyDetail = lazy(() => import('@/pages/cc/DeficiencyDetail'));
 const Knowledge = lazy(() => import('@/pages/cc/Knowledge'));
 const ClientAccounts = lazy(() => import('@/pages/cc/ClientAccounts'));
+const UserIdentityManagement = lazy(() => import('@/pages/cc/UserIdentityManagement'));
 
 // Lazy-loaded client portal pages
 const ClientDashboard = lazy(() => import('@/pages/portal/Dashboard'));
@@ -72,6 +73,7 @@ const ClientAccount = lazy(() => import('@/pages/portal/Account'));
 const ClientCaseDetail = lazy(() => import('@/pages/portal/CaseDetail'));
 const ClientDeficiencyDetail = lazy(() => import('@/pages/portal/DeficiencyDetail'));
 const AccessPending = lazy(() => import('@/pages/AccessPending'));
+const MyProfile = lazy(() => import('@/pages/MyProfile'));
 
 const SuspenseFallback = () => (
   <div className="fixed inset-0 flex items-center justify-center">
@@ -130,6 +132,7 @@ const AuthenticatedApp = () => {
       {/* Access pending — for users with no role assignment */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/access-pending" element={<AccessPending />} />
+        <Route path="/my-profile" element={<MyProfile />} />
       </Route>
 
       {/* Client portal — authenticated + client-entitled */}
@@ -183,6 +186,7 @@ const AuthenticatedApp = () => {
             </Route>
             <Route element={<RoleProtectedRoute roles={['admin']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
               <Route path="/command-center/launch-readiness" element={<LaunchReadiness />} />
+              <Route path="/command-center/identity-management" element={<UserIdentityManagement />} />
               <Route path="/command-center/client-accounts" element={<ClientAccounts />} />
               <Route path="/command-center/settings" element={<Settings />} />
             </Route>

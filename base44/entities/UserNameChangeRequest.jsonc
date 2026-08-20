@@ -1,0 +1,103 @@
+{
+  "name": "UserNameChangeRequest",
+  "type": "object",
+  "properties": {
+    "requesting_user_id": {
+      "type": "string",
+      "title": "Requesting User ID"
+    },
+    "identity_profile_id": {
+      "type": "string",
+      "title": "Identity Profile ID"
+    },
+    "current_verified_display_name_snapshot": {
+      "type": "string",
+      "title": "Current Verified Display Name Snapshot"
+    },
+    "requested_display_name": {
+      "type": "string",
+      "title": "Requested Display Name"
+    },
+    "current_credentials_snapshot": {
+      "type": "string",
+      "title": "Current Credentials Snapshot"
+    },
+    "requested_credentials": {
+      "type": "string",
+      "title": "Requested Credentials"
+    },
+    "reason_for_request": {
+      "type": "string",
+      "title": "Reason For Request"
+    },
+    "supporting_information": {
+      "type": "string",
+      "title": "Supporting Information"
+    },
+    "request_status": {
+      "type": "string",
+      "enum": [
+        "Pending",
+        "Approved",
+        "Denied",
+        "Withdrawn",
+        "Superseded"
+      ],
+      "default": "Pending"
+    },
+    "requested_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Requested At"
+    },
+    "reviewed_by_user_id": {
+      "type": "string",
+      "title": "Reviewed By User ID"
+    },
+    "reviewed_by_name_snapshot": {
+      "type": "string",
+      "title": "Reviewed By Name Snapshot"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Reviewed At"
+    },
+    "decision_notes": {
+      "type": "string",
+      "title": "Decision Notes"
+    },
+    "effective_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Effective At"
+    }
+  },
+  "required": [
+    "requesting_user_id",
+    "requested_display_name",
+    "request_status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

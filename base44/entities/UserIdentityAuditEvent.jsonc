@@ -1,0 +1,95 @@
+{
+  "name": "UserIdentityAuditEvent",
+  "type": "object",
+  "properties": {
+    "subject_user_id": {
+      "type": "string",
+      "title": "Subject User ID"
+    },
+    "identity_profile_id": {
+      "type": "string",
+      "title": "Identity Profile ID"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "Profile Created",
+        "Initial Verification",
+        "Name Change Requested",
+        "Name Change Approved",
+        "Name Change Denied",
+        "Credentials Changed",
+        "Identity Suspended",
+        "Identity Reactivated",
+        "Identity Retired"
+      ]
+    },
+    "old_display_name": {
+      "type": "string",
+      "title": "Old Display Name"
+    },
+    "new_display_name": {
+      "type": "string",
+      "title": "New Display Name"
+    },
+    "old_credentials": {
+      "type": "string",
+      "title": "Old Credentials"
+    },
+    "new_credentials": {
+      "type": "string",
+      "title": "New Credentials"
+    },
+    "request_id": {
+      "type": "string",
+      "title": "Request ID"
+    },
+    "reason": {
+      "type": "string",
+      "title": "Reason"
+    },
+    "performed_by_user_id": {
+      "type": "string",
+      "title": "Performed By User ID"
+    },
+    "performed_by_name_snapshot": {
+      "type": "string",
+      "title": "Performed By Name Snapshot"
+    },
+    "event_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Event Timestamp"
+    },
+    "source": {
+      "type": "string",
+      "title": "Source"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "subject_user_id",
+    "event_type"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": false
+  }
+}

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Users, Building2, UserCircle, Target, ListChecks,
-  Settings, LogOut, Menu, X, FileText, ShieldCheck, Activity, Briefcase, Bot, Send, Rocket, Stethoscope, BookOpen, ClipboardList
+  Settings, LogOut, Menu, X, FileText, ShieldCheck, Activity, Briefcase, Bot, Send, Rocket, Stethoscope, BookOpen, ClipboardList, UserCheck
 } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -29,6 +29,7 @@ const NAV = [
   { label: "Regulatory Cases", path: "/command-center/cases", icon: ClipboardList, roles: ["admin", "clinical", "read_only"] },
   { label: "Knowledge Library", path: "/command-center/knowledge", icon: BookOpen, roles: ["admin", "clinical", "read_only"] },
   { label: "Launch Readiness", path: "/command-center/launch-readiness", icon: Rocket, roles: ["admin"] },
+  { label: "User Identity", path: "/command-center/identity-management", icon: UserCheck, roles: ["admin"] },
   { label: "Settings", path: "/command-center/settings", icon: Settings, roles: ["admin"] },
 ];
 
@@ -89,6 +90,7 @@ export default function CommandCenterLayout() {
               <p className="text-sm font-medium text-white truncate">{user?.full_name || user?.email}</p>
               <p className="text-xs text-slate-400">{roleLabel}</p>
             </div>
+            <Link to="/my-profile" className="text-slate-400 hover:text-white" aria-label="My Profile" title="My Profile"><UserCircle className="h-4 w-4" /></Link>
             <button onClick={handleLogout} className="text-slate-400 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2" aria-label="Sign out" title="Sign out"><LogOut className="h-4 w-4" /></button>
           </div>
         </div>

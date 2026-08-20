@@ -1,0 +1,93 @@
+{
+  "name": "UserIdentityProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "title": "User ID"
+    },
+    "email_snapshot": {
+      "type": "string",
+      "title": "Email Snapshot"
+    },
+    "provider_full_name_snapshot": {
+      "type": "string",
+      "title": "Provider Full Name Snapshot"
+    },
+    "verified_display_name": {
+      "type": "string",
+      "title": "Verified Display Name"
+    },
+    "verified_credentials": {
+      "type": "string",
+      "title": "Verified Credentials"
+    },
+    "identity_status": {
+      "type": "string",
+      "enum": [
+        "Pending Verification",
+        "Verified",
+        "Correction Requested",
+        "Suspended",
+        "Retired"
+      ],
+      "default": "Pending Verification"
+    },
+    "verified_by_user_id": {
+      "type": "string",
+      "title": "Verified By User ID"
+    },
+    "verified_by_name_snapshot": {
+      "type": "string",
+      "title": "Verified By Name Snapshot"
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Verified At"
+    },
+    "last_changed_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Last Changed At"
+    },
+    "last_change_request_id": {
+      "type": "string",
+      "title": "Last Change Request ID"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "internal_notes": {
+      "type": "string",
+      "title": "Internal Notes"
+    }
+  },
+  "required": [
+    "user_id",
+    "identity_status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
