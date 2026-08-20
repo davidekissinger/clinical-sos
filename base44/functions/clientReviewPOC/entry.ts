@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.42';
-import { resolveClientEntitlement, auditAccessChange } from "../../shared/clientEntitlements.ts";
+import { resolveClientEntitlement, auditAccessChange, nonDisclosingDeny } from "../../shared/clientEntitlements.ts";
 
 const ALLOWED_ACTIONS = ['acknowledge', 'request_revision', 'client_approve'];
 const CLIENT_REVIEW_STATUSES = ['Client Review', 'Revision Requested'];
@@ -23,11 +23,11 @@ export default async function(req) {
 
     // 1. Retrieve the POC server-side
     const poc = await base44.asServiceRole.entities.POC.get(poc_id);
-    if (!poc) return Response.json({ error: 'POC not found' }, { status: 404 });
+    if (!poc) return await nonDisclosingDeny(base44, { actualReason: 'POC not found', recordType: 'POC', recordId: poc_id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'clientReviewPOC:not_found' });
 
     // 2. Fail closed if POC lacks authoritative engagement relationship
     if (!poc.engagement_id) {
-      return Response.json({ error: 'Access denied', reason: 'POC is missing an authoritative engagement relationship.' }, { status: 403 });
+      return await nonDisclosingDeny(base44, { actualReason: 'POC missing engagement relationship', recordType: 'POC', recordId: poc_id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'clientReviewPOC:no_engagement' });
     }
 
     // 3. Resolve client entitlement — check capability + engagement-first tenant scope + client_visibility + lifecycle
@@ -40,12 +40,12 @@ export default async function(req) {
     });
 
     if (!entitlement.authorized) {
-      return Response.json({ error: 'Access denied', reason: entitlement.reason }, { status: 403 });
+      return await nonDisclosingDeny(base44, { actualReason: entitlement.reason, recordType: 'POC', recordId: poc_id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'clientReviewPOC:entitlement' });
     }
 
     // 4. Defense-in-depth: confirm engagement is in authorized scope
     if (!entitlement.engagement_ids.includes(poc.engagement_id)) {
-      return Response.json({ error: 'Access denied', reason: 'POC engagement not in authorized tenant scope' }, { status: 403 });
+      return await nonDisclosingDeny(base44, { actualReason: 'POC engagement not in authorized tenant scope', recordType: 'POC', recordId: poc_id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'clientReviewPOC:scope' });
     }
 
     // 5. Verify POC is in a client-review-safe lifecycle state

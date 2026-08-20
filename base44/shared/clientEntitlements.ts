@@ -307,3 +307,35 @@ export async function auditAccessChange(base44, params) {
     manual_override_details: manual_override_details || null, affected_record_ids: client_account_id ? [client_account_id] : []
   });
 }
+
+/**
+ * Standardized non-disclosing denial response for inaccessible client records.
+ *
+ * Returns an identical 404 response for:
+ * - Nonexistent records
+ * - Records not published to client portal
+ * - Records belonging to another facility or engagement (foreign-tenant)
+ * - Records with no authoritative tenant relationship
+ * - Records outside the authenticated client's scope
+ *
+ * The actual denial reason is logged internally to AutomationLog but NEVER
+ * returned to the client, preventing existence-inference attacks.
+ *
+ * Only AFTER a record is confirmed to belong to the client may the caller
+ * evaluate and disclose lifecycle-specific restrictions.
+ */
+export async function nonDisclosingDeny(base44, params) {
+  const { actualReason, recordType, recordId, actingUserId, actingUserName, triggeringSource } = params;
+  try {
+    await auditAccessChange(base44, {
+      client_account_id: null,
+      previous_access_state: 'N/A',
+      new_access_state: 'Denied — Non-Disclosing',
+      reason: actualReason,
+      triggering_source: triggeringSource || 'nonDisclosingDeny',
+      acting_user_id: actingUserId,
+      acting_user_name: actingUserName
+    });
+  } catch (e) { /* non-blocking */ }
+  return Response.json({ error: 'Record not found or unavailable' }, { status: 404 });
+}

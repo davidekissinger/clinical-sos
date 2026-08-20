@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.42';
-import { resolveClientEntitlement, auditAccessChange } from "../../shared/clientEntitlements.ts";
+import { resolveClientEntitlement, auditAccessChange, nonDisclosingDeny } from "../../shared/clientEntitlements.ts";
 
 const ALLOWED_RESPONSES = ['Prepared', 'Available', 'Clarification Requested', 'Noted'];
 
@@ -19,11 +19,11 @@ export default async function(req) {
 
     // 1. Retrieve the evidence item server-side
     const evidence = await base44.asServiceRole.entities.EvidenceItem.get(evidence_id);
-    if (!evidence) return Response.json({ error: 'Evidence item not found' }, { status: 404 });
+    if (!evidence) return await nonDisclosingDeny(base44, { actualReason: 'Evidence item not found', recordType: 'EvidenceItem', recordId: evidence_id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'clientRespondEvidence:not_found' });
 
     // 2. Fail closed if evidence lacks authoritative engagement relationship
     if (!evidence.engagement_id) {
-      return Response.json({ error: 'Access denied', reason: 'Evidence item is missing an authoritative engagement relationship.' }, { status: 403 });
+      return await nonDisclosingDeny(base44, { actualReason: 'Evidence item missing engagement relationship', recordType: 'EvidenceItem', recordId: evidence_id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'clientRespondEvidence:no_engagement' });
     }
 
     // 3. Resolve client entitlement — check can_submit_evidence + engagement-first tenant scope
@@ -35,12 +35,12 @@ export default async function(req) {
     });
 
     if (!entitlement.authorized) {
-      return Response.json({ error: 'Access denied', reason: entitlement.reason }, { status: 403 });
+      return await nonDisclosingDeny(base44, { actualReason: entitlement.reason, recordType: 'EvidenceItem', recordId: evidence_id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'clientRespondEvidence:entitlement' });
     }
 
     // 4. Defense-in-depth: confirm engagement is in authorized scope
     if (!entitlement.engagement_ids.includes(evidence.engagement_id)) {
-      return Response.json({ error: 'Access denied', reason: 'Evidence engagement not in authorized tenant scope' }, { status: 403 });
+      return await nonDisclosingDeny(base44, { actualReason: 'Evidence engagement not in authorized tenant scope', recordType: 'EvidenceItem', recordId: evidence_id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'clientRespondEvidence:scope' });
     }
 
     // 5. Build whitelisted update — ONLY client-response fields, NOT clinical review_status

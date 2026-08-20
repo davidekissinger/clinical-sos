@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.42';
-import { resolveClientEntitlement, auditAccessChange } from "../../shared/clientEntitlements.ts";
+import { resolveClientEntitlement, auditAccessChange, nonDisclosingDeny } from "../../shared/clientEntitlements.ts";
 
 const ALLOWED_STATUSES = ['Not Started', 'In Progress', 'Complete'];
 
@@ -19,11 +19,11 @@ export default async function(req) {
 
     // 1. Retrieve the task server-side
     const task = await base44.asServiceRole.entities.Task.get(task_id);
-    if (!task) return Response.json({ error: 'Task not found' }, { status: 404 });
+    if (!task) return await nonDisclosingDeny(base44, { actualReason: 'Task not found', recordType: 'Task', recordId: task_id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'clientUpdateTask:not_found' });
 
     // 2. Fail closed if task lacks authoritative engagement relationship
     if (!task.linked_engagement_id) {
-      return Response.json({ error: 'Access denied', reason: 'Task is missing an authoritative engagement relationship.' }, { status: 403 });
+      return await nonDisclosingDeny(base44, { actualReason: 'Task missing engagement relationship', recordType: 'Task', recordId: task_id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'clientUpdateTask:no_engagement' });
     }
 
     // 3. Resolve client entitlement — check can_complete_tasks capability + engagement-first tenant scope
@@ -35,12 +35,12 @@ export default async function(req) {
     });
 
     if (!entitlement.authorized) {
-      return Response.json({ error: 'Access denied', reason: entitlement.reason }, { status: 403 });
+      return await nonDisclosingDeny(base44, { actualReason: entitlement.reason, recordType: 'Task', recordId: task_id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'clientUpdateTask:entitlement' });
     }
 
     // 4. Defense-in-depth: confirm engagement is in authorized scope
     if (!entitlement.engagement_ids.includes(task.linked_engagement_id)) {
-      return Response.json({ error: 'Access denied', reason: 'Task engagement not in authorized tenant scope' }, { status: 403 });
+      return await nonDisclosingDeny(base44, { actualReason: 'Task engagement not in authorized tenant scope', recordType: 'Task', recordId: task_id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'clientUpdateTask:scope' });
     }
 
     // 5. Build whitelisted update — ONLY client-safe fields

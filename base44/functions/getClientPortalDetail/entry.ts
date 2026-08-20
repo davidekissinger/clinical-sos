@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.42';
-import { resolveClientEntitlement, RESOURCE_CAPABILITY_MAP } from "../../shared/clientEntitlements.ts";
+import { resolveClientEntitlement, RESOURCE_CAPABILITY_MAP, nonDisclosingDeny } from "../../shared/clientEntitlements.ts";
 import {
   sanitizeEngagement, sanitizeCase, sanitizeDeficiency, sanitizePOC,
   sanitizeWorkProduct, sanitizeEvidence, sanitizeTask, sanitizeAudit,
@@ -26,7 +26,7 @@ export default async function(req) {
     const requiredCap = RESOURCE_CAPABILITY_MAP[resource];
     const entitlement = await resolveClientEntitlement(base44, user, { resourceCapability: requiredCap });
     if (!entitlement.authorized) {
-      return Response.json({ error: 'Access denied', reason: entitlement.reason, access_status: entitlement.access_status }, { status: 403 });
+      return await nonDisclosingDeny(base44, { actualReason: entitlement.reason, recordType: resource, recordId: id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'getClientPortalDetail:entitlement' });
     }
 
     const facilityIds = entitlement.facility_ids || [];
@@ -37,11 +37,11 @@ export default async function(req) {
     // ── Engagement Detail (capability-aware bundled response) ──
     if (resource === 'engagement') {
       if (!engagementIds.includes(id)) {
-        return Response.json({ error: 'Access denied — engagement not in authorized scope' }, { status: 403 });
+        return await nonDisclosingDeny(base44, { actualReason: 'Engagement not in authorized scope', recordType: 'Engagement', recordId: id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'getClientPortalDetail:engagement_scope' });
       }
       const engagement = await base44.asServiceRole.entities.Engagement.get(id);
       if (!engagement || !engagement.client_visibility) {
-        return Response.json({ error: 'Engagement not found or not published' }, { status: 404 });
+        return await nonDisclosingDeny(base44, { actualReason: !engagement ? 'Engagement not found' : 'Engagement not published', recordType: 'Engagement', recordId: id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'getClientPortalDetail:engagement_notfound' });
       }
 
       // Build response with independent capability gating for each child resource
@@ -109,20 +109,20 @@ export default async function(req) {
     if (resource === 'case') {
       const regCase = await base44.asServiceRole.entities.RegulatoryCase.get(id);
       if (!regCase || !regCase.client_visibility) {
-        return Response.json({ error: 'Case not found or not published' }, { status: 404 });
+        return await nonDisclosingDeny(base44, { actualReason: !regCase ? 'Case not found' : 'Case not published', recordType: 'Case', recordId: id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'getClientPortalDetail:case_notfound' });
       }
       // Engagement-first: if case has engagement_id, require engagement match
       if (regCase.engagement_id) {
         if (!engagementIds.includes(regCase.engagement_id)) {
-          return Response.json({ error: 'Access denied — case engagement not in authorized scope' }, { status: 403 });
+          return await nonDisclosingDeny(base44, { actualReason: 'Case engagement not in authorized scope', recordType: 'Case', recordId: id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'getClientPortalDetail:case_scope' });
         }
       } else if (regCase.facility_id) {
         // Facility fallback only if no engagement relationship
         if (!facilityIds.includes(regCase.facility_id)) {
-          return Response.json({ error: 'Access denied — case not in authorized scope' }, { status: 403 });
+          return await nonDisclosingDeny(base44, { actualReason: 'Case facility not in authorized scope', recordType: 'Case', recordId: id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'getClientPortalDetail:case_facility_scope' });
         }
       } else {
-        return Response.json({ error: 'Access denied — case has no tenant relationship' }, { status: 403 });
+        return await nonDisclosingDeny(base44, { actualReason: 'Case has no tenant relationship', recordType: 'Case', recordId: id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'getClientPortalDetail:case_no_tenant' });
       }
 
       // Only return deficiencies — no POCs, evidence, documents, audits, or tasks leaked through case detail
@@ -140,20 +140,20 @@ export default async function(req) {
     if (resource === 'deficiency') {
       const deficiency = await base44.asServiceRole.entities.Deficiency.get(id);
       if (!deficiency || !deficiency.client_visibility) {
-        return Response.json({ error: 'Deficiency not found or not published' }, { status: 404 });
+        return await nonDisclosingDeny(base44, { actualReason: !deficiency ? 'Deficiency not found' : 'Deficiency not published', recordType: 'Deficiency', recordId: id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'getClientPortalDetail:deficiency_notfound' });
       }
       // Engagement-first: if deficiency has engagement_id, require engagement match
       if (deficiency.engagement_id) {
         if (!engagementIds.includes(deficiency.engagement_id)) {
-          return Response.json({ error: 'Access denied — deficiency engagement not in authorized scope' }, { status: 403 });
+          return await nonDisclosingDeny(base44, { actualReason: 'Deficiency engagement not in authorized scope', recordType: 'Deficiency', recordId: id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'getClientPortalDetail:deficiency_scope' });
         }
       } else if (deficiency.facility_id) {
         // Facility fallback only if no engagement relationship
         if (!facilityIds.includes(deficiency.facility_id)) {
-          return Response.json({ error: 'Access denied — deficiency not in authorized scope' }, { status: 403 });
+          return await nonDisclosingDeny(base44, { actualReason: 'Deficiency facility not in authorized scope', recordType: 'Deficiency', recordId: id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'getClientPortalDetail:deficiency_facility_scope' });
         }
       } else {
-        return Response.json({ error: 'Access denied — deficiency has no tenant relationship' }, { status: 403 });
+        return await nonDisclosingDeny(base44, { actualReason: 'Deficiency has no tenant relationship', recordType: 'Deficiency', recordId: id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'getClientPortalDetail:deficiency_no_tenant' });
       }
 
       // POCs: ONLY if can_view_poc — do NOT reject the deficiency view if POC capability is absent
