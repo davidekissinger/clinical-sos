@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.42';
-import { resolveClientEntitlement, auditAccessChange, nonDisclosingDeny } from "../../shared/clientEntitlements.ts";
+import { resolveClientEntitlement, auditAccessChange, nonDisclosingDeny, safeGet } from "../../shared/clientEntitlements.ts";
 
 const ALLOWED_RESPONSES = ['Prepared', 'Available', 'Clarification Requested', 'Noted'];
 
@@ -18,7 +18,7 @@ export default async function(req) {
     }
 
     // 1. Retrieve the evidence item server-side
-    const evidence = await base44.asServiceRole.entities.EvidenceItem.get(evidence_id);
+    const evidence = await safeGet(base44, 'EvidenceItem', evidence_id);
     if (!evidence) return await nonDisclosingDeny(base44, { actualReason: 'Evidence item not found', recordType: 'EvidenceItem', recordId: evidence_id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'clientRespondEvidence:not_found' });
 
     // 2. Fail closed if evidence lacks authoritative engagement relationship

@@ -309,6 +309,25 @@ export async function auditAccessChange(base44, params) {
 }
 
 /**
+ * Safe SDK entity lookup — normalizes genuine not-found exceptions to null.
+ * Only 404 / "not found" errors are normalized; all other exceptions
+ * (infrastructure, permission, programming) are re-thrown for the outer
+ * catch to handle as 500.
+ */
+export async function safeGet(base44, entityName, id) {
+  try {
+    return await base44.asServiceRole.entities[entityName].get(id);
+  } catch (error) {
+    const status = error?.status || error?.statusCode || error?.response?.status;
+    const message = error?.message || error?.data?.message || '';
+    if (status === 404 || /not found/i.test(message)) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+/**
  * Standardized non-disclosing denial response for inaccessible client records.
  *
  * Returns an identical 404 response for:

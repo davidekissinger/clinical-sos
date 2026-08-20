@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.42';
-import { resolveClientEntitlement, RESOURCE_CAPABILITY_MAP, nonDisclosingDeny } from "../../shared/clientEntitlements.ts";
+import { resolveClientEntitlement, RESOURCE_CAPABILITY_MAP, nonDisclosingDeny, safeGet } from "../../shared/clientEntitlements.ts";
 import {
   sanitizeEngagement, sanitizeCase, sanitizeDeficiency, sanitizePOC,
   sanitizeWorkProduct, sanitizeEvidence, sanitizeTask, sanitizeAudit,
@@ -39,7 +39,7 @@ export default async function(req) {
       if (!engagementIds.includes(id)) {
         return await nonDisclosingDeny(base44, { actualReason: 'Engagement not in authorized scope', recordType: 'Engagement', recordId: id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'getClientPortalDetail:engagement_scope' });
       }
-      const engagement = await base44.asServiceRole.entities.Engagement.get(id);
+      const engagement = await safeGet(base44, 'Engagement', id);
       if (!engagement || !engagement.client_visibility) {
         return await nonDisclosingDeny(base44, { actualReason: !engagement ? 'Engagement not found' : 'Engagement not published', recordType: 'Engagement', recordId: id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'getClientPortalDetail:engagement_notfound' });
       }
@@ -107,7 +107,7 @@ export default async function(req) {
 
     // ── Case Detail (engagement-first) ──
     if (resource === 'case') {
-      const regCase = await base44.asServiceRole.entities.RegulatoryCase.get(id);
+      const regCase = await safeGet(base44, 'RegulatoryCase', id);
       if (!regCase || !regCase.client_visibility) {
         return await nonDisclosingDeny(base44, { actualReason: !regCase ? 'Case not found' : 'Case not published', recordType: 'Case', recordId: id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'getClientPortalDetail:case_notfound' });
       }
@@ -138,7 +138,7 @@ export default async function(req) {
 
     // ── Deficiency Detail (engagement-first, POC capability-gated) ──
     if (resource === 'deficiency') {
-      const deficiency = await base44.asServiceRole.entities.Deficiency.get(id);
+      const deficiency = await safeGet(base44, 'Deficiency', id);
       if (!deficiency || !deficiency.client_visibility) {
         return await nonDisclosingDeny(base44, { actualReason: !deficiency ? 'Deficiency not found' : 'Deficiency not published', recordType: 'Deficiency', recordId: id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'getClientPortalDetail:deficiency_notfound' });
       }

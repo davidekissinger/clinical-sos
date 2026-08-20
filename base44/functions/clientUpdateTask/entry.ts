@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.42';
-import { resolveClientEntitlement, auditAccessChange, nonDisclosingDeny } from "../../shared/clientEntitlements.ts";
+import { resolveClientEntitlement, auditAccessChange, nonDisclosingDeny, safeGet } from "../../shared/clientEntitlements.ts";
 
 const ALLOWED_STATUSES = ['Not Started', 'In Progress', 'Complete'];
 
@@ -18,7 +18,7 @@ export default async function(req) {
     }
 
     // 1. Retrieve the task server-side
-    const task = await base44.asServiceRole.entities.Task.get(task_id);
+    const task = await safeGet(base44, 'Task', task_id);
     if (!task) return await nonDisclosingDeny(base44, { actualReason: 'Task not found', recordType: 'Task', recordId: task_id, actingUserId: user.id, actingUserName: user.full_name || user.email, triggeringSource: 'clientUpdateTask:not_found' });
 
     // 2. Fail closed if task lacks authoritative engagement relationship
