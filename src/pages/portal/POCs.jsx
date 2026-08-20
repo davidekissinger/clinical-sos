@@ -29,6 +29,9 @@ export default function ClientPOCs() {
       return;
     }
     setReviewing(poc.id);
+    const prevPocs = pocs;
+    const optimisticStatus = action === "client_approve" ? "Client Approved" : action === "request_revision" ? "Revision Requested" : "Acknowledged";
+    setPocs(pocs.map(p => p.id === poc.id ? { ...p, client_review_status: optimisticStatus } : p));
     try {
       await base44.functions.invoke("clientReviewPOC", {
         poc_id: poc.id, action, comment: commentPocId === poc.id ? comment : null
@@ -36,7 +39,10 @@ export default function ClientPOCs() {
       setActionResult({ success: "POC review submitted. Regulatory status unchanged." });
       setComment(""); setCommentPocId(null);
       await loadPocs();
-    } catch (e) { setActionResult({ error: e.message || "Failed to submit review" }); }
+    } catch (e) {
+      setPocs(prevPocs);
+      setActionResult({ error: e.message || "Failed to submit review" });
+    }
     finally { setReviewing(null); }
   };
 

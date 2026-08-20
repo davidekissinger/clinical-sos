@@ -27,13 +27,18 @@ export default function ClientEvidence() {
       return;
     }
     setSubmitting(item.id);
+    const prevEvidence = evidence;
+    setEvidence(evidence.map(e => e.id === item.id ? { ...e, client_response_status: responseStatus } : e));
     try {
       await base44.functions.invoke("clientRespondEvidence", {
         evidence_id: item.id, response_status: responseStatus
       });
       setActionResult({ success: "Evidence response submitted." });
       await loadEvidence();
-    } catch (e) { setActionResult({ error: e.message || "Failed to submit response" }); }
+    } catch (e) {
+      setEvidence(prevEvidence);
+      setActionResult({ error: e.message || "Failed to submit response" });
+    }
     finally { setSubmitting(null); }
   };
 

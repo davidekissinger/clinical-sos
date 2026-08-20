@@ -6,6 +6,7 @@ import AccessibleDialog from "@/components/AccessibleDialog";
 import InviteClientUserDialog from "@/components/cc/InviteClientUserDialog";
 import ManageMembershipDialog from "@/components/cc/ManageMembershipDialog";
 import ClientAccessAudit from "@/components/cc/ClientAccessAudit";
+import MobileSelect from "@/components/MobileSelect";
 
 export default function ClientAccounts() {
   const [accounts, setAccounts] = useState([]);
@@ -17,6 +18,8 @@ export default function ClientAccounts() {
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [showAccessForm, setShowAccessForm] = useState(null);
   const [result, setResult] = useState(null);
+  const [newAccessStatus, setNewAccessStatus] = useState("Active");
+  const [overrideType, setOverrideType] = useState("Extend Access");
 
   const load = async () => {
     setLoading(true);
@@ -115,10 +118,10 @@ export default function ClientAccounts() {
         <AccessibleDialog isOpen={!!showAccessForm} onClose={() => setShowAccessForm(null)} title={`Manage Access — ${showAccessForm.account_name}`} titleId="access-form-title" closeLabel="Close">
           <form onSubmit={async (e) => { e.preventDefault(); const f = e.target; const isOverride = f.manual_override.checked; try { await base44.functions.invoke("transitionClientAccess", { client_account_id: showAccessForm.id, new_access_status: f.new_access_status.value, reason: f.reason.value, manual_override: isOverride, manual_override_type: isOverride ? f.override_type.value : null, override_expiration: isOverride ? f.override_expiration.value || null : null }); setShowAccessForm(null); load(); setResult({ success: "Access updated" }); } catch (err) { setResult({ error: err.message }); } }} className="space-y-3">
             <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Current Status</span><p className="text-sm text-foreground">{showAccessForm.access_status}</p></label>
-            <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">New Access Status *</span><select name="new_access_status" required className="cc-input"><option>Active</option><option>Grace Period</option><option>Restricted</option><option>Suspended</option><option>Terminated</option></select></label>
+            <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">New Access Status *</span><MobileSelect name="new_access_status" value={newAccessStatus} onChange={setNewAccessStatus} options={["Active", "Grace Period", "Restricted", "Suspended", "Terminated"]} className="cc-input" ariaLabel="New access status" /></label>
             <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Reason *</span><textarea name="reason" required rows={2} className="cc-input" /></label>
             <label className="flex items-center gap-2 text-sm text-foreground"><input type="checkbox" name="manual_override" className="h-4 w-4 rounded border-border" /> Apply as manual override</label>
-            <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Override Type</span><select name="override_type" className="cc-input"><option>Extend Access</option><option>Maintain Access</option><option>Reactivate</option><option>Suspend</option><option>Terminate</option></select></label>
+            <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Override Type</span><MobileSelect name="override_type" value={overrideType} onChange={setOverrideType} options={["Extend Access", "Maintain Access", "Reactivate", "Suspend", "Terminate"]} className="cc-input" ariaLabel="Override type" /></label>
             <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Override Expiration (optional)</span><input name="override_expiration" type="datetime-local" className="cc-input" /></label>
             <button type="submit" className="btn-primary text-sm w-full">Update Access</button>
           </form>
@@ -137,6 +140,10 @@ export default function ClientAccounts() {
 
 function NewAccountDialog({ isOpen, onClose, onResult, onReload }) {
   const [organizations, setOrganizations] = useState([]);
+  const [orgId, setOrgId] = useState("");
+  const [accessStatus, setAccessStatus] = useState("Active");
+  const [billingStatus, setBillingStatus] = useState("Unknown");
+  const [subscriptionStatus, setSubscriptionStatus] = useState("Not Applicable");
   useEffect(() => {
     if (!isOpen) return;
     async function loadOrgs() {
@@ -152,10 +159,10 @@ function NewAccountDialog({ isOpen, onClose, onResult, onReload }) {
     <AccessibleDialog isOpen={isOpen} onClose={onClose} title="New Client Account" titleId="acc-form-title" closeLabel="Close">
       <form onSubmit={async (e) => { e.preventDefault(); const f = e.target; const orgId = f.organization_id.value; if (!orgId) { onResult({ error: "Organization is required" }); return; } const org = organizations.find(o => o.id === orgId); try { await base44.entities.ClientAccount.create({ account_name: f.account_name.value, organization_id: orgId, organization_name: org?.organization_name || null, access_status: f.access_status.value, billing_status: f.billing_status.value, subscription_status: f.subscription_status.value, subscription_plan: f.subscription_plan.value || null, subscription_start_date: f.subscription_start_date.value || null }); onClose(); onReload(); onResult({ success: "Account created" }); } catch (err) { onResult({ error: err.message }); } }} className="space-y-3">
         <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Account Name *</span><input name="account_name" required className="cc-input" /></label>
-        <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Organization *</span><select name="organization_id" required className="cc-input"><option value="">— Select Organization —</option>{organizations.map(o => <option key={o.id} value={o.id}>{o.organization_name}</option>)}</select></label>
-        <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Access Status *</span><select name="access_status" required className="cc-input"><option>Active</option><option>Grace Period</option><option>Restricted</option><option>Suspended</option><option>Terminated</option></select></label>
-        <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Billing Status</span><select name="billing_status" className="cc-input"><option>Unknown</option><option>Current</option><option>Invoice Due</option><option>Past Due</option><option>Payment Arrangement</option><option>Paid</option><option>Disputed</option></select></label>
-        <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Subscription Status</span><select name="subscription_status" className="cc-input"><option>Not Applicable</option><option>Active</option><option>Trial</option><option>Grace Period</option><option>Past Due</option><option>Cancelled</option><option>Expired</option></select></label>
+        <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Organization *</span><MobileSelect name="organization_id" value={orgId} onChange={setOrgId} options={[{ value: "", label: "— Select Organization —" }, ...organizations.map(o => ({ value: o.id, label: o.organization_name }))]} className="cc-input" ariaLabel="Organization" /></label>
+        <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Access Status *</span><MobileSelect name="access_status" value={accessStatus} onChange={setAccessStatus} options={["Active", "Grace Period", "Restricted", "Suspended", "Terminated"]} className="cc-input" ariaLabel="Access status" /></label>
+        <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Billing Status</span><MobileSelect name="billing_status" value={billingStatus} onChange={setBillingStatus} options={["Unknown", "Current", "Invoice Due", "Past Due", "Payment Arrangement", "Paid", "Disputed"]} className="cc-input" ariaLabel="Billing status" /></label>
+        <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Subscription Status</span><MobileSelect name="subscription_status" value={subscriptionStatus} onChange={setSubscriptionStatus} options={["Not Applicable", "Active", "Trial", "Grace Period", "Past Due", "Cancelled", "Expired"]} className="cc-input" ariaLabel="Subscription status" /></label>
         <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Subscription Plan</span><input name="subscription_plan" className="cc-input" /></label>
         <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Subscription Start Date</span><input name="subscription_start_date" type="date" className="cc-input" /></label>
         <button type="submit" className="btn-primary text-sm w-full">Create Account</button>

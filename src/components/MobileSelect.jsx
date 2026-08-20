@@ -7,7 +7,7 @@ import { Check, X, ChevronDown } from "lucide-react";
  * picker on mobile viewports (<= 768px). Accepts the same value/onChange
  * interface as a standard select.
  */
-export default function MobileSelect({ value, onChange, options, className = "", ariaLabel, placeholder, disabled }) {
+export default function MobileSelect({ value, onChange, options, className = "", ariaLabel, placeholder, disabled, name }) {
   const [isMobile, setIsMobile] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -25,7 +25,7 @@ export default function MobileSelect({ value, onChange, options, className = "",
 
   if (!isMobile) {
     return (
-      <select value={value} onChange={e => onChange(e.target.value)} className={className} aria-label={ariaLabel} disabled={disabled}>
+      <select value={value} onChange={e => onChange(e.target.value)} className={className} aria-label={ariaLabel} disabled={disabled} name={name}>
         {normalized.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     );
@@ -33,6 +33,7 @@ export default function MobileSelect({ value, onChange, options, className = "",
 
   return (
     <>
+      {name && <input type="hidden" name={name} value={value} />}
       <button
         type="button"
         onClick={() => !disabled && setOpen(true)}

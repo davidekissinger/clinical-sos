@@ -9,6 +9,7 @@ import AuditToolForm from "@/components/cc/AuditToolForm";
 import EducationPlanForm from "@/components/cc/EducationPlanForm";
 import EvidenceItemForm from "@/components/cc/EvidenceItemForm";
 import QAPIReviewForm from "@/components/cc/QAPIReviewForm";
+import MobileSelect from "@/components/MobileSelect";
 
 const TABS = [
   { key: "identification", label: "Identification", icon: FileText },
@@ -207,13 +208,9 @@ function IdentificationTab({ def }) {
               f.type === "textarea" ? (
                 <textarea value={form[f.key] || ""} onChange={e => setForm({...form, [f.key]: e.target.value})} rows={3} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground" />
               ) : f.type === "select" ? (
-                <select value={form[f.key] || ""} onChange={e => setForm({...form, [f.key]: e.target.value})} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground">
-                  {f.options.map(o => <option key={o} value={o}>{o || "—"}</option>)}
-                </select>
+                <MobileSelect value={form[f.key] || ""} onChange={v => setForm({...form, [f.key]: v})} options={f.options.map(o => ({ value: o, label: o || "—" }))} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground" ariaLabel={f.label} />
               ) : f.type === "boolean" ? (
-                <select value={form[f.key] ? "true" : "false"} onChange={e => setForm({...form, [f.key]: e.target.value === "true"})} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground">
-                  <option value="false">No</option><option value="true">Yes</option>
-                </select>
+                <MobileSelect value={form[f.key] ? "true" : "false"} onChange={v => setForm({...form, [f.key]: v === "true"})} options={[{ value: "false", label: "No" }, { value: "true", label: "Yes" }]} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground" ariaLabel={f.label} />
               ) : (
                 <input type={f.type === "date" ? "date" : "text"} value={form[f.key] || ""} onChange={e => setForm({...form, [f.key]: e.target.value})} className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-white dark:bg-card text-foreground" />
               )

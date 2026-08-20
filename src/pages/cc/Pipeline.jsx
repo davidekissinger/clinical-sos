@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { PageHeader, Badge, LoadingState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
 import AccessibleDialog from "@/components/AccessibleDialog";
+import MobileSelect from "@/components/MobileSelect";
 import { X, CheckCircle2, MoveRight } from "lucide-react";
 
 const STAGES = [
@@ -18,6 +19,7 @@ export default function Pipeline() {
   const [dragId, setDragId] = useState(null);
   const [wonModal, setWonModal] = useState(null);
   const [engagementResult, setEngagementResult] = useState(null);
+  const [engagementModel, setEngagementModel] = useState("Fixed Fee");
   const wonModalTriggerRef = useRef(null);
 
   if (opportunities.loading) return <LoadingState />;
@@ -50,7 +52,7 @@ export default function Pipeline() {
       service_type: form.service_type.value,
       start_date: form.start_date.value,
       clinical_lead_name: form.clinical_lead_name.value || "To be assigned",
-      engagement_model: form.engagement_model.value,
+      engagement_model: engagementModel,
       accepted_proposal_id: form.accepted_proposal_id?.value || null,
     };
     try {
@@ -107,24 +109,21 @@ export default function Pipeline() {
                       </div>
                       <label className="mt-2 block">
                         <span className="sr-only">Move {o.opportunity_name} to stage</span>
-                        <select
+                        <MobileSelect
                           value={o.stage}
-                          onChange={async (e) => {
-                            const newStage = e.target.value;
+                          onChange={async (newStage) => {
                             if (newStage === o.stage) return;
                             if (newStage === "Won") {
-                              wonModalTriggerRef.current = e.target;
                               setWonModal({ opportunity_id: o.id, opportunity: o });
                             } else {
                               await base44.entities.Opportunity.update(o.id, { stage: newStage });
                               opportunities.reload();
                             }
                           }}
+                          options={STAGES}
                           className="w-full border border-border rounded-md px-1.5 py-1 text-xs bg-white dark:bg-card text-foreground"
-                          aria-label={`Move ${o.opportunity_name} to stage`}
-                        >
-                          {STAGES.map((s) => <option key={s} value={s}>{s}</option>)}
-                        </select>
+                          ariaLabel={`Move ${o.opportunity_name} to stage`}
+                        />
                       </label>
                     </div>
                   ))}
@@ -182,12 +181,14 @@ export default function Pipeline() {
           </label>
           <label className="block">
             <span className="block text-xs font-medium text-muted-foreground mb-1">Engagement Model *</span>
-            <select name="engagement_model" required className="cc-input">
-              <option value="Fixed Fee">Fixed Fee</option>
-              <option value="Hourly">Hourly</option>
-              <option value="Time and Expense">Time and Expense</option>
-              <option value="Hybrid">Hybrid</option>
-            </select>
+            <MobileSelect
+              name="engagement_model"
+              value={engagementModel}
+              onChange={setEngagementModel}
+              options={[{ value: "Fixed Fee", label: "Fixed Fee" }, { value: "Hourly", label: "Hourly" }, { value: "Time and Expense", label: "Time and Expense" }, { value: "Hybrid", label: "Hybrid" }]}
+              className="cc-input"
+              ariaLabel="Engagement model"
+            />
           </label>
           <label className="block">
             <span className="block text-xs font-medium text-muted-foreground mb-1">Accepted Proposal ID (optional)</span>

@@ -26,11 +26,16 @@ export default function ClientTasks() {
       return;
     }
     setSubmitting(task.id);
+    const prevTasks = tasks;
+    setTasks(tasks.map(t => t.id === task.id ? { ...t, status: newStatus } : t));
     try {
       await base44.functions.invoke("clientUpdateTask", { task_id: task.id, status: newStatus });
       setActionResult({ success: "Task updated." });
       await loadTasks();
-    } catch (e) { setActionResult({ error: e.message || "Failed to update task" }); }
+    } catch (e) {
+      setTasks(prevTasks);
+      setActionResult({ error: e.message || "Failed to update task" });
+    }
     finally { setSubmitting(null); }
   };
 
