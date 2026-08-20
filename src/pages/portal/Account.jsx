@@ -1,10 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Trash2, AlertCircle } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import AccessibleDialog from "@/components/AccessibleDialog";
 
 export default function ClientAccount() {
   const outletContext = useOutletContext();
   const entitlement = outletContext?.entitlement;
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const facilities = entitlement?.authorized_facilities || [];
   const engagements = entitlement?.authorized_engagements || [];
@@ -28,6 +33,19 @@ export default function ClientAccount() {
     can_submit_evidence: "Submit Evidence",
     can_view_audits: "View Audits",
     can_message_consultant: "Message Consultant",
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await base44.auth.deleteAccount();
+      window.location.href = "/";
+    } catch (e) {
+      setDeleteError(e.message || "Unable to delete account. Please contact Clinical SOS support.");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   return (
@@ -89,6 +107,56 @@ export default function ClientAccount() {
           ))}
         </div>
       </div>
+
+      <div className="bg-white dark:bg-card rounded-xl border border-rose-200 dark:border-rose-900 p-6 mt-4">
+        <h2 className="font-semibold text-rose-700 dark:text-rose-400 mb-2 flex items-center gap-2">
+          <Trash2 className="h-4 w-4" aria-hidden="true" /> Delete Account
+        </h2>
+        <p className="text-sm text-muted-foreground mb-4">Permanently delete your account and all associated data. This action cannot be undone.</p>
+        <button
+          onClick={() => setShowDeleteDialog(true)}
+          className="inline-flex items-center gap-2 rounded-full border-2 border-rose-500 text-rose-600 dark:text-rose-400 px-6 py-2.5 text-sm font-semibold transition hover:bg-rose-50 dark:hover:bg-rose-950/40 focus-visible:outline-2 focus-visible:outline-offset-2"
+        >
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
+          Delete Account
+        </button>
+      </div>
+
+      <AccessibleDialog
+        isOpen={showDeleteDialog}
+        onClose={() => { setShowDeleteDialog(false); setDeleteError(null); }}
+        title="Delete Account?"
+        titleId="delete-account-dialog-title"
+        closeLabel="Cancel"
+      >
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 bg-rose-50 dark:bg-rose-950/40 rounded-lg p-4">
+            <AlertCircle className="h-5 w-5 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
+            <p className="text-sm text-rose-800 dark:text-rose-300">
+              This will permanently delete your account and revoke all portal access. This action cannot be undone.
+            </p>
+          </div>
+          {deleteError && (
+            <p className="text-sm text-rose-600 dark:text-rose-400" role="alert">{deleteError}</p>
+          )}
+          <div className="flex gap-3 justify-end">
+            <button
+              onClick={() => { setShowDeleteDialog(false); setDeleteError(null); }}
+              className="btn-secondary text-sm"
+              disabled={deleting}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDeleteAccount}
+              disabled={deleting}
+              className="inline-flex items-center gap-2 rounded-full bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2"
+            >
+              {deleting ? "Deleting…" : "Yes, Delete My Account"}
+            </button>
+          </div>
+        </div>
+      </AccessibleDialog>
     </div>
   );
 }

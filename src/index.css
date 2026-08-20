@@ -83,9 +83,10 @@
   * {
     @apply border-border outline-ring/50;
   }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; overscroll-behavior: none; }
   body {
     @apply bg-background text-foreground font-body antialiased;
+    overscroll-behavior: none;
   }
   h1, h2, h3, h4 { @apply font-heading tracking-tight; }
 }
@@ -144,6 +145,10 @@
   .cc-input::placeholder { color: hsl(var(--muted-foreground)); opacity: 0.7; }
   .cc-input:focus { border-color: hsl(var(--primary)); box-shadow: 0 0 0 3px hsl(var(--accent)); }
   .cc-input:disabled { opacity: 0.5; cursor: not-allowed; }
+  .safe-area-top { padding-top: env(safe-area-inset-top); }
+  .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  /* Disable text selection for interactive and structural elements (iOS gesture compliance) */
+  button, [role="button"], .toggle, aside, nav, [class*="lucide"], svg { user-select: none; -webkit-user-select: none; }
 }
 
 @layer utilities {

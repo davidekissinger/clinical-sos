@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -10,65 +11,73 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import RoleProtectedRoute from '@/components/RoleProtectedRoute';
 import { TestDataProvider } from '@/lib/TestDataContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
-import Login from '@/pages/Login';
-import Register from '@/pages/Register';
-import ForgotPassword from '@/pages/ForgotPassword';
-import ResetPassword from '@/pages/ResetPassword';
-
-// Public site
 import PublicLayout from '@/components/PublicLayout';
-import Home from '@/pages/Home';
-import About from '@/pages/About';
-import Services from '@/pages/Services';
-import ServiceDetail from '@/pages/ServiceDetail';
-import RapidSurveyRecovery from '@/pages/RapidSurveyRecovery';
-import WhoWeHelp from '@/pages/WhoWeHelp';
-import Resources from '@/pages/Resources';
-import ResourceDetail from '@/pages/ResourceDetail';
-import FAQ from '@/pages/FAQ';
-import Contact from '@/pages/Contact';
-import Accessibility from '@/pages/Accessibility';
-
-// Command center
 import CommandCenterLayout from '@/components/CommandCenterLayout';
-import Dashboard from '@/pages/cc/Dashboard';
-import Leads from '@/pages/cc/Leads';
-import Pipeline from '@/pages/cc/Pipeline';
-import Facilities from '@/pages/cc/Facilities';
-import Contacts from '@/pages/cc/Contacts';
-import Tasks from '@/pages/cc/Tasks';
-import Signals from '@/pages/cc/Signals';
-import Agents from '@/pages/cc/Agents';
-import Outreach from '@/pages/cc/Outreach';
-import Proposals from '@/pages/cc/Proposals';
-import LaunchReadiness from '@/pages/cc/LaunchReadiness';
-import Engagements from '@/pages/cc/Engagements';
-import Settings from '@/pages/cc/Settings';
-import RecoveryDashboard from '@/pages/cc/RecoveryDashboard';
-import Cases from '@/pages/cc/Cases';
-import CaseDetail from '@/pages/cc/CaseDetail';
-import DeficiencyDetail from '@/pages/cc/DeficiencyDetail';
-import Knowledge from '@/pages/cc/Knowledge';
-import ClientAccounts from '@/pages/cc/ClientAccounts';
-
-// Client portal
 import ClientPortalLayout from '@/components/portal/ClientPortalLayout';
 import ClientEntitlementRoute from '@/components/portal/ClientEntitlementRoute';
-import ClientDashboard from '@/pages/portal/Dashboard';
-import ClientEngagements from '@/pages/portal/Engagements';
-import ClientEngagementDetail from '@/pages/portal/EngagementDetail';
-import ClientRecovery from '@/pages/portal/Recovery';
-import ClientPOCs from '@/pages/portal/POCs';
-import ClientWorkProducts from '@/pages/portal/WorkProducts';
-import ClientEvidence from '@/pages/portal/Evidence';
-import ClientAudits from '@/pages/portal/Audits';
-import ClientTasks from '@/pages/portal/Tasks';
-import ClientReadiness from '@/pages/portal/Readiness';
-import ClientDocuments from '@/pages/portal/Documents';
-import ClientAccount from '@/pages/portal/Account';
-import ClientCaseDetail from '@/pages/portal/CaseDetail';
-import ClientDeficiencyDetail from '@/pages/portal/DeficiencyDetail';
-import AccessPending from '@/pages/AccessPending';
+
+// Lazy-loaded auth pages
+const Login = lazy(() => import('@/pages/Login'));
+const Register = lazy(() => import('@/pages/Register'));
+const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('@/pages/ResetPassword'));
+
+// Lazy-loaded public site pages
+const Home = lazy(() => import('@/pages/Home'));
+const About = lazy(() => import('@/pages/About'));
+const Services = lazy(() => import('@/pages/Services'));
+const ServiceDetail = lazy(() => import('@/pages/ServiceDetail'));
+const RapidSurveyRecovery = lazy(() => import('@/pages/RapidSurveyRecovery'));
+const WhoWeHelp = lazy(() => import('@/pages/WhoWeHelp'));
+const Resources = lazy(() => import('@/pages/Resources'));
+const ResourceDetail = lazy(() => import('@/pages/ResourceDetail'));
+const FAQ = lazy(() => import('@/pages/FAQ'));
+const Contact = lazy(() => import('@/pages/Contact'));
+const Accessibility = lazy(() => import('@/pages/Accessibility'));
+
+// Lazy-loaded command center pages
+const Dashboard = lazy(() => import('@/pages/cc/Dashboard'));
+const Leads = lazy(() => import('@/pages/cc/Leads'));
+const Pipeline = lazy(() => import('@/pages/cc/Pipeline'));
+const Facilities = lazy(() => import('@/pages/cc/Facilities'));
+const Contacts = lazy(() => import('@/pages/cc/Contacts'));
+const Tasks = lazy(() => import('@/pages/cc/Tasks'));
+const Signals = lazy(() => import('@/pages/cc/Signals'));
+const Agents = lazy(() => import('@/pages/cc/Agents'));
+const Outreach = lazy(() => import('@/pages/cc/Outreach'));
+const Proposals = lazy(() => import('@/pages/cc/Proposals'));
+const LaunchReadiness = lazy(() => import('@/pages/cc/LaunchReadiness'));
+const Engagements = lazy(() => import('@/pages/cc/Engagements'));
+const Settings = lazy(() => import('@/pages/cc/Settings'));
+const RecoveryDashboard = lazy(() => import('@/pages/cc/RecoveryDashboard'));
+const Cases = lazy(() => import('@/pages/cc/Cases'));
+const CaseDetail = lazy(() => import('@/pages/cc/CaseDetail'));
+const DeficiencyDetail = lazy(() => import('@/pages/cc/DeficiencyDetail'));
+const Knowledge = lazy(() => import('@/pages/cc/Knowledge'));
+const ClientAccounts = lazy(() => import('@/pages/cc/ClientAccounts'));
+
+// Lazy-loaded client portal pages
+const ClientDashboard = lazy(() => import('@/pages/portal/Dashboard'));
+const ClientEngagements = lazy(() => import('@/pages/portal/Engagements'));
+const ClientEngagementDetail = lazy(() => import('@/pages/portal/EngagementDetail'));
+const ClientRecovery = lazy(() => import('@/pages/portal/Recovery'));
+const ClientPOCs = lazy(() => import('@/pages/portal/POCs'));
+const ClientWorkProducts = lazy(() => import('@/pages/portal/WorkProducts'));
+const ClientEvidence = lazy(() => import('@/pages/portal/Evidence'));
+const ClientAudits = lazy(() => import('@/pages/portal/Audits'));
+const ClientTasks = lazy(() => import('@/pages/portal/Tasks'));
+const ClientReadiness = lazy(() => import('@/pages/portal/Readiness'));
+const ClientDocuments = lazy(() => import('@/pages/portal/Documents'));
+const ClientAccount = lazy(() => import('@/pages/portal/Account'));
+const ClientCaseDetail = lazy(() => import('@/pages/portal/CaseDetail'));
+const ClientDeficiencyDetail = lazy(() => import('@/pages/portal/DeficiencyDetail'));
+const AccessPending = lazy(() => import('@/pages/AccessPending'));
+
+const SuspenseFallback = () => (
+  <div className="fixed inset-0 flex items-center justify-center">
+    <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+  </div>
+);
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -95,6 +104,7 @@ const AuthenticatedApp = () => {
 
   // Render the main app
   return (
+    <Suspense fallback={<SuspenseFallback />}>
     <Routes>
       {/* Auth routes */}
       <Route path="/login" element={<Login />} />
@@ -182,6 +192,7 @@ const AuthenticatedApp = () => {
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>
+    </Suspense>
   );
 };
 

@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { cn } from "@/lib/utils";
 import AccountStatusBanner from "@/components/portal/AccountStatusBanner";
 import ClientPortalErrorBoundary from "@/components/portal/ClientPortalErrorBoundary";
+import MobileBottomNav from "@/components/portal/MobileBottomNav";
 
 const NAV = [
   { label: "Home", path: "/client", icon: Home },
@@ -81,7 +82,7 @@ export default function ClientPortalLayout() {
       {open && <div className="fixed inset-0 bg-black/40 z-30 lg:hidden" onClick={() => setOpen(false)} />}
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-white dark:bg-card border-b border-border flex items-center justify-between px-5 lg:px-8 sticky top-0 z-20">
+        <header className="h-16 bg-white dark:bg-card border-b border-border flex items-center justify-between px-5 lg:px-8 sticky top-0 z-20 safe-area-top">
           <div className="flex items-center gap-3">
             <button className="lg:hidden text-foreground" onClick={() => setOpen(true)} aria-label="Open menu"><Menu className="h-5 w-5" /></button>
             <div>
@@ -95,12 +96,13 @@ export default function ClientPortalLayout() {
           </div>
         </header>
         <AccountStatusBanner />
-        <main id="client-main-content" className="flex-1 p-5 lg:p-8 overflow-x-hidden">
+        <main id="client-main-content" className="flex-1 p-5 lg:p-8 overflow-x-hidden pb-20 md:pb-8">
           <ClientPortalErrorBoundary>
             <Outlet context={outletContext} />
           </ClientPortalErrorBoundary>
         </main>
       </div>
+      <MobileBottomNav />
     </div>
   );
 }
