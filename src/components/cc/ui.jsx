@@ -49,7 +49,7 @@ export function Table({ headers, children }) {
   return (
     <div className="bg-white dark:bg-card rounded-xl border border-border overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm cc-responsive-table">
           <thead className="bg-secondary/50 text-muted-foreground">
             <tr>{headers.map((h) => <th key={h} scope="col" className="text-left font-medium px-4 py-3 whitespace-nowrap">{h}</th>)}</tr>
           </thead>

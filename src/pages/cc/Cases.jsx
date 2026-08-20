@@ -5,6 +5,7 @@ import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui"
 import { useEntities } from "@/hooks/useEntities";
 import { Plus, Search, FilePlus } from "lucide-react";
 import MobileSelect from "@/components/MobileSelect";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function Cases() {
   const cases = useEntities("RegulatoryCase", { sort: "-created_date", limit: 200, excludeTestData: true });
@@ -62,33 +63,35 @@ export default function Cases() {
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search cases…" className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm bg-white dark:bg-card text-foreground" />
       </div>
 
-      <div className="bg-white dark:bg-card rounded-xl border border-border overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-secondary/50 text-muted-foreground">
-            <tr>
-              <th className="text-left px-4 py-3 font-medium">Case</th>
-              <th className="text-left px-4 py-3 font-medium">Facility / Client</th>
-              <th className="text-left px-4 py-3 font-medium">Status</th>
-              <th className="text-left px-4 py-3 font-medium">Urgency</th>
-              <th className="text-left px-4 py-3 font-medium">Score</th>
-              <th className="text-left px-4 py-3 font-medium">Deficiencies</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {filtered.map((c) => (
-              <tr key={c.id} className="hover:bg-secondary/30 cursor-pointer" onClick={() => window.location.href = `/command-center/cases/${c.id}`}>
-                <td className="px-4 py-3"><Link to={`/command-center/cases/${c.id}`} className="font-medium text-foreground hover:text-primary" onClick={e => e.stopPropagation()}>{c.case_name}</Link></td>
-                <td className="px-4 py-3 text-muted-foreground">{c.facility_name}<br/><span className="text-xs">{c.client_name}</span></td>
-                <td className="px-4 py-3"><Badge tone="default">{c.case_status}</Badge></td>
-                <td className="px-4 py-3"><Badge tone={c.regulatory_urgency === "Critical" ? "red" : c.regulatory_urgency === "Severe" ? "amber" : "default"}>{c.regulatory_urgency}</Badge></td>
-                <td className="px-4 py-3 font-bold">{c.regulatory_urgency_score ?? "—"}</td>
-                <td className="px-4 py-3">{c.total_deficiencies ?? "—"} ({c.high_priority_deficiencies ?? 0} high)</td>
+      <PullToRefresh onRefresh={cases.reload}>
+        <div className="bg-white dark:bg-card rounded-xl border border-border overflow-hidden">
+          <table className="w-full text-sm cc-responsive-table">
+            <thead className="bg-secondary/50 text-muted-foreground">
+              <tr>
+                <th className="text-left px-4 py-3 font-medium">Case</th>
+                <th className="text-left px-4 py-3 font-medium">Facility / Client</th>
+                <th className="text-left px-4 py-3 font-medium">Status</th>
+                <th className="text-left px-4 py-3 font-medium">Urgency</th>
+                <th className="text-left px-4 py-3 font-medium">Score</th>
+                <th className="text-left px-4 py-3 font-medium">Deficiencies</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {filtered.length === 0 && <EmptyState text="No regulatory cases found" icon={FilePlus} />}
-      </div>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {filtered.map((c) => (
+                <tr key={c.id} className="hover:bg-secondary/30 cursor-pointer" onClick={() => window.location.href = `/command-center/cases/${c.id}`}>
+                  <td className="px-4 py-3"><Link to={`/command-center/cases/${c.id}`} className="font-medium text-foreground hover:text-primary" onClick={e => e.stopPropagation()}>{c.case_name}</Link></td>
+                  <td className="px-4 py-3 text-muted-foreground">{c.facility_name}<br/><span className="text-xs">{c.client_name}</span></td>
+                  <td className="px-4 py-3"><Badge tone="default">{c.case_status}</Badge></td>
+                  <td className="px-4 py-3"><Badge tone={c.regulatory_urgency === "Critical" ? "red" : c.regulatory_urgency === "Severe" ? "amber" : "default"}>{c.regulatory_urgency}</Badge></td>
+                  <td className="px-4 py-3 font-bold">{c.regulatory_urgency_score ?? "—"}</td>
+                  <td className="px-4 py-3">{c.total_deficiencies ?? "—"} ({c.high_priority_deficiencies ?? 0} high)</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {filtered.length === 0 && <EmptyState text="No regulatory cases found" icon={FilePlus} />}
+        </div>
+      </PullToRefresh>
     </div>
   );
 }

@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { useTestData } from "@/lib/TestDataContext";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import CommandCenterMobileNav from "@/components/cc/CommandCenterMobileNav";
 
 const NAV = [
   { label: "Dashboard", path: "/command-center", icon: LayoutDashboard, roles: ["admin", "business_development", "clinical", "finance", "read_only"] },
@@ -119,7 +120,7 @@ export default function CommandCenterLayout() {
             <Link to="/" className="text-sm text-muted-foreground hover:text-primary hidden sm:inline">View public site →</Link>
           </div>
         </header>
-        <main id="cc-main-content" className="flex-1 p-5 lg:p-8 overflow-x-hidden">
+        <main id="cc-main-content" className="flex-1 p-5 lg:p-8 overflow-x-hidden pb-20 md:pb-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -133,6 +134,7 @@ export default function CommandCenterLayout() {
           </AnimatePresence>
         </main>
       </div>
+      <CommandCenterMobileNav role={role} />
     </div>
   );
 }

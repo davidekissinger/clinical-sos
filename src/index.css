@@ -145,6 +145,14 @@
   .cc-input::placeholder { color: hsl(var(--muted-foreground)); opacity: 0.7; }
   .cc-input:focus { border-color: hsl(var(--primary)); box-shadow: 0 0 0 3px hsl(var(--accent)); }
   .cc-input:disabled { opacity: 0.5; cursor: not-allowed; }
+  /* Responsive table — collapses to vertical cards on mobile */
+  @media (max-width: 767px) {
+    .cc-responsive-table { display: block; width: 100% !important; }
+    .cc-responsive-table thead { display: none; }
+    .cc-responsive-table tbody { display: block; }
+    .cc-responsive-table tr { display: block; border: 1px solid hsl(var(--border)); border-radius: 0.5rem; margin: 0.5rem 0; padding: 0.75rem; }
+    .cc-responsive-table td { display: block; padding: 0.25rem 0; border: none; }
+  }
   .safe-area-top { padding-top: env(safe-area-inset-top); }
   .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
   /* Disable text selection for interactive and structural elements (iOS gesture compliance) */
