@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle2, ShieldAlert, Calendar } from "lucide-react";
 import { PageHero } from "@/components/PageCta";
 import { base44 } from "@/api/base44Client";
 import { SERVICES } from "@/lib/siteContent";
+import MobileSelect from "@/components/MobileSelect";
 
 const URGENCY_OPTIONS = [
   "General inquiry",
@@ -108,12 +109,13 @@ export default function Contact() {
               </div>
 
               <Field label="Service needed">
-                <select value={form.service_needed} onChange={(e) => set("service_needed", e.target.value)} className="cs-input">
-                  <option value="">Select a service…</option>
-                  {SERVICES.map((s) => <option key={s.slug} value={s.title}>{s.title}</option>)}
-                  <option value="Rapid Survey Recovery">Rapid Survey Recovery</option>
-                  <option value="Not sure yet">Not sure yet</option>
-                </select>
+                <MobileSelect
+                  value={form.service_needed}
+                  onChange={(v) => set("service_needed", v)}
+                  options={[{ value: "", label: "Select a service…" }, ...SERVICES.map((s) => ({ value: s.title, label: s.title })), { value: "Rapid Survey Recovery", label: "Rapid Survey Recovery" }, { value: "Not sure yet", label: "Not sure yet" }]}
+                  className="cs-input"
+                  ariaLabel="Service needed"
+                />
               </Field>
 
               <Field label="Current challenge">
@@ -122,14 +124,22 @@ export default function Contact() {
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <Field label="Urgency level *">
-                  <select required value={form.urgency_level} onChange={(e) => set("urgency_level", e.target.value)} className="cs-input">
-                    {URGENCY_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
-                  </select>
+                  <MobileSelect
+                    value={form.urgency_level}
+                    onChange={(v) => set("urgency_level", v)}
+                    options={URGENCY_OPTIONS}
+                    className="cs-input"
+                    ariaLabel="Urgency level"
+                  />
                 </Field>
                 <Field label="Preferred contact method">
-                  <select value={form.preferred_contact_method} onChange={(e) => set("preferred_contact_method", e.target.value)} className="cs-input">
-                    {["Email", "Phone", "Video call"].map((m) => <option key={m} value={m}>{m}</option>)}
-                  </select>
+                  <MobileSelect
+                    value={form.preferred_contact_method}
+                    onChange={(v) => set("preferred_contact_method", v)}
+                    options={["Email", "Phone", "Video call"]}
+                    className="cs-input"
+                    ariaLabel="Preferred contact method"
+                  />
                 </Field>
               </div>
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Badge } from "@/components/cc/ui";
 import { Save, FileText, AlertTriangle, Plus, CheckCircle, Send, ClipboardCheck, UserCheck, ArrowRightCircle, RotateCcw } from "lucide-react";
+import MobileSelect from "@/components/MobileSelect";
 
 const POC_STATUS_FLOW = {
   "AI Draft": ["submit_for_clinical_review"],
@@ -193,9 +194,13 @@ export default function POCBuilder({ deficiency, onSaved }) {
 
       {/* Version selector + status */}
       <div className="flex items-center gap-3 flex-wrap">
-        <select value={activePoc?.id || ""} onChange={e => setActivePoc(pocs.find(p => p.id === e.target.value))} aria-label="Select POC version" className="border border-border rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-card text-foreground">
-          {pocs.map(p => <option key={p.id} value={p.id}>Version {p.version} — {p.status}</option>)}
-        </select>
+        <MobileSelect
+          value={activePoc?.id || ""}
+          onChange={(v) => setActivePoc(pocs.find(p => p.id === v))}
+          options={pocs.map(p => ({ value: p.id, label: `Version ${p.version} — ${p.status}` }))}
+          className="border border-border rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-card text-foreground"
+          ariaLabel="Select POC version"
+        />
         <Badge tone={activePoc?.status === "Accepted" ? "green" : activePoc?.status === "Submitted" ? "blue" : activePoc?.status === "Approved for Use" ? "green" : activePoc?.status === "Superseded" ? "default" : "amber"}>{activePoc?.status}</Badge>
         <button onClick={createNewVersion} disabled={saving} className="btn-ghost text-sm"><Plus className="h-4 w-4" /> New Version</button>
       </div>

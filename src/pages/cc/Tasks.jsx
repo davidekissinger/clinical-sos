@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { PageHeader, Badge, LoadingState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
+import MobileSelect from "@/components/MobileSelect";
 
 const COLUMNS = [
   { key: "Not Started", tone: "default" },
@@ -48,14 +49,14 @@ export default function Tasks() {
                       </p>
                     )}
                     {col.key !== "Complete" && (
-                      <select
+                      <MobileSelect
                         value={t.status}
                         disabled={updating === t.id}
-                        onChange={(e) => move(t, e.target.value)}
+                        onChange={(v) => move(t, v)}
+                        options={COLUMNS.map((c) => ({ value: c.key, label: c.key }))}
                         className="mt-2 w-full text-xs border border-border rounded-md px-2 py-1 bg-white dark:bg-card text-foreground"
-                      >
-                        {COLUMNS.map((c) => <option key={c.key} value={c.key}>{c.key}</option>)}
-                      </select>
+                        ariaLabel={`Change status for task`}
+                      />
                     )}
                   </div>
                 ))}

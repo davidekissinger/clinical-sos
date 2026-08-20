@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import AccountStatusBanner from "@/components/portal/AccountStatusBanner";
 import ClientPortalErrorBoundary from "@/components/portal/ClientPortalErrorBoundary";
 import MobileBottomNav from "@/components/portal/MobileBottomNav";
+import { motion, AnimatePresence } from "framer-motion";
 
 const NAV = [
   { label: "Home", path: "/client", icon: Home },
@@ -98,7 +99,17 @@ export default function ClientPortalLayout() {
         <AccountStatusBanner />
         <main id="client-main-content" className="flex-1 p-5 lg:p-8 overflow-x-hidden pb-20 md:pb-8">
           <ClientPortalErrorBoundary>
-            <Outlet context={outletContext} />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -30 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Outlet context={outletContext} />
+              </motion.div>
+            </AnimatePresence>
           </ClientPortalErrorBoundary>
         </main>
       </div>

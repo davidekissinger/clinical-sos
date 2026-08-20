@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Save, X } from "lucide-react";
+import MobileSelect from "@/components/MobileSelect";
 
 const EVIDENCE_TYPES = [
   "Corrected Resident-Specific Documentation", "Policy Revision", "Care-Plan Revision", "Physician Orders",
@@ -56,18 +57,26 @@ export default function EvidenceItemForm({ deficiency, onSaved, onCancel }) {
 
       <div className="grid sm:grid-cols-2 gap-3">
         <L label="Evidence Type">
-          <select value={form.evidence_type} onChange={e => set("evidence_type", e.target.value)} className="cc-input">
-            {EVIDENCE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-          </select>
+          <MobileSelect
+            value={form.evidence_type}
+            onChange={(v) => set("evidence_type", v)}
+            options={EVIDENCE_TYPES}
+            className="cc-input"
+            ariaLabel="Evidence type"
+          />
         </L>
         <L label="Date"><input type="date" value={form.date} onChange={e => set("date", e.target.value)} className="cc-input" /></L>
         <L label="Responsible Person"><input value={form.responsible_person} onChange={e => set("responsible_person", e.target.value)} className="cc-input" /></L>
         <L label="Source"><input value={form.source} onChange={e => set("source", e.target.value)} className="cc-input" /></L>
         <L label="Document Link (if available)"><input value={form.uploaded_document_url} onChange={e => set("uploaded_document_url", e.target.value)} className="cc-input" /></L>
         <L label="Review Status">
-          <select value={form.review_status} onChange={e => set("review_status", e.target.value)} className="cc-input">
-            {REVIEW_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
+          <MobileSelect
+            value={form.review_status}
+            onChange={(v) => set("review_status", v)}
+            options={REVIEW_STATUSES}
+            className="cc-input"
+            ariaLabel="Review status"
+          />
         </L>
         <L label="Reviewer"><input value={form.reviewer} onChange={e => set("reviewer", e.target.value)} className="cc-input" /></L>
       </div>

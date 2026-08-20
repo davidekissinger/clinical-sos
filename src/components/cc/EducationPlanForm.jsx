@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Save, X } from "lucide-react";
+import MobileSelect from "@/components/MobileSelect";
 
 export default function EducationPlanForm({ deficiency, onSaved, onCancel }) {
   const [form, setForm] = useState({
@@ -48,9 +49,13 @@ export default function EducationPlanForm({ deficiency, onSaved, onCancel }) {
       <div className="grid sm:grid-cols-2 gap-3">
         <L label="Departments / Staff"><input value={form.department_assignments} onChange={e => set("department_assignments", e.target.value)} className="cc-input" /></L>
         <L label="Education Status">
-          <select value={form.education_status} onChange={e => set("education_status", e.target.value)} className="cc-input">
-            {["Assigned", "Scheduled", "Completed", "Competency Pending", "Competency Completed", "Remediation Required"].map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
+          <MobileSelect
+            value={form.education_status}
+            onChange={(v) => set("education_status", v)}
+            options={["Assigned", "Scheduled", "Completed", "Competency Pending", "Competency Completed", "Remediation Required"]}
+            className="cc-input"
+            ariaLabel="Education status"
+          />
         </L>
       </div>
       <L label="Competency Requirements"><textarea value={form.competency_requirements} onChange={e => set("competency_requirements", e.target.value)} rows={2} className="cc-input" /></L>

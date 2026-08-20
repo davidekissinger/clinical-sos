@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Briefcase, ClipboardList, ClipboardCheck, FolderCheck, ListChecks, AlertTriangle } from "lucide-react";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function ClientDashboard() {
   const outletContext = useOutletContext();
@@ -10,16 +11,15 @@ export default function ClientDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const res = await base44.functions.invoke("getClientPortalData", { resource: "dashboard" });
-        setData(res.data || res);
-      } catch (e) { console.error(e); }
-      finally { setLoading(false); }
-    }
-    loadData();
-  }, []);
+  const loadData = async () => {
+    try {
+      const res = await base44.functions.invoke("getClientPortalData", { resource: "dashboard" });
+      setData(res.data || res);
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { loadData(); }, []);
 
   if (loading) return <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-4 border-accent border-t-primary rounded-full animate-spin" /></div>;
 
@@ -35,6 +35,7 @@ export default function ClientDashboard() {
   ];
 
   return (
+    <PullToRefresh onRefresh={loadData}>
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground">Welcome, {entitlement?.account_name || "Client"}</h1>
@@ -77,5 +78,6 @@ export default function ClientDashboard() {
         </div>
       )}
     </div>
+    </PullToRefresh>
   );
 }

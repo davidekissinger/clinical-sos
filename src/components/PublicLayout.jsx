@@ -4,6 +4,7 @@ import { Menu, X, Phone, ArrowRight } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import { NAV_LINKS } from "@/lib/siteContent";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function PublicLayout() {
   const [open, setOpen] = useState(false);
@@ -64,7 +65,17 @@ export default function PublicLayout() {
       </header>
 
       <main id="main-content" className="flex-1">
-        <Outlet />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -30 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Outlet />
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       <footer className="bg-[hsl(263_65%_14%)] text-slate-300">

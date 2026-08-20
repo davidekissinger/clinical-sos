@@ -9,6 +9,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/lib/AuthContext";
 import { useTestData } from "@/lib/TestDataContext";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 const NAV = [
   { label: "Dashboard", path: "/command-center", icon: LayoutDashboard, roles: ["admin", "business_development", "clinical", "finance", "read_only"] },
@@ -96,7 +97,7 @@ export default function CommandCenterLayout() {
 
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-white dark:bg-card border-b border-border flex items-center justify-between px-5 lg:px-8 sticky top-0 z-20">
+        <header className="h-16 bg-white dark:bg-card border-b border-border flex items-center justify-between px-5 lg:px-8 sticky top-0 z-20 safe-area-top">
           <div className="flex items-center gap-3">
             <button className="lg:hidden text-foreground" onClick={() => setOpen(true)}><Menu className="h-5 w-5" /></button>
             <div>
@@ -119,7 +120,17 @@ export default function CommandCenterLayout() {
           </div>
         </header>
         <main id="cc-main-content" className="flex-1 p-5 lg:p-8 overflow-x-hidden">
-          <Outlet />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -30 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </div>

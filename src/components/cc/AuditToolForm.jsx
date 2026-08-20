@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Save, X } from "lucide-react";
+import MobileSelect from "@/components/MobileSelect";
 
 export default function AuditToolForm({ deficiency, onSaved, onCancel }) {
   const [form, setForm] = useState({
@@ -96,12 +97,13 @@ export default function AuditToolForm({ deficiency, onSaved, onCancel }) {
                 <button onClick={() => removeChecklistItem(i)} aria-label={`Remove audit item ${i + 1}`} className="text-rose-500 hover:text-rose-700 mt-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg"><X className="h-4 w-4" /></button>
               </div>
               <div className="grid sm:grid-cols-3 gap-2">
-                <select value={item.response} onChange={e => updateChecklistItem(i, "response", e.target.value)}
-                  aria-label={`Audit item ${i + 1} response`} className="cc-input">
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                  <option value="N/A">N/A</option>
-                </select>
+                <MobileSelect
+                  value={item.response}
+                  onChange={(v) => updateChecklistItem(i, "response", v)}
+                  options={[{ value: "Yes", label: "Yes" }, { value: "No", label: "No" }, { value: "N/A", label: "N/A" }]}
+                  className="cc-input"
+                  ariaLabel={`Audit item ${i + 1} response`}
+                />
                 <input value={item.responsible_person} onChange={e => updateChecklistItem(i, "responsible_person", e.target.value)}
                   aria-label={`Audit item ${i + 1} responsible person`}
                   placeholder="Responsible person" className="cc-input" />

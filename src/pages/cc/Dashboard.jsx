@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Target, Briefcase, Activity, ListChecks, FileText, ShieldCheck, AlertTriangle, TrendingUp, DollarSign } from "lucide-react";
 import { PageHeader, StatCard, Badge, EmptyState, LoadingState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function Dashboard() {
   const leads = useEntities("Lead", { sort: "-created_date", limit: 100, excludeTestData: true });
@@ -36,6 +37,9 @@ export default function Dashboard() {
   if (loading) return <LoadingState />;
 
   return (
+    <PullToRefresh onRefresh={async () => {
+      leads.reload(); opportunities.reload(); signals.reload(); tasks.reload(); proposals.reload(); engagements.reload();
+    }}>
     <div>
       <PageHeader title="Executive Dashboard" subtitle="Pipeline, regulatory intelligence, and operations at a glance" />
 
@@ -88,6 +92,7 @@ export default function Dashboard() {
         </Panel>
       </div>
     </div>
+    </PullToRefresh>
   );
 }
 
