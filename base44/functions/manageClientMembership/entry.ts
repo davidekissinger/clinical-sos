@@ -27,16 +27,14 @@ export default async function(req) {
         return Response.json({ error: 'Client Account must be linked to an Organization before tenant resources can be assigned.' }, { status: 400 });
       }
 
+      // Resolve the canonical User record to persist verified name and email
+      const clientUser = await base44.asServiceRole.entities.User.get(client_user_id);
+      if (!clientUser) return Response.json({ error: 'Client user not found' }, { status: 404 });
+
       const validatedFacilityIds = await validateFacilityIds(base44, authorized_facility_ids || [], account);
       const validatedEngagementIds = await validateEngagementIds(base44, authorized_engagement_ids || [], account);
 
-      const newMembership = {
-        client_user_id, client_account_id,
-        organization_id: account.organization_id,
-        organization_name: account.organization_name,
-        authorized_facility_ids: validatedFacilityIds,
-        authorized_engagement_ids: validatedEngagementIds,
-        membership_status: 'Invited', invited_date: new Date().toISOString(),
+      const capabilitiesPayload = {
         can_login: capabilities?.can_login ?? true,
         can_view_engagement: capabilities?.can_view_engagement ?? true,
         can_view_documents: capabilities?.can_view_documents ?? true,
@@ -53,11 +51,75 @@ export default async function(req) {
         can_message_consultant: capabilities?.can_message_consultant ?? true
       };
 
+      const nameAndEmail = {
+        client_user_name: clientUser.full_name || clientUser.email,
+        client_user_email: clientUser.email
+      };
+
+      // V1 INVARIANT: Check for another Active membership BEFORE activating
+      const allUserMemberships = await base44.asServiceRole.entities.ClientMembership.filter({ client_user_id });
+      const otherActive = (allUserMemberships || []).filter(m => m.membership_status === "Active" && m.client_account_id !== client_account_id);
+      if (otherActive.length > 0) {
+        return Response.json({
+          error: 'V1 Client Portal supports one active Client Membership per user. Suspend, revoke, or expire the existing membership before activating another.'
+        }, { status: 409 });
+      }
+
+      // Idempotent reconciliation: check for an existing non-revoked membership for this user+account
+      const existingForAccount = (allUserMemberships || []).filter(m => m.client_account_id === client_account_id && m.membership_status !== "Revoked" && m.membership_status !== "Expired");
+      const existingMembership = existingForAccount[0];
+
+      if (existingMembership) {
+        const wasActive = existingMembership.membership_status === "Active";
+        const updatePayload = {
+          ...nameAndEmail,
+          organization_id: account.organization_id,
+          organization_name: account.organization_name,
+          authorized_facility_ids: validatedFacilityIds,
+          authorized_engagement_ids: validatedEngagementIds,
+          ...capabilitiesPayload,
+          membership_status: 'Active',
+          activated_date: wasActive ? (existingMembership.activated_date || new Date().toISOString()) : new Date().toISOString()
+        };
+
+        membership = await base44.asServiceRole.entities.ClientMembership.update(existingMembership.id, updatePayload);
+
+        // Sync user role to client only if not already active (avoid redundant sync)
+        if (!wasActive) {
+          const effective = calculateEffectiveClientAccessStatus(account);
+          await syncClientUserAuthorization(base44, membership, effective.effective_access_status, 'Active');
+        }
+
+        await auditAccessChange(base44, {
+          client_account_id, previous_access_state: existingMembership.membership_status, new_access_state: 'Active',
+          reason: reason || 'Membership reconciled and activated via create', triggering_source: 'manageClientMembership:create',
+          acting_user_id: user.id, acting_user_name: user.full_name || user.email
+        });
+
+        return Response.json({ success: true, membership_id: membership.id, action: 'create', reconciled: true });
+      }
+
+      // No existing membership — create and activate in one step
+      const newMembership = {
+        client_user_id, client_account_id,
+        ...nameAndEmail,
+        organization_id: account.organization_id,
+        organization_name: account.organization_name,
+        authorized_facility_ids: validatedFacilityIds,
+        authorized_engagement_ids: validatedEngagementIds,
+        membership_status: 'Active', invited_date: new Date().toISOString(), activated_date: new Date().toISOString(),
+        ...capabilitiesPayload
+      };
+
       membership = await base44.asServiceRole.entities.ClientMembership.create(newMembership);
 
+      // Sync user role to client
+      const effective = calculateEffectiveClientAccessStatus(account);
+      await syncClientUserAuthorization(base44, membership, effective.effective_access_status, 'Active');
+
       await auditAccessChange(base44, {
-        client_account_id, previous_access_state: 'None', new_access_state: 'Invited',
-        reason: reason || 'Membership created', triggering_source: 'manageClientMembership:create',
+        client_account_id, previous_access_state: 'None', new_access_state: 'Active',
+        reason: reason || 'Membership created and activated', triggering_source: 'manageClientMembership:create',
         acting_user_id: user.id, acting_user_name: user.full_name || user.email
       });
 
