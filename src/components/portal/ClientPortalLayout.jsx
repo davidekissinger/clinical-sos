@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Outlet, Link, useLocation, useNavigate, useOutletContext } from "react-router-dom";
-import { Menu, X, LogOut, Home, Briefcase, ClipboardList, FileText, FolderCheck, ClipboardCheck, ListChecks, ShieldCheck, FolderOpen, UserCircle } from "lucide-react";
+import { Menu, X, LogOut, Home, Briefcase, ClipboardList, FileText, FolderCheck, ClipboardCheck, ListChecks, ShieldCheck, FolderOpen, UserCircle, CreditCard } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/lib/AuthContext";
@@ -22,6 +22,7 @@ const NAV = [
   { label: "Revisit Readiness", path: "/client/readiness", icon: ShieldCheck },
   { label: "Documents", path: "/client/documents", icon: FolderOpen },
   { label: "Account", path: "/client/account", icon: UserCircle },
+  { label: "Subscription", path: "/client/subscription", icon: CreditCard },
 ];
 
 export default function ClientPortalLayout() {

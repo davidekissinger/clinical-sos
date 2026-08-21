@@ -56,6 +56,7 @@ const DeficiencyDetail = lazy(() => import('@/pages/cc/DeficiencyDetail'));
 const Knowledge = lazy(() => import('@/pages/cc/Knowledge'));
 const ClientAccounts = lazy(() => import('@/pages/cc/ClientAccounts'));
 const UserIdentityManagement = lazy(() => import('@/pages/cc/UserIdentityManagement'));
+const SubscriptionTiers = lazy(() => import('@/pages/cc/SubscriptionTiers'));
 
 // Lazy-loaded client portal pages
 const ClientDashboard = lazy(() => import('@/pages/portal/Dashboard'));
@@ -70,6 +71,7 @@ const ClientTasks = lazy(() => import('@/pages/portal/Tasks'));
 const ClientReadiness = lazy(() => import('@/pages/portal/Readiness'));
 const ClientDocuments = lazy(() => import('@/pages/portal/Documents'));
 const ClientAccount = lazy(() => import('@/pages/portal/Account'));
+const ClientSubscription = lazy(() => import('@/pages/portal/Subscription'));
 const ClientCaseDetail = lazy(() => import('@/pages/portal/CaseDetail'));
 const ClientDeficiencyDetail = lazy(() => import('@/pages/portal/DeficiencyDetail'));
 const AccessPending = lazy(() => import('@/pages/AccessPending'));
@@ -153,6 +155,7 @@ const AuthenticatedApp = () => {
             <Route path="/client/readiness" element={<ClientReadiness />} />
             <Route path="/client/documents" element={<ClientDocuments />} />
             <Route path="/client/account" element={<ClientAccount />} />
+            <Route path="/client/subscription" element={<ClientSubscription />} />
           </Route>
         </Route>
       </Route>
@@ -188,6 +191,7 @@ const AuthenticatedApp = () => {
               <Route path="/command-center/launch-readiness" element={<LaunchReadiness />} />
               <Route path="/command-center/identity-management" element={<UserIdentityManagement />} />
               <Route path="/command-center/client-accounts" element={<ClientAccounts />} />
+              <Route path="/command-center/subscription-tiers" element={<SubscriptionTiers />} />
               <Route path="/command-center/settings" element={<Settings />} />
             </Route>
           </Route>

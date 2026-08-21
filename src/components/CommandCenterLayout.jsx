@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Users, Building2, UserCircle, Target, ListChecks,
-  Settings, LogOut, Menu, X, FileText, ShieldCheck, Activity, Briefcase, Bot, Send, Rocket, Stethoscope, BookOpen, ClipboardList, UserCheck
+  Settings, LogOut, Menu, X, FileText, ShieldCheck, Activity, Briefcase, Bot, Send, Rocket, Stethoscope, BookOpen, ClipboardList, UserCheck, CreditCard
 } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -25,6 +25,7 @@ const NAV = [
   { label: "Proposals", path: "/command-center/proposals", icon: FileText, roles: ["admin", "business_development", "finance"] },
   { label: "Engagements", path: "/command-center/engagements", icon: ShieldCheck, roles: ["admin", "clinical", "finance", "read_only"] },
   { label: "Client Accounts", path: "/command-center/client-accounts", icon: Users, roles: ["admin"] },
+  { label: "Subscription Tiers", path: "/command-center/subscription-tiers", icon: CreditCard, roles: ["admin"] },
   { label: "Recovery Studio", path: "/command-center/recovery", icon: Stethoscope, roles: ["admin", "clinical", "read_only"] },
   { label: "Regulatory Cases", path: "/command-center/cases", icon: ClipboardList, roles: ["admin", "clinical", "read_only"] },
   { label: "Knowledge Library", path: "/command-center/knowledge", icon: BookOpen, roles: ["admin", "clinical", "read_only"] },

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { AlertTriangle, CheckCircle2, Trash2, AlertCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Trash2, AlertCircle, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import AccessibleDialog from "@/components/AccessibleDialog";
 
@@ -63,6 +64,21 @@ export default function ClientAccount() {
         <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl p-6 mb-6" role="alert">
           <h2 className="text-lg font-semibold text-rose-800 dark:text-rose-300">Portal Access Unavailable</h2>
           <p className="mt-2 text-sm text-rose-700 dark:text-rose-400">{entitlement?.portal_message || "Portal access is no longer available. Please contact Clinical SOS if you have questions."}</p>
+        </div>
+      )}
+
+      {entitlement?.subscription_status && entitlement.subscription_status !== "Not Applicable" && (
+        <div className="bg-white dark:bg-card rounded-xl border border-border p-6 mb-4">
+          <h2 className="font-semibold text-foreground mb-3">Subscription</h2>
+          <dl className="grid sm:grid-cols-2 gap-4">
+            <div><dt className="text-xs font-medium text-muted-foreground">Plan</dt><dd className="text-sm text-foreground mt-1">{entitlement.subscription_plan || "—"}</dd></div>
+            <div><dt className="text-xs font-medium text-muted-foreground">Status</dt><dd className="text-sm text-foreground mt-1">{entitlement.subscription_status}</dd></div>
+            {entitlement.subscription_renewal_date && <div><dt className="text-xs font-medium text-muted-foreground">Renewal Date</dt><dd className="text-sm text-foreground mt-1">{new Date(entitlement.subscription_renewal_date).toLocaleDateString()}</dd></div>}
+            {entitlement.subscription_end_date && <div><dt className="text-xs font-medium text-muted-foreground">End Date</dt><dd className="text-sm text-foreground mt-1">{new Date(entitlement.subscription_end_date).toLocaleDateString()}</dd></div>}
+          </dl>
+          <Link to="/client/subscription" className="inline-flex items-center gap-2 mt-4 text-sm font-medium text-primary hover:underline">
+            View Plans <ChevronRight className="h-4 w-4" />
+          </Link>
         </div>
       )}
 
