@@ -34,6 +34,7 @@ const ResourceDetail = lazy(() => import('@/pages/ResourceDetail'));
 const FAQ = lazy(() => import('@/pages/FAQ'));
 const Contact = lazy(() => import('@/pages/Contact'));
 const Accessibility = lazy(() => import('@/pages/Accessibility'));
+const VendorEvaluation = lazy(() => import('@/pages/VendorEvaluation'));
 
 // Lazy-loaded command center pages
 const Dashboard = lazy(() => import('@/pages/cc/Dashboard'));
@@ -57,6 +58,11 @@ const Knowledge = lazy(() => import('@/pages/cc/Knowledge'));
 const ClientAccounts = lazy(() => import('@/pages/cc/ClientAccounts'));
 const UserIdentityManagement = lazy(() => import('@/pages/cc/UserIdentityManagement'));
 const SubscriptionTiers = lazy(() => import('@/pages/cc/SubscriptionTiers'));
+const VendorDashboard = lazy(() => import('@/pages/cc/VendorDashboard'));
+const Vendors = lazy(() => import('@/pages/cc/Vendors'));
+const VendorDetail = lazy(() => import('@/pages/cc/VendorDetail'));
+const VendorEvaluations = lazy(() => import('@/pages/cc/VendorEvaluations'));
+const VendorEvaluationDetail = lazy(() => import('@/pages/cc/VendorEvaluationDetail'));
 
 // Lazy-loaded client portal pages
 const ClientDashboard = lazy(() => import('@/pages/portal/Dashboard'));
@@ -129,6 +135,7 @@ const AuthenticatedApp = () => {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/accessibility" element={<Accessibility />} />
+        <Route path="/vendor-evaluation" element={<VendorEvaluation />} />
       </Route>
 
       {/* Access pending — for users with no role assignment */}
@@ -169,12 +176,15 @@ const AuthenticatedApp = () => {
             <Route path="/command-center/facilities" element={<Facilities />} />
             <Route path="/command-center/tasks" element={<Tasks />} />
             <Route path="/command-center/engagements" element={<Engagements />} />
+            <Route path="/command-center/vendor-dashboard" element={<VendorDashboard />} />
 
             <Route element={<RoleProtectedRoute roles={['admin', 'business_development', 'clinical']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
               <Route path="/command-center/leads" element={<Leads />} />
               <Route path="/command-center/contacts" element={<Contacts />} />
               <Route path="/command-center/outreach" element={<Outreach />} />
               <Route path="/command-center/agents" element={<Agents />} />
+              <Route path="/command-center/vendors" element={<Vendors />} />
+              <Route path="/command-center/vendors/:id" element={<VendorDetail />} />
             </Route>
             <Route element={<RoleProtectedRoute roles={['admin', 'clinical', 'read_only']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
               <Route path="/command-center/signals" element={<Signals />} />
@@ -183,6 +193,8 @@ const AuthenticatedApp = () => {
               <Route path="/command-center/cases/:id" element={<CaseDetail />} />
               <Route path="/command-center/deficiencies/:id" element={<DeficiencyDetail />} />
               <Route path="/command-center/knowledge" element={<Knowledge />} />
+              <Route path="/command-center/vendor-evaluations" element={<VendorEvaluations />} />
+              <Route path="/command-center/vendor-evaluations/:id" element={<VendorEvaluationDetail />} />
             </Route>
             <Route element={<RoleProtectedRoute roles={['admin', 'business_development', 'finance']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
               <Route path="/command-center/proposals" element={<Proposals />} />

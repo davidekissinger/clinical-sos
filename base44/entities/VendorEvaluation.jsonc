@@ -1,0 +1,296 @@
+{
+  "name": "VendorEvaluation",
+  "type": "object",
+  "properties": {
+    "evaluation_name": {
+      "type": "string"
+    },
+    "vendor_id": {
+      "type": "string"
+    },
+    "vendor_name": {
+      "type": "string"
+    },
+    "vendor_relationship_id": {
+      "type": "string"
+    },
+    "vendor_relationship_name": {
+      "type": "string"
+    },
+    "client_account_id": {
+      "type": "string"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "facility_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "facility_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "engagement_id": {
+      "type": "string"
+    },
+    "engagement_name": {
+      "type": "string"
+    },
+    "regulatory_case_id": {
+      "type": "string"
+    },
+    "regulatory_case_name": {
+      "type": "string"
+    },
+    "deficiency_id": {
+      "type": "string"
+    },
+    "deficiency_name": {
+      "type": "string"
+    },
+    "evaluation_type": {
+      "type": "string",
+      "enum": [
+        "Pre-Contract Vendor Due Diligence",
+        "Competitive Vendor Comparison",
+        "New-Vendor Implementation Readiness",
+        "Existing-Vendor Performance Review",
+        "Contract-Renewal Evaluation",
+        "Service-Level Agreement Review",
+        "Corrective-Action Evaluation",
+        "Incident-Triggered Vendor Review",
+        "Regulatory-Case-Related Vendor Review",
+        "Routine Annual Vendor Evaluation",
+        "Organization-Wide Vendor Portfolio Review"
+      ]
+    },
+    "evaluation_scope": {
+      "type": "string"
+    },
+    "evaluation_period_start": {
+      "type": "string",
+      "format": "date"
+    },
+    "evaluation_period_end": {
+      "type": "string",
+      "format": "date"
+    },
+    "evaluation_owner_id": {
+      "type": "string"
+    },
+    "evaluation_owner_name": {
+      "type": "string"
+    },
+    "clinical_reviewer": {
+      "type": "string"
+    },
+    "operational_reviewer": {
+      "type": "string"
+    },
+    "compliance_reviewer": {
+      "type": "string"
+    },
+    "evaluation_status": {
+      "type": "string",
+      "enum": [
+        "Intake",
+        "Scope Definition",
+        "Evidence Requested",
+        "Evidence Collection",
+        "Under Evaluation",
+        "Additional Information Required",
+        "Clinical Review",
+        "Operational Review",
+        "Compliance Review",
+        "Client Review",
+        "Improvement Plan",
+        "Monitoring",
+        "Final Review",
+        "Final",
+        "Closed",
+        "On Hold"
+      ],
+      "default": "Intake"
+    },
+    "evidence_completeness_status": {
+      "type": "string",
+      "enum": [
+        "Complete",
+        "Substantially Complete",
+        "Partially Complete",
+        "Insufficient",
+        "Not Started"
+      ],
+      "default": "Not Started"
+    },
+    "overall_score": {
+      "type": "number",
+      "title": "Overall Vendor Performance Score (0-100)"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Moderate",
+        "High",
+        "Critical",
+        "Unknown / Insufficient Evidence"
+      ],
+      "default": "Unknown / Insufficient Evidence"
+    },
+    "recommendation": {
+      "type": "string",
+      "enum": [
+        "Recommended",
+        "Recommended With Conditions",
+        "Continue With Monitoring",
+        "Performance Improvement Required",
+        "Renewal Review Required",
+        "Replacement Should Be Considered",
+        "Not Recommended",
+        "Insufficient Evidence",
+        "No Final Recommendation"
+      ],
+      "default": "No Final Recommendation"
+    },
+    "recommendation_rationale": {
+      "type": "string"
+    },
+    "conditions_or_required_improvements": {
+      "type": "string"
+    },
+    "follow_up_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "re_evaluation_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "executive_approval_status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Pending Approval",
+        "Approved",
+        "Rejected"
+      ],
+      "default": "Draft"
+    },
+    "client_review_status": {
+      "type": "string",
+      "enum": [
+        "Pending",
+        "Acknowledged",
+        "Revision Requested",
+        "Client Approved"
+      ],
+      "default": "Pending"
+    },
+    "last_reviewed": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finalized_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0"
+    },
+    "client_visibility": {
+      "type": "boolean",
+      "default": false,
+      "title": "Client Visible"
+    },
+    "is_test_data": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "evaluation_name",
+    "evaluation_type",
+    "evaluation_status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "business_development"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "finance"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "read_only"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "business_development"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "business_development"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Users, Building2, UserCircle, Target, ListChecks,
-  Settings, LogOut, Menu, X, FileText, ShieldCheck, Activity, Briefcase, Bot, Send, Rocket, Stethoscope, BookOpen, ClipboardList, UserCheck, CreditCard
+  Settings, LogOut, Menu, X, FileText, ShieldCheck, Activity, Briefcase, Bot, Send, Rocket, Stethoscope, BookOpen, ClipboardList, UserCheck, CreditCard, TrendingUp
 } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -18,17 +18,20 @@ const NAV = [
   { label: "Pipeline", path: "/command-center/pipeline", icon: Briefcase, roles: ["admin", "business_development", "clinical", "finance", "read_only"] },
   { label: "Facilities", path: "/command-center/facilities", icon: Building2, roles: ["admin", "business_development", "clinical", "read_only"] },
   { label: "Contacts", path: "/command-center/contacts", icon: UserCircle, roles: ["admin", "business_development", "clinical"] },
+  { label: "Vendors", path: "/command-center/vendors", icon: Building2, roles: ["admin", "business_development", "clinical"] },
   { label: "Tasks", path: "/command-center/tasks", icon: ListChecks, roles: ["admin", "business_development", "clinical", "finance"] },
   { label: "Regulatory Signals", path: "/command-center/signals", icon: Activity, roles: ["admin", "clinical", "read_only"] },
   { label: "AI Agents", path: "/command-center/agents", icon: Bot, roles: ["admin", "clinical", "business_development"] },
   { label: "Outreach", path: "/command-center/outreach", icon: Send, roles: ["admin", "business_development", "clinical"] },
   { label: "Proposals", path: "/command-center/proposals", icon: FileText, roles: ["admin", "business_development", "finance"] },
   { label: "Engagements", path: "/command-center/engagements", icon: ShieldCheck, roles: ["admin", "clinical", "finance", "read_only"] },
+  { label: "Vendor Dashboard", path: "/command-center/vendor-dashboard", icon: TrendingUp, roles: ["admin", "business_development", "clinical", "finance", "read_only"] },
   { label: "Client Accounts", path: "/command-center/client-accounts", icon: Users, roles: ["admin"] },
   { label: "Subscription Tiers", path: "/command-center/subscription-tiers", icon: CreditCard, roles: ["admin"] },
   { label: "Recovery Studio", path: "/command-center/recovery", icon: Stethoscope, roles: ["admin", "clinical", "read_only"] },
   { label: "Regulatory Cases", path: "/command-center/cases", icon: ClipboardList, roles: ["admin", "clinical", "read_only"] },
   { label: "Knowledge Library", path: "/command-center/knowledge", icon: BookOpen, roles: ["admin", "clinical", "read_only"] },
+  { label: "Vendor Evaluations", path: "/command-center/vendor-evaluations", icon: ShieldCheck, roles: ["admin", "clinical", "read_only"] },
   { label: "Launch Readiness", path: "/command-center/launch-readiness", icon: Rocket, roles: ["admin"] },
   { label: "User Identity", path: "/command-center/identity-management", icon: UserCheck, roles: ["admin"] },
   { label: "Settings", path: "/command-center/settings", icon: Settings, roles: ["admin"] },

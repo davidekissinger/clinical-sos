@@ -1,0 +1,243 @@
+{
+  "name": "Vendor",
+  "type": "object",
+  "properties": {
+    "vendor_legal_name": {
+      "type": "string",
+      "title": "Vendor Legal Name"
+    },
+    "dba_name": {
+      "type": "string",
+      "title": "DBA / Commonly Used Name"
+    },
+    "vendor_category": {
+      "type": "string",
+      "title": "Vendor Category",
+      "enum": [
+        "Pharmacy",
+        "Therapy",
+        "Staffing Agency",
+        "Laboratory",
+        "Radiology",
+        "Wound Care Provider",
+        "Medical Equipment and DME",
+        "Medical Supplies",
+        "Electronic Health Records / Healthcare Technology",
+        "Cybersecurity and IT",
+        "Billing and Revenue-Cycle Services",
+        "Dietary and Food Services",
+        "Environmental Services",
+        "Transportation",
+        "Behavioral Health",
+        "Hospice and Home Health",
+        "Infection-Prevention Services",
+        "Emergency-Preparedness Vendors",
+        "Consultant Services",
+        "Maintenance and Life-Safety Services",
+        "Other Facility-Selected Category"
+      ]
+    },
+    "description_of_services": {
+      "type": "string"
+    },
+    "primary_contact_name": {
+      "type": "string"
+    },
+    "primary_contact_email": {
+      "type": "string"
+    },
+    "primary_contact_phone": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "headquarters_address": {
+      "type": "string"
+    },
+    "service_locations": {
+      "type": "string"
+    },
+    "geographic_coverage": {
+      "type": "string"
+    },
+    "parent_organization": {
+      "type": "string"
+    },
+    "ownership_information": {
+      "type": "string",
+      "title": "Ownership Information (when verified)"
+    },
+    "relevant_licenses": {
+      "type": "string"
+    },
+    "relevant_certifications": {
+      "type": "string"
+    },
+    "accreditation": {
+      "type": "string"
+    },
+    "insurance_information": {
+      "type": "string"
+    },
+    "insurance_expiration_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "baa_status": {
+      "type": "string",
+      "title": "Business Associate Agreement Status",
+      "enum": [
+        "Executed",
+        "Pending",
+        "Not Required",
+        "Unknown"
+      ],
+      "default": "Unknown"
+    },
+    "data_access_level": {
+      "type": "string"
+    },
+    "phi_access_expected": {
+      "type": "string",
+      "enum": [
+        "Yes",
+        "No",
+        "Unknown"
+      ],
+      "default": "Unknown"
+    },
+    "contract_status": {
+      "type": "string"
+    },
+    "active_relationship_status": {
+      "type": "string"
+    },
+    "preferred_vendor_status": {
+      "type": "boolean",
+      "default": false
+    },
+    "known_regulatory_concerns": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "title": "Authoritative Source"
+    },
+    "source_url": {
+      "type": "string"
+    },
+    "last_verified": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "High",
+        "Medium",
+        "Low",
+        "Unverified"
+      ],
+      "default": "Unverified"
+    },
+    "research_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "internal_notes": {
+      "type": "string"
+    },
+    "client_visible_summary": {
+      "type": "string"
+    },
+    "record_status": {
+      "type": "string",
+      "enum": [
+        "Active",
+        "Inactive",
+        "Archived",
+        "Research Required"
+      ],
+      "default": "Active"
+    },
+    "is_test_data": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "vendor_legal_name",
+    "vendor_category",
+    "record_status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "business_development"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "finance"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "read_only"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "business_development"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "business_development"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

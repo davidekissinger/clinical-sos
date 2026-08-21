@@ -1,0 +1,222 @@
+{
+  "name": "VendorRelationship",
+  "type": "object",
+  "properties": {
+    "vendor_id": {
+      "type": "string",
+      "title": "Vendor ID"
+    },
+    "vendor_name": {
+      "type": "string"
+    },
+    "client_account_id": {
+      "type": "string",
+      "title": "Client Account ID"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "organization_id": {
+      "type": "string",
+      "title": "Organization ID"
+    },
+    "organization_name": {
+      "type": "string"
+    },
+    "facility_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "title": "Facility IDs"
+    },
+    "facility_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "title": "Facility Names"
+    },
+    "engagement_id": {
+      "type": "string"
+    },
+    "engagement_name": {
+      "type": "string"
+    },
+    "service_provided": {
+      "type": "string"
+    },
+    "relationship_owner_id": {
+      "type": "string"
+    },
+    "relationship_owner_name": {
+      "type": "string"
+    },
+    "facility_contact": {
+      "type": "string"
+    },
+    "vendor_contact": {
+      "type": "string"
+    },
+    "contract_start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "contract_expiration_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "renewal_deadline": {
+      "type": "string",
+      "format": "date"
+    },
+    "notice_deadline": {
+      "type": "string",
+      "format": "date"
+    },
+    "auto_renewal": {
+      "type": "boolean",
+      "default": false
+    },
+    "service_level_expectations": {
+      "type": "string"
+    },
+    "pricing_structure": {
+      "type": "string"
+    },
+    "baa_status": {
+      "type": "string",
+      "enum": [
+        "Executed",
+        "Pending",
+        "Not Required",
+        "Unknown"
+      ],
+      "default": "Unknown"
+    },
+    "insurance_requirements": {
+      "type": "string"
+    },
+    "required_reporting": {
+      "type": "string"
+    },
+    "performance_review_frequency": {
+      "type": "string"
+    },
+    "relationship_status": {
+      "type": "string",
+      "enum": [
+        "Prospective",
+        "Due Diligence",
+        "Contract Review",
+        "Implementation",
+        "Active",
+        "Active With Conditions",
+        "Performance Improvement",
+        "Renewal Review",
+        "Replacement Under Consideration",
+        "Terminated",
+        "Archived"
+      ],
+      "default": "Prospective"
+    },
+    "corrective_action_status": {
+      "type": "string"
+    },
+    "replacement_consideration": {
+      "type": "boolean",
+      "default": false
+    },
+    "notes": {
+      "type": "string"
+    },
+    "client_visibility": {
+      "type": "boolean",
+      "default": false,
+      "title": "Client Visible"
+    },
+    "is_test_data": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "vendor_id",
+    "vendor_name",
+    "relationship_status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "business_development"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "finance"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "read_only"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "business_development"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "business_development"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

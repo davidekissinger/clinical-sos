@@ -96,6 +96,24 @@ export const SERVICES = [
       "Continuity during recruitment and onboarding",
     ],
   },
+  {
+    slug: "vendor-performance-and-risk-evaluation",
+    title: "Vendor Performance & Risk Evaluation",
+    short: "Structured, evidence-based evaluations of prospective and existing vendors serving skilled nursing and long-term care organizations.",
+    icon: "ShieldCheck",
+    summary:
+      "Clinical SOS provides structured, evidence-based evaluations of prospective and existing vendors serving skilled nursing and long-term care organizations. We examine vendor qualifications, regulatory exposure, clinical performance, service reliability, contractual expectations, data-security practices, corrective-action history, and operational fit. Our evaluations help leadership make better-supported decisions about vendor selection, continued use, corrective action, monitoring, and contract renewal.",
+    points: [
+      "Identify vendor-related compliance and operational risks",
+      "Evaluate performance against defined expectations",
+      "Verify qualifications, insurance, licensing, and supporting evidence",
+      "Connect vendor performance to resident safety and regulatory exposure",
+      "Establish measurable corrective-action requirements",
+      "Compare vendors using consistent criteria",
+      "Support contract-renewal and replacement decisions",
+      "Incorporate vendor performance into QAPI oversight",
+    ],
+  },
 ];
 
 export const TEAM = [

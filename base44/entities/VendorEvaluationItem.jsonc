@@ -1,0 +1,191 @@
+{
+  "name": "VendorEvaluationItem",
+  "type": "object",
+  "properties": {
+    "vendor_evaluation_id": {
+      "type": "string",
+      "title": "Vendor Evaluation ID"
+    },
+    "vendor_evaluation_name": {
+      "type": "string"
+    },
+    "evaluation_category": {
+      "type": "string",
+      "enum": [
+        "Corporate and Credentialing",
+        "Regulatory and Compliance",
+        "Clinical Quality and Resident Safety",
+        "Staffing and Competency",
+        "Service Performance",
+        "Data Privacy and Security",
+        "Business Continuity",
+        "Financial and Commercial Fit",
+        "Contract and Service-Level Terms",
+        "Implementation and Integration",
+        "Reporting and QAPI Support",
+        "References and Reputation"
+      ]
+    },
+    "criterion": {
+      "type": "string"
+    },
+    "criterion_description": {
+      "type": "string"
+    },
+    "weight": {
+      "type": "number",
+      "title": "Weight (Administrator-configured)"
+    },
+    "max_points": {
+      "type": "number",
+      "default": 100
+    },
+    "points_awarded": {
+      "type": "number"
+    },
+    "evidence_requirement": {
+      "type": "string"
+    },
+    "evidence_received": {
+      "type": "string",
+      "enum": [
+        "Received",
+        "Partially Received",
+        "Not Received",
+        "Not Applicable",
+        "Requested"
+      ],
+      "default": "Requested"
+    },
+    "evidence_source": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": "string"
+    },
+    "source_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "last_verified": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidence_summary": {
+      "type": "string"
+    },
+    "reviewer": {
+      "type": "string"
+    },
+    "reviewer_comments": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "High",
+        "Medium",
+        "Low",
+        "Unverified"
+      ],
+      "default": "Unverified"
+    },
+    "finding_status": {
+      "type": "string",
+      "enum": [
+        "Meets Expectations",
+        "Partially Meets Expectations",
+        "Does Not Meet Expectations",
+        "Not Applicable",
+        "Insufficient Evidence",
+        "Not Yet Reviewed"
+      ],
+      "default": "Not Yet Reviewed"
+    },
+    "risk_flag": {
+      "type": "boolean",
+      "default": false
+    },
+    "corrective_action_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "client_visibility": {
+      "type": "boolean",
+      "default": false,
+      "title": "Client Visible"
+    },
+    "research_required": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_test_data": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "vendor_evaluation_id",
+    "criterion",
+    "finding_status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "business_development"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "read_only"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "clinical"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
