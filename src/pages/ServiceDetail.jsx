@@ -45,7 +45,7 @@ export default function ServiceDetail() {
               {service.points.map((p) => (
                 <li key={p} className="flex gap-3 items-start">
                   <CheckCircle2 className="h-5 w-5 text-[hsl(262_50%_45%)] flex-shrink-0 mt-0.5" />
-                  <span className="text-foreground/90">{p}</span>
+                  <span className="text-foreground">{p}</span>
                 </li>
               ))}
             </ul>

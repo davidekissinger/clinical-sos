@@ -38,7 +38,7 @@ export default function RapidSurveyRecovery() {
             <Link to="/contact" className="btn-primary">Request a Consultation <ArrowRight className="h-4 w-4" /></Link>
             <Link to="/contact" className="btn-secondary !bg-white/10 !border-white/20 !text-white hover:!bg-white/20">Talk With Our Team</Link>
           </div>
-          <p className="mt-4 text-xs text-slate-400 max-w-xl">
+          <p className="mt-4 text-xs text-slate-300 max-w-xl">
             Typical Rapid Survey Recovery engagements are often in the range of two to six weeks
             depending on circumstances. This is a qualified description, not a guarantee.
           </p>
@@ -53,7 +53,7 @@ export default function RapidSurveyRecovery() {
             {SITUATIONS.map((s) => (
               <div key={s} className="card-elevated p-5 flex gap-3 items-start">
                 <AlertTriangle className="h-5 w-5 text-[hsl(262_50%_45%)] flex-shrink-0 mt-0.5" />
-                <span className="text-foreground/90">{s}</span>
+                <span className="text-foreground">{s}</span>
               </div>
             ))}
           </div>

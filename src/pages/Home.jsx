@@ -21,7 +21,7 @@ export default function Home() {
               survey risk, compliance issues, operational instability, and leadership gaps with
               practical, experienced support.
             </p>
-            <p className="mt-3 text-base font-medium text-[hsl(262_45%_40%)]">
+            <p className="mt-3 text-base font-medium text-primary">
               When the stakes are high, experience matters.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
@@ -123,7 +123,7 @@ export default function Home() {
             {WHEN_TO_CALL.map((w) => (
               <li key={w} className="flex gap-3 items-start">
                 <span className="mt-1 h-2 w-2 rounded-full bg-[hsl(262_58%_44%)] flex-shrink-0" />
-                <span className="text-foreground/90">{w}</span>
+                <span className="text-foreground">{w}</span>
               </li>
             ))}
           </ul>
@@ -213,7 +213,7 @@ export default function Home() {
             {WHO_WE_HELP.map((w) => (
               <div key={w} className="flex gap-3 items-start">
                 <ShieldCheck className="h-5 w-5 text-[hsl(262_50%_45%)] flex-shrink-0 mt-0.5" />
-                <span className="text-foreground/90">{w}</span>
+                <span className="text-foreground">{w}</span>
               </div>
             ))}
           </div>

@@ -206,7 +206,8 @@ export default function Contact() {
           border-radius: 0.5rem;
           padding: 0.625rem 0.75rem;
           font-size: 0.9rem;
-          background: white;
+          background: hsl(var(--card));
+          color: hsl(var(--foreground));
           outline: none;
           transition: border-color .15s, box-shadow .15s;
         }
