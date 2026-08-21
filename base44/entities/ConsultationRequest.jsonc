@@ -57,6 +57,10 @@
     "source_page": {
       "type": "string"
     },
+    "source_ip": {
+      "type": "string",
+      "title": "Source IP Address"
+    },
     "campaign": {
       "type": "string"
     },

@@ -22,7 +22,9 @@ export default function Contact() {
     facility_or_org_name: "", state: "", number_of_facilities: "", service_needed: "",
     current_challenge: "", urgency_level: "General inquiry", preferred_contact_method: "Email",
     preferred_consultation_time: "", consent_acknowledged: false,
+    company_website: "", // honeypot — hidden, bots fill it, humans never see it
   });
+  const [formLoadedAt] = useState(() => new Date().toISOString());
   const [status, setStatus] = useState("idle"); // idle | submitting | success | error
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
@@ -36,7 +38,7 @@ export default function Contact() {
     setError("");
     try {
       const sourcePage = typeof window !== "undefined" ? window.location.pathname : "/contact";
-      const res = await base44.functions.invoke("submitConsultation", { ...form, source_page: sourcePage });
+      const res = await base44.functions.invoke("submitConsultation", { ...form, form_loaded_at: formLoadedAt, source_page: sourcePage });
       const data = res.data || res;
       if (data?.error) throw new Error(data.error);
 
@@ -155,6 +157,19 @@ export default function Contact() {
               </label>
 
               {error && <p className="text-sm text-destructive">{error}</p>}
+
+              {/* Honeypot — hidden from real users, bots autofill it */}
+              <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", top: "auto", width: 1, height: 1, overflow: "hidden" }}>
+                <label htmlFor="company_website">Website (leave blank)</label>
+                <input
+                  id="company_website"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={form.company_website}
+                  onChange={(e) => set("company_website", e.target.value)}
+                />
+              </div>
 
               <button type="submit" disabled={status === "submitting"} className="btn-primary w-full disabled:opacity-60">
                 {status === "submitting" ? "Submitting…" : <>Request a Consultation <ArrowRight className="h-4 w-4" /></>}
