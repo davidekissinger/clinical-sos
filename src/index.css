@@ -54,7 +54,7 @@
     --card-foreground: 250 13% 95%;
     --popover: 250 13% 10%;
     --popover-foreground: 250 13% 95%;
-    --primary: 262 58% 65%;
+    --primary: 262 58% 68%;
     --primary-foreground: 262 58% 10%;
     --secondary: 250 13% 15%;
     --secondary-foreground: 258 30% 85%;
@@ -66,7 +66,7 @@
     --destructive-foreground: 0 0% 100%;
     --border: 250 13% 20%;
     --input: 250 13% 18%;
-    --ring: 262 58% 65%;
+    --ring: 262 58% 68%;
     --lavender: 258 30% 20%;
     --lavender-strong: 258 40% 60%;
     --sos: 262 58% 65%;
@@ -109,7 +109,7 @@
     background:
       radial-gradient(1200px 600px at 80% -10%, hsl(var(--lavender)) 0%, transparent 55%),
       radial-gradient(900px 500px at 0% 10%, hsl(var(--accent)) 0%, transparent 50%),
-      linear-gradient(180deg, #ffffff 0%, hsl(var(--secondary)) 100%);
+      linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%);
   }
   .sos-cross {
     position: relative;
@@ -130,6 +130,7 @@
   .btn-secondary { @apply inline-flex items-center justify-center gap-2 rounded-full border border-border bg-white dark:bg-card px-6 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary; }
   .btn-ghost { @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition hover:text-primary; }
   .section-eyebrow { @apply text-xs font-semibold uppercase tracking-[0.18em] text-[hsl(262_50%_45%)]; }
+  .dark .section-eyebrow { color: hsl(262 50% 70%); }
   /* Shared Command Center input styling — adapts to dark mode */
   .cc-input {
     width: 100%;
