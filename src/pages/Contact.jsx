@@ -16,6 +16,15 @@ const URGENCY_OPTIONS = [
   "Urgent assistance requested",
 ];
 
+const CONTACT_METHOD_OPTIONS = ["Email", "Phone", "Video call"];
+
+const SERVICE_OPTIONS = [
+  { value: "", label: "Select a service…" },
+  ...SERVICES.map((s) => ({ value: s.title, label: s.title })),
+  { value: "Rapid Survey Recovery", label: "Rapid Survey Recovery" },
+  { value: "Not sure yet", label: "Not sure yet" },
+];
+
 export default function Contact() {
   const [form, setForm] = useState({
     name: "", organization: "", title: "", business_email: "", business_phone: "",
@@ -114,7 +123,7 @@ export default function Contact() {
                 <MobileSelect
                   value={form.service_needed}
                   onChange={(v) => set("service_needed", v)}
-                  options={[{ value: "", label: "Select a service…" }, ...SERVICES.map((s) => ({ value: s.title, label: s.title })), { value: "Rapid Survey Recovery", label: "Rapid Survey Recovery" }, { value: "Not sure yet", label: "Not sure yet" }]}
+                  options={SERVICE_OPTIONS}
                   className="cs-input"
                   ariaLabel="Service needed"
                 />
@@ -138,7 +147,7 @@ export default function Contact() {
                   <MobileSelect
                     value={form.preferred_contact_method}
                     onChange={(v) => set("preferred_contact_method", v)}
-                    options={["Email", "Phone", "Video call"]}
+                    options={CONTACT_METHOD_OPTIONS}
                     className="cs-input"
                     ariaLabel="Preferred contact method"
                   />

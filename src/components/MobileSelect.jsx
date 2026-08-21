@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, X, ChevronDown } from "lucide-react";
 
@@ -18,9 +18,10 @@ export default function MobileSelect({ value, onChange, options, className = "",
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const normalized = (options || []).map(o =>
-    typeof o === "string" ? { value: o, label: o } : o
-  );
+  const normalized = useMemo(() =>
+    (options || []).map(o =>
+      typeof o === "string" ? { value: o, label: o } : o
+    ), [options]);
   const selected = normalized.find(o => o.value === value);
 
   if (!isMobile) {
