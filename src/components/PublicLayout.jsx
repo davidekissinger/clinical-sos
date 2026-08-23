@@ -106,6 +106,8 @@ export default function PublicLayout() {
                 <li><Link to="/contact" className="text-slate-300 hover:text-white transition">Talk With Our Team</Link></li>
                 <li><Link to="/services" className="text-slate-300 hover:text-white transition">Our Services</Link></li>
                 <li><Link to="/accessibility" className="text-slate-300 hover:text-white transition">Accessibility</Link></li>
+                <li><Link to="/privacy-policy" className="text-slate-300 hover:text-white transition">Privacy Policy</Link></li>
+                <li><Link to="/terms-of-use" className="text-slate-300 hover:text-white transition">Terms of Use</Link></li>
                 <li><Link to="/login?returnTo=/client" className="text-slate-300 hover:text-white transition">Client Login</Link></li>
                 <li><Link to="/login?returnTo=/command-center" className="text-slate-300 hover:text-white transition">Staff Login</Link></li>
               </ul>

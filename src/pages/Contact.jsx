@@ -170,7 +170,8 @@ export default function Contact() {
               <label className="flex items-start gap-3 cursor-pointer">
                 <input type="checkbox" checked={form.consent_acknowledged} onChange={(e) => set("consent_acknowledged", e.target.checked)} className="mt-1 h-4 w-4 rounded border-border" />
                 <span className="text-sm text-muted-foreground">
-                  I acknowledge that submitting this form authorizes Clinical SOS to contact me about my request. I understand I should not submit protected health information.
+                  I acknowledge that submitting this form authorizes Clinical SOS to contact me about my request. I understand I should not submit protected health information. See our{" "}
+                  <Link to="/privacy-policy" className="text-primary font-medium hover:underline">Privacy Policy</Link>.
                 </span>
               </label>
 

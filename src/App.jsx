@@ -35,6 +35,8 @@ const FAQ = lazy(() => import('@/pages/FAQ'));
 const Contact = lazy(() => import('@/pages/Contact'));
 const Accessibility = lazy(() => import('@/pages/Accessibility'));
 const VendorEvaluation = lazy(() => import('@/pages/VendorEvaluation'));
+const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
+const TermsOfUse = lazy(() => import('@/pages/TermsOfUse'));
 
 // Lazy-loaded command center pages
 const Dashboard = lazy(() => import('@/pages/cc/Dashboard'));
@@ -136,6 +138,8 @@ const AuthenticatedApp = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/accessibility" element={<Accessibility />} />
         <Route path="/vendor-evaluation" element={<VendorEvaluation />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-use" element={<TermsOfUse />} />
       </Route>
 
       {/* Access pending — for users with no role assignment */}
