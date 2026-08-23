@@ -3,12 +3,17 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowRight, ClipboardCheck, SearchCheck, Activity, FileText, Stethoscope, Users, CheckCircle2 } from "lucide-react";
 import PageCta from "@/components/PageCta";
 import { SERVICES } from "@/lib/siteContent";
+import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 
 const iconMap = { ClipboardCheck, SearchCheck, Activity, FileText, Stethoscope, Users };
 
 export default function ServiceDetail() {
   const { slug } = useParams();
   const service = SERVICES.find((s) => s.slug === slug);
+  useDocumentMeta(
+    service ? `${service.title} — Clinical SOS` : "Service Not Found — Clinical SOS",
+    service ? service.short : undefined
+  );
   if (!service) {
     return (
       <div className="container-prose py-24 text-center">

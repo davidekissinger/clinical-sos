@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import PageCta from "@/components/PageCta";
 import { RESOURCES } from "@/lib/siteContent";
+import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 
 const ARTICLE_BODY = {
   "what-happens-after-a-nursing-home-survey-deficiency": [
@@ -58,6 +59,10 @@ const ARTICLE_BODY = {
 export default function ResourceDetail() {
   const { slug } = useParams();
   const resource = RESOURCES.find((r) => r.slug === slug);
+  useDocumentMeta(
+    resource ? `${resource.title} — Clinical SOS` : "Resource Not Found — Clinical SOS",
+    resource ? resource.excerpt : undefined
+  );
   if (!resource) {
     return (
       <div className="container-prose py-24 text-center">

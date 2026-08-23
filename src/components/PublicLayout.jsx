@@ -35,7 +35,7 @@ export default function PublicLayout() {
             ))}
           </nav>
           <div className="hidden lg:flex items-center gap-2">
-            <a href="tel:" className="btn-ghost"><Phone className="h-4 w-4" /> Talk With Our Team</a>
+            <Link to="/contact" className="btn-ghost"><Phone className="h-4 w-4" /> Talk With Our Team</Link>
             <Link to="/contact" className="btn-primary"><ArrowRight className="h-4 w-4" /> Request a Consultation</Link>
           </div>
           <button className="lg:hidden p-2" onClick={() => setOpen(!open)} aria-label="Toggle menu">

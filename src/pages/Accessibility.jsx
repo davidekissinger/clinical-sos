@@ -44,18 +44,16 @@ export default function Accessibility() {
             <h2 className="text-2xl font-semibold text-foreground mt-10">Accessibility Is a Functional Requirement</h2>
             <p className="text-muted-foreground mt-3">
               We do not treat accessibility as a cosmetic enhancement or a third-party overlay.
-              Accessibility is built into the underlying HTML, React components, CSS, forms,
-              navigation, and interactive controls of both the public website and the authenticated
-              Command Center.
+              Accessibility is built into the structure, forms, navigation, and interactive
+              controls of our website.
             </p>
 
             <h2 className="text-2xl font-semibold text-foreground mt-10">Continuous Improvement</h2>
             <p className="text-muted-foreground mt-3">
-              Accessibility is an ongoing effort. Our accessibility process includes manual and
-              automated evaluation as we continue to develop, test, and improve our digital
-              services. New components and major changes are evaluated for accessibility before
-              they are considered complete. Formal accessibility acceptance testing has not yet
-              been completed.
+              Accessibility is an ongoing effort. Our process includes manual and automated
+              evaluation as we continue to develop, test, and improve our digital services.
+              New components and major changes are evaluated for accessibility before they are
+              considered complete.
             </p>
 
             <h2 className="text-2xl font-semibold text-foreground mt-10">Reporting an Accessibility Issue</h2>

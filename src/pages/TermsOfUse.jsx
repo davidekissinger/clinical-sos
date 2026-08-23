@@ -92,9 +92,10 @@ export default function TermsOfUse() {
 
             <Section icon={FileText} title="9. Account Registration">
               <p>
-                Certain areas of this Site, including the client portal, require an account. Account access is provided
-                by invitation only. Self-registration does not grant access to client portal features. Only users with
-                an active client membership and authorized entitlements may access the client portal.
+                Certain areas of this Site, including the client portal, require an account. Client portal access is
+                provided by invitation only. Creating a general account does not grant access to client records or
+                portal features. Only users with an active client membership and authorized entitlements may access
+                the client portal.
               </p>
             </Section>
 

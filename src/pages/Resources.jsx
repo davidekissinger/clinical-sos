@@ -28,9 +28,7 @@ export default function Resources() {
             ))}
           </div>
           <p className="mt-10 text-xs text-muted-foreground max-w-2xl">
-            Educational content is factual and does not constitute legal advice. We do not publish
-            prospect-specific regulatory information as marketing content. The Clinical SOS lead
-            intelligence database is private.
+            Educational content is provided for general informational purposes and does not constitute legal advice.
           </p>
         </div>
       </section>

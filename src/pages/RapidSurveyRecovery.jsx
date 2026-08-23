@@ -27,7 +27,7 @@ export default function RapidSurveyRecovery() {
       <section className="bg-[hsl(263_65%_14%)] text-white">
         <div className="container-prose py-20 md:py-24">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/15 px-3 py-1 text-xs font-semibold">
-            <AlertTriangle className="h-3.5 w-3.5 text-[hsl(258_70%_80%)]" /> Focused Landing Page
+            <AlertTriangle className="h-3.5 w-3.5 text-[hsl(258_70%_80%)]" /> Founding Survey Recovery Sprint
           </div>
           <h1 className="mt-5 text-4xl md:text-5xl font-bold leading-[1.1]">Rapid Survey Recovery</h1>
           <p className="mt-5 text-lg text-slate-300 max-w-2xl leading-relaxed">
@@ -40,7 +40,7 @@ export default function RapidSurveyRecovery() {
           </div>
           <p className="mt-4 text-xs text-slate-300 max-w-xl">
             Typical Rapid Survey Recovery engagements are often in the range of two to six weeks
-            depending on circumstances. This is a qualified description, not a guarantee.
+            depending on circumstances.
           </p>
           <div className="mt-6 rounded-xl border border-white/15 bg-white/5 p-5 max-w-xl">
             <p className="text-xs font-semibold uppercase tracking-wide text-[hsl(258_70%_80%)]">Founding Survey Recovery Sprint</p>

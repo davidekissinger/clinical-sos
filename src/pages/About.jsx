@@ -83,11 +83,7 @@ export default function About() {
               </div>
             ))}
           </div>
-          <p className="mt-6 text-xs text-muted-foreground max-w-2xl">
-            Team descriptions reflect the roles and focus areas supported by source materials. No
-            biographical details, certifications, awards, or years of experience beyond what is
-            documented are represented.
-          </p>
+
         </div>
       </section>
 
