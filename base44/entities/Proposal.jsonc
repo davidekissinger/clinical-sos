@@ -78,6 +78,10 @@
         "Rejected"
       ]
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "is_test_data": {
       "type": "boolean",
       "default": false

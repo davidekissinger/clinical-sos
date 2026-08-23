@@ -89,6 +89,10 @@
     "owner": {
       "type": "string"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "is_critical": {
       "type": "boolean",
       "default": true

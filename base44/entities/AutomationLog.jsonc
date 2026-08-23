@@ -78,6 +78,10 @@
     "manual_override_details": {
       "type": "string",
       "title": "Manual Override Details"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
     }
   },
   "required": [

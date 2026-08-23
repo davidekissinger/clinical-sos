@@ -62,6 +62,10 @@
     "internal_notes": {
       "type": "string",
       "title": "Internal Notes"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
     }
   },
   "required": [
