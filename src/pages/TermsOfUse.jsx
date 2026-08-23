@@ -2,8 +2,13 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FileText, Shield, Scale, AlertTriangle, Clock, Mail } from "lucide-react";
 import { PageHero } from "@/components/PageCta";
+import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 
 export default function TermsOfUse() {
+  useDocumentMeta(
+    "Terms of Use — Clinical SOS",
+    "The terms governing your use of the Clinical SOS website. Client portal access is by invitation only. Do not submit protected health information through website forms."
+  );
   return (
     <div>
       <PageHero

@@ -1,8 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import PageCta from "@/components/PageCta";
+import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 
 export default function Accessibility() {
+  useDocumentMeta(
+    "Accessibility Statement — Clinical SOS",
+    "Clinical SOS is committed to providing a digital experience that is accessible to people with disabilities, conforming to WCAG 2.2 Level AA guidelines."
+  );
   return (
     <>
       <section className="hero-gradient border-b border-border">

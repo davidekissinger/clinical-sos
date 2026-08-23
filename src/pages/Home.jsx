@@ -2,10 +2,15 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Phone, ShieldCheck, Clock, Stethoscope, AlertTriangle, ClipboardCheck, SearchCheck, Activity, FileText, Users, HelpCircle } from "lucide-react";
 import { SERVICES, TEAM, WHO_WE_HELP, WHEN_TO_CALL, PROCESS_STEPS, FAQS } from "@/lib/siteContent";
+import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 
 const iconMap = { ClipboardCheck, SearchCheck, Activity, FileText, Stethoscope, Users };
 
 export default function Home() {
+  useDocumentMeta(
+    "Clinical SOS — Rapid Response Consulting for Skilled Nursing & Long-Term Care",
+    "Rapid-response consulting for skilled nursing and long-term care organizations facing survey deficiencies, compliance issues, operational instability, and leadership gaps."
+  );
   return (
     <div>
       {/* Hero */}

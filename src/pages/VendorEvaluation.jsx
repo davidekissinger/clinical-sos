@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, ShieldCheck, AlertTriangle, FileSearch, ClipboardCheck, Scale, TrendingUp, Building2, Lock, Eye, CheckCircle2 } from "lucide-react";
 import { PageHero } from "@/components/PageCta";
 import PageCta from "@/components/PageCta";
+import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 
 const BENEFITS = [
   { icon: AlertTriangle, title: "Identify Vendor-Related Risks", desc: "Surface compliance, operational, and clinical risks created or amplified by vendor relationships." },
@@ -53,6 +54,10 @@ const PROCESS_STEPS = [
 ];
 
 export default function VendorEvaluation() {
+  useDocumentMeta(
+    "Vendor Performance & Risk Evaluation — Clinical SOS",
+    "Structured, evidence-based evaluations of prospective and existing vendors serving skilled nursing and long-term care organizations. Verify qualifications, assess performance, and manage vendor risk."
+  );
   return (
     <div>
       <section className="bg-[hsl(263_65%_14%)] text-white">

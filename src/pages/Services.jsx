@@ -4,10 +4,15 @@ import { ArrowRight, ClipboardCheck, SearchCheck, Activity, FileText, Stethoscop
 import { PageHero } from "@/components/PageCta";
 import PageCta from "@/components/PageCta";
 import { SERVICES } from "@/lib/siteContent";
+import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 
 const iconMap = { ClipboardCheck, SearchCheck, Activity, FileText, Stethoscope, Users };
 
 export default function Services() {
+  useDocumentMeta(
+    "Consulting Services — Clinical SOS",
+    "Practical, experienced consulting services for skilled nursing and long-term care organizations — survey response, compliance, operations, and leadership support."
+  );
   return (
     <div>
       <PageHero

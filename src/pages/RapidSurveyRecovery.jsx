@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, AlertTriangle, ClipboardCheck, Search, FileCheck, Wrench, ShieldCheck } from "lucide-react";
 import { PageHero } from "@/components/PageCta";
 import PageCta from "@/components/PageCta";
+import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 
 const RECOVERY_STEPS = [
   { icon: Search, label: "Rapid Assessment", desc: "Quickly understand the findings, the operational context, and the highest-risk issues." },
@@ -22,6 +23,10 @@ const SITUATIONS = [
 ];
 
 export default function RapidSurveyRecovery() {
+  useDocumentMeta(
+    "Rapid Survey Recovery — Clinical SOS",
+    "Structured, experienced support for skilled nursing facilities facing survey deficiencies, Plans of Correction, Immediate Jeopardy, CMP/enforcement activity, and follow-up surveys."
+  );
   return (
     <div>
       <section className="bg-[hsl(263_65%_14%)] text-white">

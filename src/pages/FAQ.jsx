@@ -3,11 +3,27 @@ import { ChevronDown } from "lucide-react";
 import { PageHero } from "@/components/PageCta";
 import PageCta from "@/components/PageCta";
 import { FAQS } from "@/lib/siteContent";
+import { useDocumentMeta } from "@/hooks/useDocumentMeta";
+import StructuredData from "@/components/StructuredData";
 
 export default function FAQ() {
   const [open, setOpen] = useState(0);
+  useDocumentMeta(
+    "Frequently Asked Questions — Clinical SOS",
+    "Clear answers about how Clinical SOS works, what we can and cannot promise, and how to engage our consulting services for skilled nursing and long-term care organizations."
+  );
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQS.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a }
+    }))
+  };
   return (
     <div>
+      <StructuredData data={faqSchema} />
       <PageHero
         eyebrow="FAQ"
         title="Frequently asked questions"

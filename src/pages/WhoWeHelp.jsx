@@ -3,8 +3,13 @@ import { ShieldCheck } from "lucide-react";
 import { PageHero } from "@/components/PageCta";
 import PageCta from "@/components/PageCta";
 import { WHO_WE_HELP } from "@/lib/siteContent";
+import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 
 export default function WhoWeHelp() {
+  useDocumentMeta(
+    "Who We Help — Skilled Nursing and Long-Term Care — Clinical SOS",
+    "Clinical SOS is built specifically for skilled nursing facilities, long-term care organizations, and multi-facility operators facing survey pressure and operational instability."
+  );
   return (
     <div>
       <PageHero

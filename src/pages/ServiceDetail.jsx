@@ -4,6 +4,7 @@ import { ArrowRight, ClipboardCheck, SearchCheck, Activity, FileText, Stethoscop
 import PageCta from "@/components/PageCta";
 import { SERVICES } from "@/lib/siteContent";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
+import StructuredData from "@/components/StructuredData";
 
 const iconMap = { ClipboardCheck, SearchCheck, Activity, FileText, Stethoscope, Users };
 
@@ -14,6 +15,16 @@ export default function ServiceDetail() {
     service ? `${service.title} — Clinical SOS` : "Service Not Found — Clinical SOS",
     service ? service.short : undefined
   );
+  const serviceSchema = service ? {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: service.title,
+    description: service.short,
+    provider: { "@type": "Organization", name: "Clinical SOS", legalName: "Clinical Advantage Consultants LLC" },
+    serviceType: "Healthcare Consulting",
+    areaServed: "United States"
+  } : null;
+
   if (!service) {
     return (
       <div className="container-prose py-24 text-center">
@@ -26,6 +37,7 @@ export default function ServiceDetail() {
 
   return (
     <div>
+      <StructuredData data={serviceSchema} />
       <section className="hero-gradient border-b border-border">
         <div className="container-prose py-16 md:py-20">
           <Link to="/services" className="text-sm text-muted-foreground hover:text-primary">← All services</Link>

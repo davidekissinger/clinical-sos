@@ -5,8 +5,13 @@ import { PageHero } from "@/components/PageCta";
 import PageCta from "@/components/PageCta";
 import { TEAM } from "@/lib/siteContent";
 import { Image } from "@/components/ui/image";
+import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 
 export default function About() {
+  useDocumentMeta(
+    "About Clinical SOS — Practical Consulting for Long-Term Care",
+    "Clinical SOS provides practical consulting support for skilled nursing and long-term care organizations facing survey pressure, compliance concerns, operational instability, and leadership challenges."
+  );
   return (
     <div>
       <PageHero

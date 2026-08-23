@@ -5,6 +5,7 @@ import { PageHero } from "@/components/PageCta";
 import { base44 } from "@/api/base44Client";
 import { SERVICES } from "@/lib/siteContent";
 import MobileSelect from "@/components/MobileSelect";
+import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 
 const URGENCY_OPTIONS = [
   "General inquiry",
@@ -26,6 +27,10 @@ const SERVICE_OPTIONS = [
 ];
 
 export default function Contact() {
+  useDocumentMeta(
+    "Request a Consultation — Clinical SOS",
+    "Request a consultation with Clinical SOS. Share your urgency level and situation, and our team will respond accordingly for your skilled nursing or long-term care organization."
+  );
   const [form, setForm] = useState({
     name: "", organization: "", title: "", business_email: "", business_phone: "",
     facility_or_org_name: "", state: "", number_of_facilities: "", service_needed: "",

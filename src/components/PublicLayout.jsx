@@ -5,10 +5,21 @@ import Logo from "@/components/brand/Logo";
 import { NAV_LINKS } from "@/lib/siteContent";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import StructuredData from "@/components/StructuredData";
 
 export default function PublicLayout() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const orgUrl = typeof window !== "undefined" ? window.location.origin : "https://clinical-sos-sync.base44.app/";
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Clinical SOS",
+    legalName: "Clinical Advantage Consultants LLC",
+    description: "Rapid-response consulting for skilled nursing and long-term care organizations facing survey deficiencies, compliance issues, operational instability, and leadership gaps.",
+    url: orgUrl,
+    sameAs: []
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-background dark:text-foreground">
@@ -64,6 +75,7 @@ export default function PublicLayout() {
         )}
       </header>
 
+      <StructuredData data={organizationSchema} />
       <main id="main-content" className="flex-1">
         <AnimatePresence mode="wait">
           <motion.div
