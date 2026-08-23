@@ -7,7 +7,7 @@ import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 export default function PrivacyPolicy() {
   useDocumentMeta(
     "Privacy Policy — Clinical SOS",
-    "How Clinical SOS collects, uses, and protects information submitted through our website. We do not collect protected health information through our website forms."
+    "How Clinical SOS collects, uses, protects, and retains information submitted through its public website."
   );
   return (
     <div>

@@ -4,8 +4,13 @@ import { ArrowRight } from "lucide-react";
 import { PageHero } from "@/components/PageCta";
 import PageCta from "@/components/PageCta";
 import { RESOURCES } from "@/lib/siteContent";
+import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 
 export default function Resources() {
+  useDocumentMeta(
+    "Resources & Insights — Clinical SOS",
+    "Practical resources for long-term care leaders on survey response, Plans of Correction, root cause analysis, compliance, and operational readiness."
+  );
   return (
     <div>
       <PageHero

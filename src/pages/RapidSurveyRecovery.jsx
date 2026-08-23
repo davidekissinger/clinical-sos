@@ -25,7 +25,7 @@ const SITUATIONS = [
 export default function RapidSurveyRecovery() {
   useDocumentMeta(
     "Rapid Survey Recovery — Clinical SOS",
-    "Structured, experienced support for skilled nursing facilities facing survey deficiencies, Plans of Correction, Immediate Jeopardy, CMP/enforcement activity, and follow-up surveys."
+    "A focused founding engagement for one CMS-2567 survey with up to five citations and a first complete working draft targeted within five business days after complete materials are received."
   );
   return (
     <div>

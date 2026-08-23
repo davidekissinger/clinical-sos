@@ -10,7 +10,7 @@ export default function FAQ() {
   const [open, setOpen] = useState(0);
   useDocumentMeta(
     "Frequently Asked Questions — Clinical SOS",
-    "Clear answers about how Clinical SOS works, what we can and cannot promise, and how to engage our consulting services for skilled nursing and long-term care organizations."
+    "Answers about Clinical SOS consulting services, engagement timing, confidentiality, PHI restrictions, and regulatory outcome limitations."
   );
   const faqSchema = {
     "@context": "https://schema.org",

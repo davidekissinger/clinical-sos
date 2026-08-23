@@ -29,7 +29,7 @@ const SERVICE_OPTIONS = [
 export default function Contact() {
   useDocumentMeta(
     "Request a Consultation — Clinical SOS",
-    "Request a consultation with Clinical SOS. Share your urgency level and situation, and our team will respond accordingly for your skilled nursing or long-term care organization."
+    "Request a consultation with Clinical SOS for skilled nursing survey response, compliance support, operational stabilization, or leadership assistance."
   );
   const [form, setForm] = useState({
     name: "", organization: "", title: "", business_email: "", business_phone: "",

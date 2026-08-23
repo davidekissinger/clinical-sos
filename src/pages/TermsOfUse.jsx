@@ -7,7 +7,7 @@ import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 export default function TermsOfUse() {
   useDocumentMeta(
     "Terms of Use — Clinical SOS",
-    "The terms governing your use of the Clinical SOS website. Client portal access is by invitation only. Do not submit protected health information through website forms."
+    "Terms governing use of the Clinical SOS website, consultation forms, accounts, and informational content."
   );
   return (
     <div>

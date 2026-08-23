@@ -10,7 +10,7 @@ import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 export default function About() {
   useDocumentMeta(
     "About Clinical SOS — Practical Consulting for Long-Term Care",
-    "Clinical SOS provides practical consulting support for skilled nursing and long-term care organizations facing survey pressure, compliance concerns, operational instability, and leadership challenges."
+    "Meet the Clinical SOS team and learn how we support skilled nursing and long-term care organizations facing survey, compliance, operational, and leadership pressure."
   );
   return (
     <div>

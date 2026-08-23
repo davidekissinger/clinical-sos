@@ -11,7 +11,7 @@ const iconMap = { ClipboardCheck, SearchCheck, Activity, FileText, Stethoscope, 
 export default function Services() {
   useDocumentMeta(
     "Consulting Services — Clinical SOS",
-    "Practical, experienced consulting services for skilled nursing and long-term care organizations — survey response, compliance, operations, and leadership support."
+    "Explore Clinical SOS consulting services for survey response, Plans of Correction, mock surveys, compliance monitoring, operational stabilization, and leadership support."
   );
   return (
     <div>

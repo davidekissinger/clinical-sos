@@ -6,7 +6,7 @@ import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 export default function Accessibility() {
   useDocumentMeta(
     "Accessibility Statement — Clinical SOS",
-    "Clinical SOS is committed to providing a digital experience that is accessible to people with disabilities, conforming to WCAG 2.2 Level AA guidelines."
+    "Clinical SOS's commitment to improving the accessibility and usability of its website and digital services."
   );
   return (
     <>

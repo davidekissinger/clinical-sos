@@ -8,7 +8,7 @@ import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 export default function WhoWeHelp() {
   useDocumentMeta(
     "Who We Help — Skilled Nursing and Long-Term Care — Clinical SOS",
-    "Clinical SOS is built specifically for skilled nursing facilities, long-term care organizations, and multi-facility operators facing survey pressure and operational instability."
+    "Clinical SOS supports skilled nursing facilities, long-term care organizations, and multi-facility operators facing survey, compliance, and operational challenges."
   );
   return (
     <div>
