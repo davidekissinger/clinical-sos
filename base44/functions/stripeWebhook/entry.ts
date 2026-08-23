@@ -64,6 +64,22 @@ export default async function(req) {
     return Response.json({ error: 'Signature verification failed' }, { status: 400 });
   }
 
+  // ── Idempotency: check if this Stripe event ID was already processed ──
+  const stripeEventId = event.id;
+  if (stripeEventId) {
+    try {
+      const existing = await base44.asServiceRole.entities.AutomationLog.filter({
+        triggered_by: `stripe_event:${stripeEventId}`,
+        status: 'Success'
+      });
+      const existingList = Array.isArray(existing) ? existing : (existing?.data || []);
+      if (existingList.length > 0) {
+        // Duplicate delivery — acknowledge silently without reprocessing
+        return Response.json({ received: true, duplicate: true });
+      }
+    } catch (_idempotencyErr) { /* non-blocking — proceed with processing */ }
+  }
+
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
@@ -262,6 +278,22 @@ export default async function(req) {
       default:
         // Unhandled event type — acknowledge silently
         break;
+    }
+
+    // ── Record successful processing for idempotency ──
+    if (stripeEventId) {
+      try {
+        await base44.asServiceRole.entities.AutomationLog.create({
+          automation: `Stripe Webhook — ${event.type}`,
+          started: new Date().toISOString(),
+          completed: new Date().toISOString(),
+          status: 'Success',
+          triggered_by: `stripe_event:${stripeEventId}`,
+          reason: `Processed Stripe event: ${stripeEventId} (${event.type})`,
+          acting_user_id: 'system',
+          acting_user_name: 'System — Stripe Webhook',
+        });
+      } catch (_logErr) { /* non-blocking */ }
     }
 
     return Response.json({ received: true });

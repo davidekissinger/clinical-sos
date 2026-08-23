@@ -37,6 +37,14 @@ export default function Contact() {
   const [status, setStatus] = useState("idle"); // idle | submitting | success | error
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
+  const [formStarted, setFormStarted] = useState(false);
+
+  const trackFormStart = () => {
+    if (!formStarted) {
+      setFormStarted(true);
+      try { base44.analytics.track({ eventName: "consultation_form_started" }); } catch (_e) { /* best-effort */ }
+    }
+  };
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -58,6 +66,7 @@ export default function Contact() {
       setResult({ consultationId: data.consultation_id });
       setStatus("success");
     } catch (err) {
+      try { base44.analytics.track({ eventName: "consultation_form_failed", properties: { reason: err?.message?.slice(0, 100) || "unknown" } }); } catch (_e) { /* best-effort */ }
       setError(err?.message || "Something went wrong. Please try again or email us directly.");
       setStatus("error");
     }
@@ -109,7 +118,7 @@ export default function Contact() {
           <div className="lg:col-span-2">
             <form onSubmit={onSubmit} className="card-elevated p-6 md:p-8 space-y-5">
               <div className="grid sm:grid-cols-2 gap-4">
-                <Field label="Name *"><input required value={form.name} onChange={(e) => set("name", e.target.value)} className="cs-input" /></Field>
+                <Field label="Name *"><input required value={form.name} onFocus={trackFormStart} onChange={(e) => set("name", e.target.value)} className="cs-input" /></Field>
                 <Field label="Organization"><input value={form.organization} onChange={(e) => set("organization", e.target.value)} className="cs-input" /></Field>
                 <Field label="Title"><input value={form.title} onChange={(e) => set("title", e.target.value)} className="cs-input" /></Field>
                 <Field label="Business email *"><input type="email" required value={form.business_email} onChange={(e) => set("business_email", e.target.value)} className="cs-input" /></Field>

@@ -19,7 +19,20 @@
         "Test Data",
         "Route Security",
         "Accessibility",
-        "Client Portal"
+        "Client Portal",
+        "Public Marketing Site",
+        "Lead Capture",
+        "Public Claims and Disclosures",
+        "Client Portal Authentication",
+        "Existence Non-Disclosure",
+        "Foreign Read Isolation",
+        "Foreign Write Isolation",
+        "Stripe Test Lifecycle",
+        "Privacy and Terms",
+        "End-to-End Dry Run",
+        "Operating Agreement Executed",
+        "Production Stripe Authorization",
+        "Overall Controlled Launch Decision"
       ]
     },
     "status": {

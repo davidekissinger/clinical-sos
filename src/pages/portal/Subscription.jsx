@@ -68,6 +68,17 @@ export default function ClientSubscription() {
         <ArrowLeft className="h-4 w-4" /> Back to Account
       </Link>
 
+      <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6 flex items-start gap-3">
+        <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">Test Mode — No Live Payments</p>
+          <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
+            Subscriptions are in test mode. No real charges will be processed. Production payment activation
+            requires the fully executed operating agreement and separate founder authorization.
+          </p>
+        </div>
+      </div>
+
       <h1 className="text-2xl font-bold text-foreground mb-2">Service Package Subscriptions</h1>
       <p className="text-sm text-muted-foreground mb-6">
         Choose the consulting package that fits your organization's needs. All plans are billed annually.

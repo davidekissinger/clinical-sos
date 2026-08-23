@@ -42,6 +42,26 @@ export default function RapidSurveyRecovery() {
             Typical Rapid Survey Recovery engagements are often in the range of two to six weeks
             depending on circumstances. This is a qualified description, not a guarantee.
           </p>
+          <div className="mt-6 rounded-xl border border-white/15 bg-white/5 p-5 max-w-xl">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[hsl(258_70%_80%)]">Founding Survey Recovery Sprint</p>
+            <p className="mt-2 text-sm text-slate-200">
+              One CMS-2567 survey • Up to five citations • First complete working draft targeted within
+              five business days after receipt of complete materials.
+            </p>
+            <p className="mt-3 text-sm text-slate-300">
+              <span className="font-semibold text-white">Founding engagement fee: $3,500</span> — 50% at authorization, 50% at delivery of the first complete draft.
+              Up to three founding engagements during validation.
+            </p>
+            <p className="mt-3 text-xs text-slate-400">
+              Expanded citation counts, Immediate Jeopardy, emergency response, onsite work, legal advice,
+              enterprise remediation and other material scope expansions require separate written scope and pricing.
+            </p>
+            <p className="mt-3 text-xs text-slate-400">
+              Clinical SOS does not guarantee POC acceptance, successful revisit, deficiency removal, regulatory
+              compliance, enforcement relief, or any specific clinical or regulatory result. The client remains
+              responsible for factual accuracy, implementation, submission, monitoring, and final operational decisions.
+            </p>
+          </div>
         </div>
       </section>
 
