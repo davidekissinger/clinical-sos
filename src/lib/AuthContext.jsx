@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
+import { isSupabaseSsoEnabled } from '@/lib/supabaseConfig';
 import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
 
 const AuthContext = createContext();
@@ -114,17 +115,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = (shouldRedirect = true) => {
+  const logout = async (redirectUrl = window.location.href) => {
     setUser(null);
     setIsAuthenticated(false);
-    
-    if (shouldRedirect) {
-      // Use the SDK's logout method which handles token cleanup and redirect
-      base44.auth.logout(window.location.href);
-    } else {
-      // Just remove the token without redirect
-      base44.auth.logout();
+
+    if (isSupabaseSsoEnabled) {
+      try {
+        const { supabase } = await import('@/api/supabaseClient');
+        await supabase.auth.signOut({ scope: 'local' });
+      } catch (error) {
+        console.error('Supabase sign out failed:', error);
+      }
     }
+
+    // Base44 clears its HTTP-only session through a server-side logout and then
+    // returns to this URL. This is intentionally the final navigation step.
+    base44.auth.logout(redirectUrl);
   };
 
   const navigateToLogin = () => {
