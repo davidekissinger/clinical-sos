@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Outlet, Link, useLocation, useNavigate, useOutletContext } from "react-router-dom";
+import React, { useState } from "react";
+import { Outlet, Link, useLocation, useOutletContext } from "react-router-dom";
 import { Menu, X, LogOut, Home, Briefcase, ClipboardList, FileText, FolderCheck, ClipboardCheck, ListChecks, ShieldCheck, FolderOpen, UserCircle, CreditCard } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -28,13 +28,11 @@ const NAV = [
 export default function ClientPortalLayout() {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const outletContext = useOutletContext();
 
-  const handleLogout = () => {
-    logout(false);
-    navigate("/");
+  const handleLogout = async () => {
+    await logout("/");
   };
 
   return (
