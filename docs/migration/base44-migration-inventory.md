@@ -14,6 +14,10 @@ The repository currently exposes these validation scripts:
 
 `package-lock.json` is committed, so CI can use `npm ci`.
 
+The first CI run on PR #9 confirmed `npm ci` succeeds, but the existing codebase has a broad pre-migration typecheck backlog across command-center and portal JSX. Representative failures include inferred required props on shared presentational components, DOM event-target field inference, `unknown`/ `never` data shapes, and arithmetic on values inferred as non-numeric. These failures predate the migration branch and are not caused by the inventory or CI changes.
+
+For Phase 1, typecheck and lint are therefore advisory so CI can continue far enough to exercise the production build. The production build remains blocking. Later phases should reduce this technical debt without hiding new build failures.
+
 At the time of this inventory there was no committed `netlify.toml` on `main`. Netlify production configuration belongs to the later deployment phase rather than this baseline phase.
 
 ## 1. Frontend runtime dependencies
