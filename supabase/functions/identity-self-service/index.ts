@@ -137,9 +137,8 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
     if (appProfileError) throw appProfileError;
 
-    const action = req.method === "GET"
-      ? "get_profile"
-      : String((await req.json().catch(() => ({}))).action || "");
+    const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
+    const action = req.method === "GET" ? "get_profile" : String(body.action || "");
 
     if (action === "get_profile") {
       const profile = await getIdentityProfile(admin, user.id);
@@ -165,7 +164,6 @@ Deno.serve(async (req: Request) => {
     }
 
     if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
-    const body = await req.clone().json().catch(() => ({}));
 
     if (action === "submit_change") {
       const reason = typeof body.reason_for_request === "string" ? body.reason_for_request.trim() : "";
