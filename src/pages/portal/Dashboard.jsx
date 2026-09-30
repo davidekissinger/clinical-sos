@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Briefcase, ClipboardList, ClipboardCheck, FolderCheck, ListChecks, AlertTriangle } from "lucide-react";
+import { Briefcase, ClipboardList, ClipboardCheck, FolderCheck, ListChecks } from "lucide-react";
 import PullToRefresh from "@/components/PullToRefresh";
 
 export default function ClientDashboard() {

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Target, Briefcase, Activity, ListChecks, FileText, ShieldCheck, AlertTriangle, TrendingUp, DollarSign } from "lucide-react";
-import { PageHeader, StatCard, Badge, EmptyState, LoadingState } from "@/components/cc/ui";
+import { Target, Activity, ListChecks, FileText, ShieldCheck, AlertTriangle, TrendingUp, DollarSign } from "lucide-react";
+import { PageHeader, StatCard, Badge, LoadingState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
 import PullToRefresh from "@/components/PullToRefresh";
 import PipelineCharts from "@/components/cc/PipelineCharts";

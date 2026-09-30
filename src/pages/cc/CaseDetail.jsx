@@ -1,6 +1,5 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
 import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
 import { Plus, ArrowLeft, AlertTriangle, FileText, ShieldCheck } from "lucide-react";

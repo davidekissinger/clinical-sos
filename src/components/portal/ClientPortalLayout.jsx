@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Outlet, Link, useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import { Menu, X, LogOut, Home, Briefcase, ClipboardList, FileText, FolderCheck, ClipboardCheck, ListChecks, ShieldCheck, FolderOpen, UserCircle, CreditCard } from "lucide-react";
 import Logo from "@/components/brand/Logo";

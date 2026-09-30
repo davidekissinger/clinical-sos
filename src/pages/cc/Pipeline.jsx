@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { PageHeader, Badge, LoadingState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
 import AccessibleDialog from "@/components/AccessibleDialog";
 import MobileSelect from "@/components/MobileSelect";
-import { X, CheckCircle2, MoveRight } from "lucide-react";
+import { X, CheckCircle2 } from "lucide-react";
 
 const STAGES = [
   "New", "Researching", "Verified", "Qualified", "Outreach Review",

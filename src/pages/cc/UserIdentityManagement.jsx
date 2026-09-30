@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
-import { ShieldCheck, Search, RefreshCw } from "lucide-react";
+import { Search, RefreshCw } from "lucide-react";
 import IdentityDetailDialog from "@/components/cc/IdentityDetailDialog";
 
 export default function UserIdentityManagement() {

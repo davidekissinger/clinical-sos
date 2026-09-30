@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Plus, ShieldCheck, AlertTriangle, FileText, Save } from "lucide-react";
+import { ArrowLeft, Plus, ShieldCheck, AlertTriangle, Save } from "lucide-react";
 import { PageHeader, Badge, EmptyState, LoadingState } from "@/components/cc/ui";
 import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";

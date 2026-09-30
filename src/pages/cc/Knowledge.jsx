@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
-import { Plus, Search, BookOpen, CheckCircle2 } from "lucide-react";
+import { Plus, Search, BookOpen } from "lucide-react";
 
 export default function Knowledge() {
   const knowledge = useEntities("RegulatoryKnowledge", { sort: "f_tag", limit: 200 });

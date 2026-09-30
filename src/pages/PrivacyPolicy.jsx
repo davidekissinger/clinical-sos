@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Shield, Mail, FileText, Clock, Lock, Eye, Server, AlertTriangle } from "lucide-react";
+import { Mail, FileText, Clock, Lock, Eye, Server, AlertTriangle } from "lucide-react";
 import { PageHero } from "@/components/PageCta";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 

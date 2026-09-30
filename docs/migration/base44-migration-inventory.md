@@ -16,7 +16,7 @@ The repository currently exposes these validation scripts:
 
 The first CI run on PR #9 confirmed `npm ci` succeeds, but the existing codebase has a broad pre-migration typecheck backlog across command-center and portal JSX. Representative failures include inferred required props on shared presentational components, DOM event-target field inference, `unknown`/ `never` data shapes, and arithmetic on values inferred as non-numeric. These failures predate the migration branch and are not caused by the inventory or CI changes.
 
-For Phase 1, typecheck and lint are therefore advisory so CI can continue far enough to exercise the production build. The production build remains blocking. Later phases should reduce this technical debt without hiding new build failures.
+Typecheck remains advisory in Phase 1 so CI can continue far enough to exercise the production build. Lint was initially advisory; after removing its 35 unused-import errors, lint is now blocking alongside dependency installation and the production build. Later phases should reduce the remaining typecheck debt without hiding new build failures.
 
 ### Verified CI evidence
 
@@ -29,9 +29,13 @@ For Phase 1, typecheck and lint are therefore advisory so CI can continue far en
 | `npm run lint` | Failed; 35 errors, 0 warnings | Advisory |
 | `npm run build` | Passed | Blocking |
 
-Lint failures include unused imports. Typecheck failures include inferred required presentation props, unknown/never data shapes, DOM event fields, and numeric operations. No application source or dependency changes are included in this PR, so these are baseline findings, not newly introduced application regressions.
+The historical lint failures were all unused imports. Typecheck failures include inferred required presentation props, unknown/never data shapes, DOM event fields, and numeric operations. At the recorded head, this PR contained only the workflow and inventory, establishing that these were pre-existing baseline findings.
 
-The workflow now reports `steps.<id>.outcome` in its job summary and emits a warning when an advisory check fails. This records the actual result before `continue-on-error` changes the step conclusion to success. A green overall workflow therefore means the blocking checks passed; it does not claim a clean typecheck or lint run. Full diagnostics remain in the job logs.
+The workflow reports `steps.<id>.outcome` in its job summary and emits a warning when the advisory typecheck fails. This records the actual result before `continue-on-error` changes the step conclusion to success. A green overall workflow means the blocking install, lint, and build checks passed; it does not claim a clean typecheck run. Full diagnostics remain in the job logs.
+
+### Lint baseline cleanup
+
+The follow-up removes 35 unused import bindings across 22 JSX files without changing JSX, event handlers, data access, or authentication. The removed direct Base44 import in `CaseDetail.jsx` was unused; that page still loads the same client through `useEntities`. No dependency, lint-rule, or lint-scope changes are included. The existing `npm run lint` command uses `--quiet`, so its success means no lint errors, not an absence of lower-severity warnings. Lint now blocks CI to prevent these errors from returning.
 
 There is no `test` script in the baseline package configuration. This phase establishes install, typecheck, lint, and build visibility; it does not claim automated end-to-end coverage or production readiness.
 

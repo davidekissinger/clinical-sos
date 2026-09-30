@@ -37,9 +37,8 @@ jobs:
         continue-on-error: true
         run: npm run typecheck
 
-      - name: Lint (baseline advisory)
+      - name: Lint
         id: lint
-        continue-on-error: true
         run: npm run lint
 
       - name: Build
@@ -61,11 +60,11 @@ jobs:
             echo "| --- | --- | --- |"
             echo "| Install | $INSTALL_OUTCOME | Blocking |"
             echo "| Typecheck | $TYPECHECK_OUTCOME | Advisory baseline debt |"
-            echo "| Lint | $LINT_OUTCOME | Advisory baseline debt |"
+            echo "| Lint | $LINT_OUTCOME | Blocking |"
             echo "| Production build | $BUILD_OUTCOME | Blocking |"
             echo ""
             echo "A successful workflow does not mean advisory checks passed. See their logs and docs/migration/base44-migration-inventory.md for the baseline."
           } >> "$GITHUB_STEP_SUMMARY"
-          if [ "$TYPECHECK_OUTCOME" = "failure" ] || [ "$LINT_OUTCOME" = "failure" ]; then
-            echo "::warning::Baseline typecheck or lint failed. Review the validation summary and logs; these checks remain advisory in Phase 1."
+          if [ "$TYPECHECK_OUTCOME" = "failure" ]; then
+            echo "::warning::Baseline typecheck failed. Review the validation summary and logs; typecheck remains advisory in Phase 1."
           fi
