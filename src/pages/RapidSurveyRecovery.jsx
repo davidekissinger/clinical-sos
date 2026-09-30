@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, AlertTriangle, ClipboardCheck, Search, FileCheck, Wrench, ShieldCheck } from "lucide-react";
-import { PageHero } from "@/components/PageCta";
 import PageCta from "@/components/PageCta";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 

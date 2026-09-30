@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
-import { Mail, Phone, Linkedin, Plus, Pencil, Trash2, X, ChevronDown, ChevronRight, Copy } from "lucide-react";
+import { Mail, Phone, Linkedin, Plus, Pencil, Trash2, X, ChevronDown, ChevronRight } from "lucide-react";
 import MobileSelect from "@/components/MobileSelect";
 
 const CHANNEL_ICON = { Email: Mail, Phone, LinkedIn: Linkedin, "In-Person": Plus, Other: Mail };

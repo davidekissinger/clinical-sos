@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { PageHeader, StatCard, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
-import { AlertTriangle, FileText, CheckCircle2, XCircle, Clock, Activity, ShieldAlert, ClipboardCheck, GraduationCap, FolderCheck, Stethoscope } from "lucide-react";
+import { AlertTriangle, FileText, CheckCircle2, Clock, Activity, ShieldAlert, ClipboardCheck, GraduationCap, FolderCheck, Stethoscope } from "lucide-react";
 
 export default function RecoveryDashboard() {
   const cases = useEntities("RegulatoryCase", { sort: "-created_date", limit: 100, excludeTestData: true });

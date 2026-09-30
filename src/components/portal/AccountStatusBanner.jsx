@@ -1,6 +1,6 @@
 import React from "react";
 import { useOutletContext } from "react-router-dom";
-import { AlertCircle, Clock, AlertTriangle, Ban } from "lucide-react";
+import { Clock, AlertTriangle, Ban } from "lucide-react";
 
 export default function AccountStatusBanner() {
   const outletContext = useOutletContext();

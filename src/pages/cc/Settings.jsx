@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { PageHeader, LoadingState } from "@/components/cc/ui";
 import ThemeToggle from "@/components/ThemeToggle";
 import MobileSelect from "@/components/MobileSelect";
-import { Save, CheckCircle2, FlaskConical, AlertTriangle, Palette } from "lucide-react";
+import { Save, CheckCircle2, FlaskConical, Palette } from "lucide-react";
 
 export default function Settings() {
   const [config, setConfig] = useState(null);
@@ -177,6 +177,7 @@ function Section({ title, desc, children }) {
   );
 }
 
+/** @param {{label: string, value: string | number, onChange: (value: string) => void, type?: React.HTMLInputTypeAttribute, hint?: React.ReactNode}} props */
 function Input({ label, value, onChange, type = "text", hint }) {
   return (
     <label className="block">

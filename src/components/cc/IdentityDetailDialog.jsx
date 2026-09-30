@@ -18,7 +18,7 @@ export default function IdentityDetailDialog({ user, profile, pendingRequest, on
   const [loadingAudit, setLoadingAudit] = useState(false);
   const [actionMode, setActionMode] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({});
+  const [form, setForm] = useState(/** @type {{verified_display_name?: string, verified_credentials?: string, internal_notes?: string, reason?: string, decision_notes?: string}} */ ({}));
 
   useEffect(() => {
     if (profile) loadAudit();
@@ -271,6 +271,7 @@ function Field({ label, value }) {
   );
 }
 
+/** @param {{label: string, value: string, onChange: (value: string) => void, placeholder?: string, textarea?: boolean}} props */
 function InputField({ label, value, onChange, placeholder, textarea }) {
   return (
     <label className="block">

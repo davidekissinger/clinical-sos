@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Search, ShieldCheck } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { PageHeader, Badge, Table, EmptyState, LoadingState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
 import { useTestData } from "@/lib/TestDataContext";

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Badge } from "@/components/cc/ui";
-import { Save, FileText, AlertTriangle, Plus, CheckCircle, Send, ClipboardCheck, UserCheck, ArrowRightCircle, RotateCcw } from "lucide-react";
+import { Save, FileText, AlertTriangle, Plus, CheckCircle, Send, UserCheck, ArrowRightCircle, RotateCcw } from "lucide-react";
 import MobileSelect from "@/components/MobileSelect";
 
 const POC_STATUS_FLOW = {
@@ -331,6 +331,7 @@ function Section({ title, desc, children }) {
   );
 }
 
+/** @param {{value: string, onChange: (value: string) => void, placeholder?: string, label?: string}} props */
 function TextArea({ value, onChange, placeholder, label }) {
   return (
     <textarea value={value || ""} onChange={e => onChange(e.target.value)}

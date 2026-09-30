@@ -1,6 +1,5 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
 import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
 import { Plus, ArrowLeft, AlertTriangle, FileText, ShieldCheck } from "lucide-react";
@@ -103,6 +102,7 @@ export default function CaseDetail() {
   );
 }
 
+/** @param {{label: React.ReactNode, value: React.ReactNode, tone?: string}} props */
 function SummaryCard({ label, value, tone }) {
   const tones = { default: "text-foreground", red: "text-rose-600 dark:text-rose-400", amber: "text-amber-600 dark:text-amber-400", green: "text-emerald-600 dark:text-emerald-400" };
   return (
