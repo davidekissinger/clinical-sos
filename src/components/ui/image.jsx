@@ -25,7 +25,7 @@ const ImageWrapper = React.forwardRef(/** @param {React.HTMLAttributes<HTMLSpanE
 ))
 ImageWrapper.displayName = "ImageWrapper"
 
-const ResponsiveImage = React.forwardRef(/** @param {React.ImgHTMLAttributes<HTMLImageElement> & {parsed: NonNullable<ReturnType<typeof parseWixMediaUrl>>, fittingType?: "fill" | "fit", focalPoint?: {x: number, y: number}, quality?: number, aspectRatio?: React.CSSProperties["aspectRatio"]}} props @param {React.ForwardedRef<HTMLImageElement>} parentRef */ 
+const ResponsiveImage = React.forwardRef(/** @param {React.ImgHTMLAttributes<HTMLImageElement> & {parsed: NonNullable<ReturnType<typeof parseWixMediaUrl>>, fittingType?: "fill" | "fit", focalPoint?: {x: number, y: number}, quality?: number, aspectRatio?: React.CSSProperties["aspectRatio"]}} props @param {React.ForwardedRef<HTMLImageElement>} parentRef */
   ({ parsed, fittingType, focalPoint, quality, className, style, aspectRatio, onLoad, ...props }, parentRef) => {
     const wrapperRef = React.useRef(null)
     const imgRef = React.useRef(null)
@@ -115,7 +115,7 @@ ResponsiveImage.displayName = "ResponsiveImage"
  * as a plain <img>. Failed transforms retry the original URL; only a broken
  * original swaps to the generic fallback image.
  */
-const Image = React.forwardRef(/** @param {React.ImgHTMLAttributes<HTMLImageElement> & {fittingType?: "fill" | "fit", originWidth?: number, originHeight?: number, focalPointX?: number, focalPointY?: number, quality?: number}} props @param {React.ForwardedRef<HTMLImageElement>} ref */ 
+const Image = React.forwardRef(/** @param {React.ImgHTMLAttributes<HTMLImageElement> & {fittingType?: "fill" | "fit", originWidth?: number, originHeight?: number, focalPointX?: number, focalPointY?: number, quality?: number}} props @param {React.ForwardedRef<HTMLImageElement>} ref */
   (
     {
       src,
