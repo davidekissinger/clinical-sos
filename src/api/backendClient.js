@@ -53,15 +53,21 @@ const FUNCTION_SLUG = Object.freeze({
   getClientPortalContext: "get-client-portal-context",
   getClientPortalData: "get-client-portal-data",
   getClientPortalDetail: "get-client-portal-detail",
-  getMyIdentityProfile: "get-my-identity-profile",
+  getMyIdentityProfile: "identity-self-service",
   manageClientMembership: "manage-client-membership",
-  manageUserIdentity: "manage-user-identity",
-  submitNameChangeRequest: "submit-name-change-request",
+  manageUserIdentity: "identity-admin-action",
+  submitNameChangeRequest: "identity-self-service",
   syncClientMembershipAccess: "sync-client-membership-access",
   transitionClientAccess: "transition-client-access",
   transitionPOC: "transition-poc",
   updateRevisitReadiness: "update-revisit-readiness",
-  withdrawNameChangeRequest: "withdraw-name-change-request",
+  withdrawNameChangeRequest: "identity-self-service",
+});
+
+const IDENTITY_ACTION = Object.freeze({
+  getMyIdentityProfile: "get_profile",
+  submitNameChangeRequest: "submit_change",
+  withdrawNameChangeRequest: "withdraw_change",
 });
 
 function selectFields(fields) {
@@ -236,7 +242,8 @@ export const backend = {
     invoke(name, payload) {
       const slug = FUNCTION_SLUG[name];
       if (!slug) throw new Error(`Unsupported Clinical SOS function: ${name}`);
-      return invokeFunction(slug, payload);
+      const action = IDENTITY_ACTION[name];
+      return invokeFunction(slug, action ? { ...payload, action } : payload);
     },
   },
   auth: {
