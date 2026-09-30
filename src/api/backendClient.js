@@ -47,7 +47,8 @@ const FUNCTION_SLUG = Object.freeze({
   clientReviewPOC: "client-portal-action",
   clientUpdateTask: "client-portal-action",
   closeDeficiency: "clinical-workflow-action",
-  createCheckoutSession: "create-checkout-session",
+  createCheckoutSession: "stripe-checkout",
+  getSubscriptionTiers: "stripe-checkout",
   createEngagementFromOpportunity: "clinical-workflow-action",
   generateWorkProduct: "generate-work-product",
   getClientPortalContext: "get-client-portal-context",
@@ -239,9 +240,10 @@ async function functionError(error, slug) {
   return normalized;
 }
 
-async function invokeFunction(nameOrSlug, payload = {}) {
+async function invokeFunction(nameOrSlug, payload = {}, method = "POST") {
   const slug = FUNCTION_SLUG[nameOrSlug] || nameOrSlug;
-  const { data, error } = await supabase.functions.invoke(slug, { body: payload });
+  const { data, error } = await supabase.functions.invoke(slug,
+    method === "GET" ? { method: "GET" } : { body: payload });
   if (error) throw await functionError(error, slug);
   return data;
 }
@@ -255,6 +257,7 @@ export const backend = {
     invoke(name, payload) {
       const slug = FUNCTION_SLUG[name];
       if (!slug) throw new Error(`Unsupported Clinical SOS function: ${name}`);
+      if (name === "getSubscriptionTiers") return invokeFunction(slug, undefined, "GET");
       if (name === "clientReviewPOC") {
         // The legacy caller's action is a review decision, not endpoint dispatch.
         const { action: reviewAction, ...fields } = payload || {};
