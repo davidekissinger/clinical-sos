@@ -23,6 +23,25 @@ const bundled = await build({
 });
 const { backend } = await import(`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString('base64')}`);
 
+test('user directory maps legacy list pagination and unwraps users', async () => {
+  globalThis.identityTestInvoke = async (slug, options) => {
+    assert.equal(slug, 'list-users');
+    assert.deepEqual(options.body, { sort: '-created_date', limit: 500, skip: 0 });
+    return { data: { users: [{ id: 'user-1' }] }, error: null };
+  };
+  assert.deepEqual(await backend.entities.User.list('-created_date', 500), [{ id: 'user-1' }]);
+});
+
+test('invitation search sends email and eligibility to the server', async () => {
+  globalThis.identityTestInvoke = async (slug, options) => {
+    assert.equal(slug, 'list-users');
+    assert.deepEqual(options.body, { sort: '-created_date', limit: 50, skip: 0,
+      search_email: 'person@example.invalid', pending_only: true });
+    return { data: { users: [] }, error: null };
+  };
+  assert.deepEqual(await backend.entities.User.searchPending('person@example.invalid'), []);
+});
+
 for (const decision of ['create', 'update_capabilities', 'activate', 'suspend', 'revoke']) {
   test(`membership ${decision} preserves scope and capabilities separately from dispatch`, async () => {
     const payload = { action: decision, membership_action: 'must-not-win', membership_id: 'member-1',

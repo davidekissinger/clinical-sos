@@ -43,7 +43,7 @@ jobs:
         run: npm run lint
 
       - name: Backend routing regression tests
-        run: node --test tests/backend-routing.test.mjs
+        run: node --test tests/*.test.mjs
 
       - name: Build
         id: build

@@ -202,6 +202,12 @@ const entities = new Proxy(
             const rows = await invokeFunction("list-users", { sort, limit, skip });
             return Array.isArray(rows) ? rows : rows?.users || [];
           },
+          searchPending: async (email) => {
+            const rows = await invokeFunction("list-users", {
+              sort: "-created_date", limit: 50, skip: 0, search_email: email, pending_only: true,
+            });
+            return rows?.users || [];
+          },
         };
       }
 
