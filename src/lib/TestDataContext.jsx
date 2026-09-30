@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+/** @type {React.Context<{showTestData: boolean, setShowTestData: React.Dispatch<React.SetStateAction<boolean>>}>} */
 const TestDataContext = createContext({ showTestData: false, setShowTestData: () => {} });
 
 export function TestDataProvider({ children }) {

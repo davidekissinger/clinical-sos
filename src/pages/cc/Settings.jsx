@@ -177,6 +177,7 @@ function Section({ title, desc, children }) {
   );
 }
 
+/** @param {{label: string, value: string | number, onChange: (value: string) => void, type?: React.HTMLInputTypeAttribute, hint?: React.ReactNode}} props */
 function Input({ label, value, onChange, type = "text", hint }) {
   return (
     <label className="block">

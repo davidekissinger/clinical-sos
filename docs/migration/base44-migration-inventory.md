@@ -37,6 +37,26 @@ The workflow reports `steps.<id>.outcome` in its job summary and emits a warning
 
 The follow-up removes 35 unused import bindings across 22 JSX files without changing JSX, event handlers, data access, or authentication. The removed direct Base44 import in `CaseDetail.jsx` was unused; that page still loads the same client through `useEntities`. No dependency, lint-rule, or lint-scope changes are included. The existing `npm run lint` command uses `--quiet`, so its success means no lint errors, not an absence of lower-severity warnings. Lint now blocks CI to prevent these errors from returning.
 
+### Type declaration cleanup
+
+Explicit JSDoc contracts for shared component props, forwarded DOM refs, form state, hook options, and the test-data context reduce the typecheck baseline from 250 to 66 diagnostics. Native React, Radix, input-otp, and variant types are reused where appropriate. Optional props reflect existing callers and runtime checks; required props remain checked. No compiler exclusions, `any` escape hatches, or diagnostic suppression comments were added.
+
+The 15 changed source files were compiled before and after the annotations with the same esbuild settings; all produced identical JavaScript. Local lint and production build passed. The remaining diagnostics stay visible and advisory:
+
+| Category | Diagnostics | Follow-up |
+| --- | ---: | --- |
+| Array response fallbacks | 13 | Reconcile legacy wrapped responses with SDK array return types. |
+| Bootstrap storage/environment | 8 | Check the non-browser storage path and Vite environment declarations. |
+| Date arithmetic | 8 | Make timestamp conversion explicit while preserving sorting semantics. |
+| Empty-state callers | 12 | Reconcile callers passing `text`/`icon` with the component's `title` contract. |
+| Named form controls | 12 | Type the submitted form and its named controls. |
+| Portal outlet context | 9 | Define the entitlement context from the actual provider contract. |
+| Agent SDK calls | 2 | Verify filter arguments and the asynchronous conversation result. |
+| OAuth request headers | 1 | Type the headers object at the request boundary. |
+| Account deletion SDK method | 1 | Verify the supported deletion contract before changing account behavior. |
+
+Some remaining diagnostics identify potential runtime defects, not just missing annotations. Keep them visible until their behavior is verified rather than casting them away to make CI green.
+
 There is no `test` script in the baseline package configuration. This phase establishes install, typecheck, lint, and build visibility; it does not claim automated end-to-end coverage or production readiness.
 
 At the time of this inventory there was no committed `netlify.toml` on `main`. Netlify production configuration belongs to the later deployment phase rather than this baseline phase.

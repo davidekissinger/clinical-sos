@@ -331,6 +331,7 @@ function Section({ title, desc, children }) {
   );
 }
 
+/** @param {{value: string, onChange: (value: string) => void, placeholder?: string, label?: string}} props */
 function TextArea({ value, onChange, placeholder, label }) {
   return (
     <textarea value={value || ""} onChange={e => onChange(e.target.value)}

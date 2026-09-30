@@ -5,6 +5,7 @@ import { useTestData } from "@/lib/TestDataContext";
 // Lightweight data hook for command center pages.
 // When excludeTestData is true and the Show Test Data toggle is OFF,
 // records with is_test_data === true are excluded from results.
+/** @param {string} entityName @param {{sort?: string, limit?: number, filter?: Record<string, unknown>, excludeTestData?: boolean}} [options] */
 export function useEntities(entityName, { sort, limit, filter, excludeTestData } = {}) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);

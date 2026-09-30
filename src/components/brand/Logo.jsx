@@ -8,6 +8,7 @@ const LOGOS = {
   verticalDark: "https://media.base44.com/images/public/6a81d38c272422709e43236f/189258794_ClinicalSOS-final-Vert-cut-Reverse.png",
 };
 
+/** @param {{variant?: "horizontal" | "vertical", className?: string, onDark?: boolean}} props */
 export default function Logo({ variant = "horizontal", className, onDark = false }) {
   const src = onDark
     ? variant === "vertical"
