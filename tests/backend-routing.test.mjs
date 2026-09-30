@@ -23,6 +23,25 @@ const bundled = await build({
 });
 const { backend } = await import(`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString('base64')}`);
 
+test('subscription catalog uses the curated GET endpoint without a request body', async () => {
+  globalThis.identityTestInvoke = async (slug, options) => {
+    assert.equal(slug, 'stripe-checkout');
+    assert.deepEqual(options, { method: 'GET' });
+    return { data: { tiers: [{ id: 'tier-1' }] }, error: null };
+  };
+  assert.deepEqual(await backend.functions.invoke('getSubscriptionTiers'), { tiers: [{ id: 'tier-1' }] });
+});
+
+test('checkout preserves tier selection and the server checkout response', async () => {
+  const response = { checkout_url: 'https://checkout.stripe.com/test-fixture' };
+  globalThis.identityTestInvoke = async (slug, options) => {
+    assert.equal(slug, 'stripe-checkout');
+    assert.deepEqual(options.body, { tier_id: 'tier-1' });
+    return { data: response, error: null };
+  };
+  assert.equal(await backend.functions.invoke('createCheckoutSession', { tier_id: 'tier-1' }), response);
+});
+
 test('user directory maps legacy list pagination and unwraps users', async () => {
   globalThis.identityTestInvoke = async (slug, options) => {
     assert.equal(slug, 'list-users');
