@@ -81,9 +81,9 @@ export default function PrivacyPolicy() {
 
             <Section icon={Server} title="5. Service Providers">
               <p>
-                Clinical SOS uses the Base44 platform to host our website, store submitted information, and manage
-                our internal operations. Base44 acts as our service provider and processes submitted information on
-                our behalf. We do not sell, rent, or share your information with third parties for marketing purposes.
+                Clinical SOS uses Netlify to host our website and Supabase to provide authentication, database, and
+                related application services. These providers process submitted information on our behalf. We do not
+                sell, rent, or share your information with third parties for marketing purposes.
               </p>
             </Section>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { Bot, Send, ArrowLeft, Loader2, ShieldCheck, Search, Users, Target } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
@@ -67,17 +67,18 @@ export default function Agents() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [conversations, setConversations] = useState([]);
+  const [agentError, setAgentError] = useState("");
   const scrollRef = useRef(null);
 
   useEffect(() => {
     if (selectedAgent) {
-      base44.agents.listConversations({ agent_name: selectedAgent }).then(setConversations).catch(() => {});
+      backend.agents.listConversations({ agent_name: selectedAgent }).then(setConversations).catch(() => {});
     }
   }, [selectedAgent]);
 
   useEffect(() => {
     if (conversation) {
-      const unsub = base44.agents.subscribeToConversation(conversation.id, (data) => {
+      const unsub = backend.agents.subscribeToConversation(conversation.id, (data) => {
         setMessages(data.messages || []);
         setLoading(false);
       });
@@ -89,14 +90,20 @@ export default function Agents() {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const startConversation = () => {
-    if (!selectedAgent) return;
-    const conv = base44.agents.createConversation({
-      agent_name: selectedAgent,
-      metadata: { name: `Chat — ${new Date().toLocaleString()}` },
-    });
-    setConversation(conv);
-    setMessages(conv.messages || []);
+  const startConversation = async (agentName) => {
+    setSelectedAgent(agentName);
+    setAgentError("");
+
+    try {
+      const conv = await backend.agents.createConversation({
+        agent_name: agentName,
+        metadata: { name: `Chat — ${new Date().toLocaleString()}` },
+      });
+      setConversation(conv);
+      setMessages(conv.messages || []);
+    } catch (error) {
+      setAgentError(error.message || "The AI agent is not available yet.");
+    }
   };
 
   const openConversation = (conv) => {
@@ -109,7 +116,12 @@ export default function Agents() {
     const text = input.trim();
     setInput("");
     setLoading(true);
-    await base44.agents.addMessage(conversation, { role: "user", content: text });
+    try {
+      await backend.agents.addMessage(conversation, { role: "user", content: text });
+    } catch (error) {
+      setAgentError(error.message || "The message could not be sent.");
+      setLoading(false);
+    }
   };
 
   if (!selectedAgent) {
@@ -123,7 +135,7 @@ export default function Agents() {
           {AGENTS.map((a) => (
             <button
               key={a.name}
-              onClick={() => { setSelectedAgent(a.name); startConversation(); }}
+              onClick={() => void startConversation(a.name)}
               className="text-left p-5 rounded-xl border border-border bg-white dark:bg-card hover:border-primary hover:shadow-md transition group"
             >
               <div className={cn("inline-flex p-2.5 rounded-lg mb-3", a.color)}>
@@ -166,6 +178,12 @@ export default function Agents() {
               {c.metadata?.name || "Conversation"}
             </button>
           ))}
+        </div>
+      )}
+
+      {agentError && (
+        <div role="alert" className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
+          {agentError}
         </div>
       )}
 

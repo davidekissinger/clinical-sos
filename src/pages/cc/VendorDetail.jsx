@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { PageHeader, Badge, EmptyState, LoadingState } from "@/components/cc/ui";
 import { useTestData } from "@/lib/TestDataContext";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 
 export default function VendorDetail() {
   const { id } = useParams();
@@ -18,12 +18,12 @@ export default function VendorDetail() {
     const load = async () => {
       setLoading(true);
       try {
-        const v = await base44.entities.Vendor.get(id);
+        const v = await backend.entities.Vendor.get(id);
         setVendor(v);
         const [rels, evals, plans] = await Promise.all([
-          base44.entities.VendorRelationship.filter({ vendor_id: id }, "-created_date", 50),
-          base44.entities.VendorEvaluation.filter({ vendor_id: id }, "-created_date", 50),
-          base44.entities.VendorPerformanceImprovementPlan.filter({ vendor_id: id }, "-created_date", 50),
+          backend.entities.VendorRelationship.filter({ vendor_id: id }, "-created_date", 50),
+          backend.entities.VendorEvaluation.filter({ vendor_id: id }, "-created_date", 50),
+          backend.entities.VendorPerformanceImprovementPlan.filter({ vendor_id: id }, "-created_date", 50),
         ]);
         setRelationships(rels || []);
         setEvaluations(evals || []);

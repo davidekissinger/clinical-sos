@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 import { Users, UserPlus, Settings } from "lucide-react";
 import AccessibleDialog from "@/components/AccessibleDialog";
@@ -25,8 +25,8 @@ export default function ClientAccounts() {
     setLoading(true);
     try {
       const [accRes, memRes] = await Promise.all([
-        base44.entities.ClientAccount.list("-created_date", 200),
-        base44.entities.ClientMembership.list("-created_date", 200),
+        backend.entities.ClientAccount.list("-created_date", 200),
+        backend.entities.ClientMembership.list("-created_date", 200),
       ]);
       setAccounts(Array.isArray(accRes) ? accRes : (accRes?.data || []));
       setMemberships(Array.isArray(memRes) ? memRes : (memRes?.data || []));
@@ -116,7 +116,7 @@ export default function ClientAccounts() {
 
       {showAccessForm && (
         <AccessibleDialog isOpen={!!showAccessForm} onClose={() => setShowAccessForm(null)} title={`Manage Access — ${showAccessForm.account_name}`} titleId="access-form-title" closeLabel="Close">
-          <form onSubmit={async (e) => { e.preventDefault(); const f = e.target; const isOverride = f.manual_override.checked; try { await base44.functions.invoke("transitionClientAccess", { client_account_id: showAccessForm.id, new_access_status: f.new_access_status.value, reason: f.reason.value, manual_override: isOverride, manual_override_type: isOverride ? f.override_type.value : null, override_expiration: isOverride ? f.override_expiration.value || null : null }); setShowAccessForm(null); load(); setResult({ success: "Access updated" }); } catch (err) { setResult({ error: err.message }); } }} className="space-y-3">
+          <form onSubmit={async (e) => { e.preventDefault(); const f = e.target; const isOverride = f.manual_override.checked; try { await backend.functions.invoke("transitionClientAccess", { client_account_id: showAccessForm.id, new_access_status: f.new_access_status.value, reason: f.reason.value, manual_override: isOverride, manual_override_type: isOverride ? f.override_type.value : null, override_expiration: isOverride ? f.override_expiration.value || null : null }); setShowAccessForm(null); load(); setResult({ success: "Access updated" }); } catch (err) { setResult({ error: err.message }); } }} className="space-y-3">
             <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Current Status</span><p className="text-sm text-foreground">{showAccessForm.access_status}</p></label>
             <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">New Access Status *</span><MobileSelect name="new_access_status" value={newAccessStatus} onChange={setNewAccessStatus} options={["Active", "Grace Period", "Restricted", "Suspended", "Terminated"]} className="cc-input" ariaLabel="New access status" /></label>
             <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Reason *</span><textarea name="reason" required rows={2} className="cc-input" /></label>
@@ -148,7 +148,7 @@ function NewAccountDialog({ isOpen, onClose, onResult, onReload }) {
     if (!isOpen) return;
     async function loadOrgs() {
       try {
-        const res = await base44.entities.Organization.list("-organization_name", 200);
+        const res = await backend.entities.Organization.list("-organization_name", 200);
         setOrganizations(Array.isArray(res) ? res : (res?.data || []));
       } catch (e) { console.error(e); }
     }
@@ -157,7 +157,7 @@ function NewAccountDialog({ isOpen, onClose, onResult, onReload }) {
 
   return (
     <AccessibleDialog isOpen={isOpen} onClose={onClose} title="New Client Account" titleId="acc-form-title" closeLabel="Close">
-      <form onSubmit={async (e) => { e.preventDefault(); const f = e.target; const orgId = f.organization_id.value; if (!orgId) { onResult({ error: "Organization is required" }); return; } const org = organizations.find(o => o.id === orgId); try { await base44.entities.ClientAccount.create({ account_name: f.account_name.value, organization_id: orgId, organization_name: org?.organization_name || null, access_status: f.access_status.value, billing_status: f.billing_status.value, subscription_status: f.subscription_status.value, subscription_plan: f.subscription_plan.value || null, subscription_start_date: f.subscription_start_date.value || null }); onClose(); onReload(); onResult({ success: "Account created" }); } catch (err) { onResult({ error: err.message }); } }} className="space-y-3">
+      <form onSubmit={async (e) => { e.preventDefault(); const f = e.target; const orgId = f.organization_id.value; if (!orgId) { onResult({ error: "Organization is required" }); return; } const org = organizations.find(o => o.id === orgId); try { await backend.entities.ClientAccount.create({ account_name: f.account_name.value, organization_id: orgId, organization_name: org?.organization_name || null, access_status: f.access_status.value, billing_status: f.billing_status.value, subscription_status: f.subscription_status.value, subscription_plan: f.subscription_plan.value || null, subscription_start_date: f.subscription_start_date.value || null }); onClose(); onReload(); onResult({ success: "Account created" }); } catch (err) { onResult({ error: err.message }); } }} className="space-y-3">
         <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Account Name *</span><input name="account_name" required className="cc-input" /></label>
         <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Organization *</span><MobileSelect name="organization_id" value={orgId} onChange={setOrgId} options={[{ value: "", label: "— Select Organization —" }, ...organizations.map(o => ({ value: o.id, label: o.organization_name }))]} className="cc-input" ariaLabel="Organization" /></label>
         <label className="block"><span className="block text-xs font-medium text-muted-foreground mb-1">Access Status *</span><MobileSelect name="access_status" value={accessStatus} onChange={setAccessStatus} options={["Active", "Grace Period", "Restricted", "Suspended", "Terminated"]} className="cc-input" ariaLabel="Access status" /></label>

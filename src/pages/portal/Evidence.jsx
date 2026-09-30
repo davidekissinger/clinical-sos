@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { AlertTriangle } from "lucide-react";
 import PullToRefresh from "@/components/PullToRefresh";
 
@@ -14,7 +14,7 @@ export default function ClientEvidence() {
 
   const loadEvidence = async () => {
     try {
-      const res = await base44.functions.invoke("getClientPortalData", { resource: "evidence" });
+      const res = await backend.functions.invoke("getClientPortalData", { resource: "evidence" });
       setEvidence(Array.isArray(res) ? res : (res?.data || []));
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
@@ -31,7 +31,7 @@ export default function ClientEvidence() {
     const prevEvidence = evidence;
     setEvidence(evidence.map(e => e.id === item.id ? { ...e, client_response_status: responseStatus } : e));
     try {
-      await base44.functions.invoke("clientRespondEvidence", {
+      await backend.functions.invoke("clientRespondEvidence", {
         evidence_id: item.id, response_status: responseStatus
       });
       setActionResult({ success: "Evidence response submitted." });

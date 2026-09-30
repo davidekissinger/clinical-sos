@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
 import { ArrowLeft, Save, AlertTriangle, FileText, ClipboardCheck, GraduationCap, FolderCheck, Stethoscope, ShieldCheck, Lock, CheckCircle2, X } from "lucide-react";
@@ -63,7 +63,7 @@ export default function DeficiencyDetail() {
     setClosing(true);
     setClosureResult(null);
     try {
-      const result = await base44.functions.invoke("closeDeficiency", {
+      const result = await backend.functions.invoke("closeDeficiency", {
         deficiency_id: def.id,
         force,
         override_reason: reason,
@@ -77,7 +77,7 @@ export default function DeficiencyDetail() {
 
   const assessReadiness = async (manualCriteria = {}) => {
     try {
-      await base44.functions.invoke("updateRevisitReadiness", {
+      await backend.functions.invoke("updateRevisitReadiness", {
         deficiency_id: def.id,
         manual_criteria: manualCriteria,
       });
@@ -161,7 +161,7 @@ function IdentificationTab({ def }) {
 
   const save = async () => {
     setSaving(true);
-    try { await base44.entities.Deficiency.update(def.id, form); setEditing(false); }
+    try { await backend.entities.Deficiency.update(def.id, form); setEditing(false); }
     catch (e) { console.error(e); }
     finally { setSaving(false); }
   };
@@ -235,7 +235,7 @@ function RCATab({ def, rcaText, setRcaText }) {
   const save = async () => {
     setSaving(true);
     try {
-      await base44.entities.Deficiency.update(def.id, {
+      await backend.entities.Deficiency.update(def.id, {
         root_cause_categories: categories,
         likely_contributing_factors: contributingFactors + "\n\n5 Whys:\n" + fiveWhys.map((w, i) => `Why ${i+1}: ${w}`).join("\n"),
       });

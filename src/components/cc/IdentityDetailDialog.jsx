@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { Badge } from "@/components/cc/ui";
 import { X, ShieldCheck, UserPlus, Check, Ban, FileText, Lock, RotateCcw, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -18,7 +18,7 @@ export default function IdentityDetailDialog({ user, profile, pendingRequest, on
   const [loadingAudit, setLoadingAudit] = useState(false);
   const [actionMode, setActionMode] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState(/** @type {{verified_display_name?: string, verified_credentials?: string, internal_notes?: string, reason?: string, decision_notes?: string}} */ ({}));
+  const [form, setForm] = useState({});
 
   useEffect(() => {
     if (profile) loadAudit();
@@ -28,7 +28,7 @@ export default function IdentityDetailDialog({ user, profile, pendingRequest, on
     if (!profile) return;
     setLoadingAudit(true);
     try {
-      const events = await base44.entities.UserIdentityAuditEvent.filter({ subject_user_id: user.id });
+      const events = await backend.entities.UserIdentityAuditEvent.filter({ subject_user_id: user.id });
       setAuditEvents((events || []).sort((a, b) => new Date(b.event_timestamp || 0) - new Date(a.event_timestamp || 0)));
     } catch (err) {
       console.error("Failed to load audit events:", err);
@@ -51,11 +51,11 @@ export default function IdentityDetailDialog({ user, profile, pendingRequest, on
   const callManage = async (action, payload) => {
     setSaving(true);
     try {
-      const res = await base44.functions.invoke("manageUserIdentity", { action, ...payload });
-      if (res.data?.error) {
-        toast({ title: "Action failed", description: res.data.error, variant: "destructive" });
+      const res = await backend.functions.invoke("manageUserIdentity", { action, ...payload });
+      if (res?.error) {
+        toast({ title: "Action failed", description: res.error, variant: "destructive" });
       } else {
-        toast({ title: "Success", description: res.data?.duplicate_warning || "Action completed successfully." });
+        toast({ title: "Success", description: res?.duplicate_warning || "Action completed successfully." });
         setActionMode(null);
         onChanged();
       }
@@ -69,11 +69,11 @@ export default function IdentityDetailDialog({ user, profile, pendingRequest, on
   const callApprove = async (requestId, decisionNotes) => {
     setSaving(true);
     try {
-      const res = await base44.functions.invoke("manageUserIdentity", { action: "approve_request", request_id: requestId, decision_notes: decisionNotes });
-      if (res.data?.error) {
-        toast({ title: "Approval failed", description: res.data.error, variant: "destructive" });
+      const res = await backend.functions.invoke("manageUserIdentity", { action: "approve_request", request_id: requestId, decision_notes: decisionNotes });
+      if (res?.error) {
+        toast({ title: "Approval failed", description: res.error, variant: "destructive" });
       } else {
-        toast({ title: "Request approved", description: res.data?.duplicate_warning || "Name change approved and applied." });
+        toast({ title: "Request approved", description: res?.duplicate_warning || "Name change approved and applied." });
         setActionMode(null);
         onChanged();
       }
@@ -87,9 +87,9 @@ export default function IdentityDetailDialog({ user, profile, pendingRequest, on
   const callDeny = async (requestId, decisionNotes) => {
     setSaving(true);
     try {
-      const res = await base44.functions.invoke("manageUserIdentity", { action: "deny_request", request_id: requestId, decision_notes: decisionNotes });
-      if (res.data?.error) {
-        toast({ title: "Denial failed", description: res.data.error, variant: "destructive" });
+      const res = await backend.functions.invoke("manageUserIdentity", { action: "deny_request", request_id: requestId, decision_notes: decisionNotes });
+      if (res?.error) {
+        toast({ title: "Denial failed", description: res.error, variant: "destructive" });
       } else {
         toast({ title: "Request denied", description: "The name-change request has been denied." });
         setActionMode(null);
@@ -138,7 +138,7 @@ export default function IdentityDetailDialog({ user, profile, pendingRequest, on
         <div className="px-6 py-5 space-y-5">
           {/* User info */}
           <section>
-            <h3 className="text-sm font-semibold text-foreground mb-2">Base44 Account</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-2">Authentication Account</h3>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <Field label="User ID" value={user.id} />
               <Field label="Email" value={user.email} />
@@ -271,7 +271,6 @@ function Field({ label, value }) {
   );
 }
 
-/** @param {{label: string, value: string, onChange: (value: string) => void, placeholder?: string, textarea?: boolean}} props */
 function InputField({ label, value, onChange, placeholder, textarea }) {
   return (
     <label className="block">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { PageHeader, LoadingState } from "@/components/cc/ui";
 import ThemeToggle from "@/components/ThemeToggle";
 import MobileSelect from "@/components/MobileSelect";
@@ -14,7 +14,7 @@ export default function Settings() {
   useEffect(() => {
     (async () => {
       try {
-        const configs = await base44.entities.LeadEngineConfig.list();
+        const configs = await backend.entities.LeadEngineConfig.list();
         if (configs && configs.length > 0) {
           setConfig(configs[0]);
         } else {
@@ -47,9 +47,9 @@ export default function Settings() {
     try {
       const payload = { ...config, last_updated: new Date().toISOString() };
       if (config.id) {
-        await base44.entities.LeadEngineConfig.update(config.id, payload);
+        await backend.entities.LeadEngineConfig.update(config.id, payload);
       } else {
-        await base44.entities.LeadEngineConfig.create(payload);
+        await backend.entities.LeadEngineConfig.create(payload);
       }
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -177,7 +177,6 @@ function Section({ title, desc, children }) {
   );
 }
 
-/** @param {{label: string, value: string | number, onChange: (value: string) => void, type?: React.HTMLInputTypeAttribute, hint?: React.ReactNode}} props */
 function Input({ label, value, onChange, type = "text", hint }) {
   return (
     <label className="block">

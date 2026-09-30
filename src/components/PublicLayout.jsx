@@ -10,7 +10,7 @@ import StructuredData from "@/components/StructuredData";
 export default function PublicLayout() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
-  const orgUrl = typeof window !== "undefined" ? window.location.origin : "https://clinical-sos-sync.base44.app/";
+  const orgUrl = typeof window !== "undefined" ? window.location.origin : "https://clinical-sos.netlify.app/";
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",

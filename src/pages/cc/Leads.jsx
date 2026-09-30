@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Target, Plus, Filter } from "lucide-react";
 import { PageHeader, Badge, Table, EmptyState, LoadingState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import PullToRefresh from "@/components/PullToRefresh";
 
 const TIERS = ["All", "Tier 1", "Tier 2", "Tier 3", "Nurture"];
@@ -18,7 +18,7 @@ export default function Leads() {
     setUpdating(lead.id);
     try {
       const next = { Unverified: "Verified", Verified: "Qualified", Qualified: "Qualified" }[lead.verification_status] || "Verified";
-      await base44.entities.Lead.update(lead.id, { verification_status: next });
+      await backend.entities.Lead.update(lead.id, { verification_status: next });
       leads.reload();
     } finally { setUpdating(null); }
   };

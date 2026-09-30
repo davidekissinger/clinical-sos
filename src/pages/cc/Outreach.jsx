@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
 import { Mail, Phone, Linkedin, Plus, Pencil, Trash2, X, ChevronDown, ChevronRight } from "lucide-react";
@@ -40,8 +40,8 @@ export default function Outreach() {
   const save = async (data) => {
     setSaving(true);
     try {
-      if (data.id) await base44.entities.OutreachTemplate.update(data.id, data);
-      else await base44.entities.OutreachTemplate.create(data);
+      if (data.id) await backend.entities.OutreachTemplate.update(data.id, data);
+      else await backend.entities.OutreachTemplate.create(data);
       await templates.reload();
       setEditing(null);
     } finally { setSaving(false); }
@@ -49,7 +49,7 @@ export default function Outreach() {
 
   const remove = async (id) => {
     if (!confirm("Delete this template step?")) return;
-    await base44.entities.OutreachTemplate.delete(id);
+    await backend.entities.OutreachTemplate.delete(id);
     templates.reload();
   };
 

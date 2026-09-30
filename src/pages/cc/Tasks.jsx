@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { PageHeader, Badge, LoadingState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
 import MobileSelect from "@/components/MobileSelect";
@@ -19,7 +19,7 @@ export default function Tasks() {
 
   const move = async (task, status) => {
     setUpdating(task.id);
-    try { await base44.entities.Task.update(task.id, { status }); tasks.reload(); }
+    try { await backend.entities.Task.update(task.id, { status }); tasks.reload(); }
     finally { setUpdating(null); }
   };
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { ShieldCheck, AlertCircle, Send, X, Clock, Check, XCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -29,8 +29,8 @@ export default function MyProfile() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await base44.functions.invoke("getMyIdentityProfile", {});
-      setData(res.data);
+      const res = await backend.functions.invoke("getMyIdentityProfile", {});
+      setData(res);
       setError(null);
     } catch (err) {
       setError(err.message || "Failed to load identity profile.");
@@ -53,14 +53,14 @@ export default function MyProfile() {
     }
     setSaving(true);
     try {
-      const res = await base44.functions.invoke("submitNameChangeRequest", {
+      const res = await backend.functions.invoke("submitNameChangeRequest", {
         requested_display_name: form.requested_display_name,
         requested_credentials: form.requested_credentials || null,
         reason_for_request: form.reason_for_request,
         supporting_information: form.supporting_information || null,
       });
-      if (res.data?.error) {
-        toast({ title: "Request failed", description: res.data.error, variant: "destructive" });
+      if (res?.error) {
+        toast({ title: "Request failed", description: res.error, variant: "destructive" });
       } else {
         toast({ title: "Request submitted", description: "Your name-change request has been submitted for administrator review." });
         setShowForm(false);
@@ -77,9 +77,9 @@ export default function MyProfile() {
   const withdrawRequest = async (requestId) => {
     setWithdrawing(requestId);
     try {
-      const res = await base44.functions.invoke("withdrawNameChangeRequest", { request_id: requestId });
-      if (res.data?.error) {
-        toast({ title: "Withdrawal failed", description: res.data.error, variant: "destructive" });
+      const res = await backend.functions.invoke("withdrawNameChangeRequest", { request_id: requestId });
+      if (res?.error) {
+        toast({ title: "Withdrawal failed", description: res.error, variant: "destructive" });
       } else {
         toast({ title: "Request withdrawn", description: "Your name-change request has been withdrawn." });
         load();

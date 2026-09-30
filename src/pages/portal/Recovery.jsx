@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 
 export default function ClientRecovery() {
   const [cases, setCases] = useState([]);
@@ -10,8 +10,8 @@ export default function ClientRecovery() {
     async function load() {
       try {
         const [caseRes, defRes] = await Promise.all([
-          base44.functions.invoke("getClientPortalData", { resource: "cases" }),
-          base44.functions.invoke("getClientPortalData", { resource: "deficiencies" }),
+          backend.functions.invoke("getClientPortalData", { resource: "cases" }),
+          backend.functions.invoke("getClientPortalData", { resource: "deficiencies" }),
         ]);
         setCases(Array.isArray(caseRes) ? caseRes : (caseRes?.data || []));
         setDeficiencies(Array.isArray(defRes) ? defRes : (defRes?.data || []));

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Users, Building2, UserCircle, Target, ListChecks,
   Settings, LogOut, Menu, X, FileText, ShieldCheck, Activity, Briefcase, Bot, Send, Rocket, Stethoscope, BookOpen, ClipboardList, UserCheck, CreditCard, TrendingUp
@@ -41,7 +41,6 @@ export default function CommandCenterLayout() {
   const { user, logout } = useAuth();
   const { showTestData, setShowTestData } = useTestData();
   const location = useLocation();
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   const role = user?.role || "user";
@@ -49,9 +48,8 @@ export default function CommandCenterLayout() {
 
   const visibleNav = NAV.filter((n) => n.roles.includes(role));
 
-  const handleLogout = () => {
-    logout(false);
-    navigate("/");
+  const handleLogout = async () => {
+    await logout("/");
   };
 
   return (

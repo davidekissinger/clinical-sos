@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
 import { Plus, Search, BookOpen } from "lucide-react";
@@ -21,7 +21,7 @@ export default function Knowledge() {
     e.preventDefault();
     setSaving(true);
     try {
-      await base44.entities.RegulatoryKnowledge.create(form);
+      await backend.entities.RegulatoryKnowledge.create(form);
       setShowNew(false);
       setForm({ f_tag: "", title: "", regulation_reference: "", plain_language_regulatory_focus: "", common_deficiency_patterns: "", possible_corrective_approaches: "", approval_status: "Draft" });
       knowledge.reload();

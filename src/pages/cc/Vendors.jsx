@@ -3,7 +3,7 @@ import { Plus, Search } from "lucide-react";
 import { PageHeader, Badge, Table, EmptyState, LoadingState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
 import { useTestData } from "@/lib/TestDataContext";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { useToast } from "@/components/ui/use-toast";
 import MobileSelect from "@/components/MobileSelect";
 
@@ -120,7 +120,7 @@ function CreateVendorDialog({ onClose, onCreated, toast }) {
     if (!form.vendor_legal_name) { toast({ title: "Vendor legal name is required", variant: "destructive" }); return; }
     setSaving(true);
     try {
-      await base44.entities.Vendor.create(form);
+      await backend.entities.Vendor.create(form);
       toast({ title: "Vendor created", description: form.vendor_legal_name });
       onCreated();
     } catch (err) {

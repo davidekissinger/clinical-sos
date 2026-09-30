@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { AlertTriangle, CheckCircle2, Trash2, AlertCircle, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import AccessibleDialog from "@/components/AccessibleDialog";
 
 export default function ClientAccount() {
@@ -40,7 +40,7 @@ export default function ClientAccount() {
     setDeleting(true);
     setDeleteError(null);
     try {
-      await base44.auth.deleteAccount();
+      await backend.auth.deleteAccount();
       window.location.href = "/";
     } catch (e) {
       setDeleteError(e.message || "Unable to delete account. Please contact Clinical SOS support.");

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 
 export default function ClientDocuments() {
   const outletContext = useOutletContext();
@@ -11,7 +11,7 @@ export default function ClientDocuments() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await base44.functions.invoke("getClientPortalData", { resource: "documents" });
+        const res = await backend.functions.invoke("getClientPortalData", { resource: "documents" });
         setDocuments(Array.isArray(res) ? res : (res?.data || []));
       } catch (e) { console.error(e); }
       finally { setLoading(false); }

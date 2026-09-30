@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useSearchParams, Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { CheckCircle2, CreditCard, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 
 export default function ClientSubscription() {
@@ -17,7 +17,7 @@ export default function ClientSubscription() {
   useEffect(() => {
     async function loadTiers() {
       try {
-        const res = await base44.entities.SubscriptionTier.list("sort_order", 50);
+        const res = await backend.entities.SubscriptionTier.list("sort_order", 50);
         const list = Array.isArray(res) ? res : (res?.data || []);
         setTiers(list.filter(t => t.is_active));
       } catch (e) {
@@ -39,7 +39,7 @@ export default function ClientSubscription() {
     setCheckingOut(tierId);
     setError(null);
     try {
-      const result = await base44.functions.invoke("createCheckoutSession", { tier_id: tierId });
+      const result = await backend.functions.invoke("createCheckoutSession", { tier_id: tierId });
       if (result?.checkout_url) {
         window.location.href = result.checkout_url;
       } else {

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { Save, X } from "lucide-react";
 
 export default function QAPIReviewForm({ deficiency, onSaved, onCancel }) {
@@ -31,7 +31,7 @@ export default function QAPIReviewForm({ deficiency, onSaved, onCancel }) {
   const save = async () => {
     setSaving(true);
     try {
-      await base44.entities.QAPIReview.create({ ...form, is_test_data: !!deficiency.is_test_data });
+      await backend.entities.QAPIReview.create({ ...form, is_test_data: !!deficiency.is_test_data });
       if (onSaved) onSaved();
     } catch (e) { console.error(e); }
     finally { setSaving(false); }

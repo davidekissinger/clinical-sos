@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { PageHeader, Badge, LoadingState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
 import AccessibleDialog from "@/components/AccessibleDialog";
@@ -39,7 +39,7 @@ export default function Pipeline() {
     }
 
     try {
-      await base44.entities.Opportunity.update(dragId, { stage });
+      await backend.entities.Opportunity.update(dragId, { stage });
       opportunities.reload();
     } finally { setDragId(null); }
   };
@@ -56,7 +56,7 @@ export default function Pipeline() {
       accepted_proposal_id: form.accepted_proposal_id?.value || null,
     };
     try {
-      const res = await base44.functions.invoke("createEngagementFromOpportunity", payload);
+      const res = await backend.functions.invoke("createEngagementFromOpportunity", payload);
       const data = res.data || res;
       if (data?.error) {
         setEngagementResult({ error: data.error });
@@ -116,7 +116,7 @@ export default function Pipeline() {
                             if (newStage === "Won") {
                               setWonModal({ opportunity_id: o.id, opportunity: o });
                             } else {
-                              await base44.entities.Opportunity.update(o.id, { stage: newStage });
+                              await backend.entities.Opportunity.update(o.id, { stage: newStage });
                               opportunities.reload();
                             }
                           }}
