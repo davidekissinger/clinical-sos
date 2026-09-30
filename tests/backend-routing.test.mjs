@@ -24,6 +24,55 @@ const bundled = await build({
 const { backend } = await import(`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString('base64')}`);
 
 for (const [name, action, payload] of [
+  ['closeDeficiency', 'close_deficiency', { deficiency_id: 'def-1', force: false, override_reason: null }],
+  ['createEngagementFromOpportunity', 'create_engagement', { opportunity_id: 'opp-1', service_type: 'Consultation', start_date: '2026-10-01', clinical_lead_name: 'Test Lead', engagement_model: 'Fixed Fee', accepted_proposal_id: null }],
+  ['updateRevisitReadiness', 'update_revisit_readiness', { deficiency_id: 'def-1', manual_criteria: { training_complete: true } }],
+]) {
+  test(`${name} matches the clinical workflow contract without changing fields`, async () => {
+    const supplied = { ...payload, action: 'wrong_action' };
+    const response = { success: true };
+    globalThis.identityTestInvoke = async (slug, options) => {
+      assert.equal(slug, 'clinical-workflow-action');
+      assert.deepEqual(options.body, { ...payload, action });
+      return { data: response, error: null };
+    };
+    assert.equal(await backend.functions.invoke(name, supplied), response);
+    assert.equal(supplied.action, 'wrong_action');
+  });
+}
+
+test('POC transition preserves decision and evidence separately from dispatch', async () => {
+  const payload = { poc_id: 'poc-1', action: 'submit_poc', evidence: 'Verified evidence', revision_notes: 'Correction', transition_action: 'must-not-win' };
+  globalThis.identityTestInvoke = async (slug, options) => {
+    assert.equal(slug, 'clinical-workflow-action');
+    assert.deepEqual(options.body, { ...payload, action: 'transition_poc', transition_action: 'submit_poc' });
+    return { data: { success: true }, error: null };
+  };
+  assert.deepEqual(await backend.functions.invoke('transitionPOC', payload), { success: true });
+  assert.equal(payload.action, 'submit_poc');
+  assert.equal(payload.transition_action, 'must-not-win');
+});
+
+test('missing transition decision remains missing and server rejection is preserved', async () => {
+  globalThis.identityTestInvoke = async (_slug, options) => {
+    assert.equal(options.body.transition_action, undefined);
+    return { data: null, error: { context: new Response(JSON.stringify({ error: 'Invalid transition' }), { status: 400 }) } };
+  };
+  await assert.rejects(backend.functions.invoke('transitionPOC', { poc_id: 'poc-1' }), /Invalid transition/);
+});
+
+test('clinical guard failure cannot be interpreted as successful closure', async () => {
+  globalThis.identityTestInvoke = async () => ({
+    data: null, error: { context: new Response(JSON.stringify({ error: 'Closure criteria not satisfied', closed: false }), { status: 409 }) },
+  });
+  await assert.rejects(backend.functions.invoke('closeDeficiency', { deficiency_id: 'def-1' }), error => {
+    assert.equal(error.status, 409);
+    assert.equal(error.data.closed, false);
+    return true;
+  });
+});
+
+for (const [name, action, payload] of [
   ['getMyIdentityProfile', 'get_profile', {}],
   ['submitNameChangeRequest', 'submit_change', { requested_display_name: 'Test Name', reason_for_request: 'Correction' }],
   ['withdrawNameChangeRequest', 'withdraw_change', { request_id: 'request-123' }],

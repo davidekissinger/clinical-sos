@@ -46,9 +46,9 @@ const FUNCTION_SLUG = Object.freeze({
   clientRespondEvidence: "client-portal-action",
   clientReviewPOC: "client-portal-action",
   clientUpdateTask: "client-portal-action",
-  closeDeficiency: "close-deficiency",
+  closeDeficiency: "clinical-workflow-action",
   createCheckoutSession: "create-checkout-session",
-  createEngagementFromOpportunity: "create-engagement-from-opportunity",
+  createEngagementFromOpportunity: "clinical-workflow-action",
   generateWorkProduct: "generate-work-product",
   getClientPortalContext: "get-client-portal-context",
   getClientPortalData: "get-client-portal-data",
@@ -59,12 +59,15 @@ const FUNCTION_SLUG = Object.freeze({
   submitNameChangeRequest: "identity-self-service",
   syncClientMembershipAccess: "sync-client-membership-access",
   transitionClientAccess: "transition-client-access",
-  transitionPOC: "transition-poc",
-  updateRevisitReadiness: "update-revisit-readiness",
+  transitionPOC: "clinical-workflow-action",
+  updateRevisitReadiness: "clinical-workflow-action",
   withdrawNameChangeRequest: "identity-self-service",
 });
 
 const FUNCTION_ACTION = Object.freeze({
+  closeDeficiency: "close_deficiency",
+  createEngagementFromOpportunity: "create_engagement",
+  updateRevisitReadiness: "update_revisit_readiness",
   clientRespondEvidence: "respond_evidence",
   clientUpdateTask: "update_task",
   getMyIdentityProfile: "get_profile",
@@ -250,6 +253,10 @@ export const backend = {
         return invokeFunction(slug, { ...fields, review_action: reviewAction, action: "review_poc" });
       }
       const action = FUNCTION_ACTION[name];
+      if (name === "transitionPOC") {
+        const { action: transitionAction, ...fields } = payload || {};
+        return invokeFunction(slug, { ...fields, transition_action: transitionAction, action: "transition_poc" });
+      }
       return invokeFunction(slug, action ? { ...payload, action } : payload);
     },
   },
