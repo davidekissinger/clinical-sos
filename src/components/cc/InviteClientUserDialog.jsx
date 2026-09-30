@@ -46,15 +46,17 @@ export default function InviteClientUserDialog({ isOpen, onClose, accounts, onRe
   const [engagements, setEngagements] = useState([]);
   const [caps, setCaps] = useState(DEFAULT_CAPS);
   const [loading, setLoading] = useState(false);
+  const [searchError, setSearchError] = useState("");
 
   const searchUsers = async () => {
     if (!searchEmail || searchEmail.length < 3) return;
     setLoading(true);
+    setSearchError("");
+    setSelectedUser(null);
+    setPendingUsers([]);
     try {
-      const res = await backend.entities.User.list("-created_date", 50);
-      const list = Array.isArray(res) ? res : (res?.data || []);
-      setPendingUsers(list.filter(u => u.email?.toLowerCase().includes(searchEmail.toLowerCase()) && (u.role === "pending" || u.role === "user")));
-    } catch (e) { console.error(e); }
+      setPendingUsers(await backend.entities.User.searchPending(searchEmail.trim()));
+    } catch (e) { setSearchError(e.message || "Unable to search users."); }
     finally { setLoading(false); }
   };
 
@@ -110,8 +112,9 @@ export default function InviteClientUserDialog({ isOpen, onClose, accounts, onRe
           <label className="block text-xs font-medium text-muted-foreground mb-1">Search unprovisioned users by email</label>
           <div className="flex gap-2">
             <input type="email" value={searchEmail} onChange={e => setSearchEmail(e.target.value)} placeholder="user@example.com" className="cc-input flex-1" />
-            <button type="button" onClick={searchUsers} className="btn-secondary text-xs">Search</button>
+            <button type="button" onClick={searchUsers} disabled={loading} className="btn-secondary text-xs">Search</button>
           </div>
+          {searchError && <p role="alert" className="mt-2 text-sm text-destructive">{searchError}</p>}
           {pendingUsers.length > 0 && (
             <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
               {pendingUsers.map(u => (
