@@ -76,3 +76,57 @@ test('unknown function names cannot become arbitrary endpoint invocations', () =
   globalThis.identityTestInvoke = () => assert.fail('must not make a request');
   assert.throws(() => backend.functions.invoke('unknownFunction', {}), /Unsupported Clinical SOS function/);
 });
+
+for (const [name, action, payload] of [
+  ['clientUpdateTask', 'update_task', { task_id: 'task-1', status: 'Complete', completion_note: 'Ready' }],
+  ['clientRespondEvidence', 'respond_evidence', { evidence_id: 'evidence-1', response_status: 'Prepared', note: 'Ready for review' }],
+]) {
+  test(`${name} preserves record fields and fixes the dispatch action`, async () => {
+    const supplied = { ...payload, action: 'wrong_action' };
+    globalThis.identityTestInvoke = async (slug, options) => {
+      assert.equal(slug, 'client-portal-action');
+      assert.deepEqual(options.body, { ...payload, action });
+      return { data: { success: true }, error: null };
+    };
+    assert.deepEqual(await backend.functions.invoke(name, supplied), { success: true });
+    assert.equal(supplied.action, 'wrong_action');
+  });
+}
+
+for (const decision of ['acknowledge', 'request_revision', 'client_approve']) {
+  test(`POC ${decision} stays separate from endpoint dispatch`, async () => {
+    const payload = { poc_id: 'poc-1', action: decision, comment: 'Review note', review_action: 'must-not-win' };
+    const response = { success: true, regulatory_status_unchanged: 'Client Review' };
+    globalThis.identityTestInvoke = async (slug, options) => {
+      assert.equal(slug, 'client-portal-action');
+      assert.deepEqual(options.body, {
+        poc_id: 'poc-1', comment: 'Review note', review_action: decision, action: 'review_poc',
+      });
+      return { data: response, error: null };
+    };
+    assert.equal(await backend.functions.invoke('clientReviewPOC', payload), response);
+    assert.equal(payload.action, decision);
+    assert.equal(payload.review_action, 'must-not-win');
+  });
+}
+
+test('a missing POC decision cannot become an approval', async () => {
+  globalThis.identityTestInvoke = async (_slug, options) => {
+    assert.equal(options.body.action, 'review_poc');
+    assert.equal(options.body.review_action, undefined);
+    return { data: null, error: { context: new Response(JSON.stringify({ error: 'review_action is required' }), { status: 400 }) } };
+  };
+  await assert.rejects(backend.functions.invoke('clientReviewPOC', { poc_id: 'poc-1' }), /review_action is required/);
+});
+
+test('portal access denials preserve the generic response for UI rollback', async () => {
+  globalThis.identityTestInvoke = async () => ({
+    data: null,
+    error: { context: new Response(JSON.stringify({ error: 'Record not found or unavailable' }), { status: 404 }) },
+  });
+  await assert.rejects(backend.functions.invoke('clientUpdateTask', { task_id: 'foreign-task', status: 'Complete' }), error => {
+    assert.equal(error.status, 404);
+    assert.equal(error.message, 'Record not found or unavailable');
+    return true;
+  });
+});
