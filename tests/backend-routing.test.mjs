@@ -23,6 +23,59 @@ const bundled = await build({
 });
 const { backend } = await import(`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString('base64')}`);
 
+for (const decision of ['create', 'update_capabilities', 'activate', 'suspend', 'revoke']) {
+  test(`membership ${decision} preserves scope and capabilities separately from dispatch`, async () => {
+    const payload = { action: decision, membership_action: 'must-not-win', membership_id: 'member-1',
+      client_user_id: 'user-1', client_account_id: 'account-1', authorized_facility_ids: ['facility-1'],
+      authorized_engagement_ids: [], capabilities: { can_login: false, can_approve_poc: false }, reason: 'Test' };
+    const original = structuredClone(payload);
+    globalThis.identityTestInvoke = async (slug, options) => {
+      assert.equal(slug, 'client-management-action');
+      assert.deepEqual(options.body, { ...payload, action: 'manage_membership', membership_action: decision });
+      return { data: { success: true }, error: null };
+    };
+    assert.deepEqual(await backend.functions.invoke('manageClientMembership', payload), { success: true });
+    assert.deepEqual(payload, original);
+  });
+}
+
+for (const [name, action, payload] of [
+  ['syncClientMembershipAccess', 'sync_membership', { membership_id: 'member-1' }],
+  ['transitionClientAccess', 'transition_access', { client_account_id: 'account-1', new_access_status: 'Suspended',
+    reason: 'Test', manual_override: false, manual_override_type: null, override_expiration: null }],
+]) {
+  test(`${name} preserves requested access settings and fixes dispatch`, async () => {
+    const supplied = { ...payload, action: 'update_billing' };
+    const response = { success: true };
+    globalThis.identityTestInvoke = async (slug, options) => {
+      assert.equal(slug, 'client-management-action');
+      assert.deepEqual(options.body, { ...payload, action });
+      return { data: response, error: null };
+    };
+    assert.equal(await backend.functions.invoke(name, supplied), response);
+    assert.equal(supplied.action, 'update_billing');
+  });
+}
+
+test('missing membership decision cannot activate a membership', async () => {
+  globalThis.identityTestInvoke = async (_slug, options) => {
+    assert.equal(options.body.membership_action, undefined);
+    return { data: null, error: { context: new Response(JSON.stringify({ error: 'Unknown membership action' }), { status: 400 }) } };
+  };
+  await assert.rejects(backend.functions.invoke('manageClientMembership', { membership_id: 'member-1' }), /Unknown membership action/);
+});
+
+test('management authorization denial reaches the caller without success', async () => {
+  globalThis.identityTestInvoke = async () => ({
+    data: null, error: { context: new Response(JSON.stringify({ error: 'Forbidden — admin only' }), { status: 403 }) },
+  });
+  await assert.rejects(backend.functions.invoke('transitionClientAccess', { client_account_id: 'account-1' }), error => {
+    assert.equal(error.status, 403);
+    assert.equal(error.message, 'Forbidden — admin only');
+    return true;
+  });
+});
+
 for (const [name, action, payload] of [
   ['closeDeficiency', 'close_deficiency', { deficiency_id: 'def-1', force: false, override_reason: null }],
   ['createEngagementFromOpportunity', 'create_engagement', { opportunity_id: 'opp-1', service_type: 'Consultation', start_date: '2026-10-01', clinical_lead_name: 'Test Lead', engagement_model: 'Fixed Fee', accepted_proposal_id: null }],

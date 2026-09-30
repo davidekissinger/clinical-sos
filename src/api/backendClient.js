@@ -54,11 +54,11 @@ const FUNCTION_SLUG = Object.freeze({
   getClientPortalData: "get-client-portal-data",
   getClientPortalDetail: "get-client-portal-detail",
   getMyIdentityProfile: "identity-self-service",
-  manageClientMembership: "manage-client-membership",
+  manageClientMembership: "client-management-action",
   manageUserIdentity: "identity-admin-action",
   submitNameChangeRequest: "identity-self-service",
-  syncClientMembershipAccess: "sync-client-membership-access",
-  transitionClientAccess: "transition-client-access",
+  syncClientMembershipAccess: "client-management-action",
+  transitionClientAccess: "client-management-action",
   transitionPOC: "clinical-workflow-action",
   updateRevisitReadiness: "clinical-workflow-action",
   withdrawNameChangeRequest: "identity-self-service",
@@ -68,6 +68,8 @@ const FUNCTION_ACTION = Object.freeze({
   closeDeficiency: "close_deficiency",
   createEngagementFromOpportunity: "create_engagement",
   updateRevisitReadiness: "update_revisit_readiness",
+  syncClientMembershipAccess: "sync_membership",
+  transitionClientAccess: "transition_access",
   clientRespondEvidence: "respond_evidence",
   clientUpdateTask: "update_task",
   getMyIdentityProfile: "get_profile",
@@ -256,6 +258,10 @@ export const backend = {
       if (name === "transitionPOC") {
         const { action: transitionAction, ...fields } = payload || {};
         return invokeFunction(slug, { ...fields, transition_action: transitionAction, action: "transition_poc" });
+      }
+      if (name === "manageClientMembership") {
+        const { action: membershipAction, ...fields } = payload || {};
+        return invokeFunction(slug, { ...fields, membership_action: membershipAction, action: "manage_membership" });
       }
       return invokeFunction(slug, action ? { ...payload, action } : payload);
     },
