@@ -39,3 +39,20 @@ the currently active Base44 main branch. Protected workflows and data import
 remain subject to the original `supabase-auth.md` launch prerequisites.
 Use this source when preparing Netlify builds, and reconcile existing migration
 PRs against it before enabling a Git-based production pipeline.
+
+## Verified recovery deployment
+
+Source commit `0c61b15` passed locked dependency installation, lint, and the
+Vite production build. Draft deploy `6abd486134a64270b625668b` included 102
+files and the consultation function. Authenticated browser checks confirmed
+the home and contact pages render. An oversized synthetic name was rejected
+by the deployed function before database writes, confirming the form-to-function
+path and server environment initialization. A successful intake/database
+transaction and protected workflows were not tested by this recovery check.
+
+The exact draft was promoted at `2026-09-30T17:37:01.598Z`; the Netlify API
+confirmed it as the site's published deploy with state `ready`. The production
+contact page was then verified in the authenticated browser. Existing Netlify
+SSO protection remains enabled; anonymous requests are still denied. Previous
+deploy `6ab1aaf0118fa8990dfdf1e5` remains the rollback target. No DNS or database
+changes were made. Production source remains on this recovery branch, not main.
