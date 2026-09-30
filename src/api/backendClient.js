@@ -43,9 +43,9 @@ const ENTITY_TABLE = Object.freeze({
 });
 
 const FUNCTION_SLUG = Object.freeze({
-  clientRespondEvidence: "client-respond-evidence",
-  clientReviewPOC: "client-review-poc",
-  clientUpdateTask: "client-update-task",
+  clientRespondEvidence: "client-portal-action",
+  clientReviewPOC: "client-portal-action",
+  clientUpdateTask: "client-portal-action",
   closeDeficiency: "close-deficiency",
   createCheckoutSession: "create-checkout-session",
   createEngagementFromOpportunity: "create-engagement-from-opportunity",
@@ -64,7 +64,9 @@ const FUNCTION_SLUG = Object.freeze({
   withdrawNameChangeRequest: "identity-self-service",
 });
 
-const IDENTITY_ACTION = Object.freeze({
+const FUNCTION_ACTION = Object.freeze({
+  clientRespondEvidence: "respond_evidence",
+  clientUpdateTask: "update_task",
   getMyIdentityProfile: "get_profile",
   submitNameChangeRequest: "submit_change",
   withdrawNameChangeRequest: "withdraw_change",
@@ -242,7 +244,12 @@ export const backend = {
     invoke(name, payload) {
       const slug = FUNCTION_SLUG[name];
       if (!slug) throw new Error(`Unsupported Clinical SOS function: ${name}`);
-      const action = IDENTITY_ACTION[name];
+      if (name === "clientReviewPOC") {
+        // The legacy caller's action is a review decision, not endpoint dispatch.
+        const { action: reviewAction, ...fields } = payload || {};
+        return invokeFunction(slug, { ...fields, review_action: reviewAction, action: "review_poc" });
+      }
+      const action = FUNCTION_ACTION[name];
       return invokeFunction(slug, action ? { ...payload, action } : payload);
     },
   },

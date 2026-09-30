@@ -42,8 +42,8 @@ jobs:
         id: lint
         run: npm run lint
 
-      - name: Identity routing regression tests
-        run: node --test tests/identity-routing.test.mjs
+      - name: Backend routing regression tests
+        run: node --test tests/backend-routing.test.mjs
 
       - name: Build
         id: build
