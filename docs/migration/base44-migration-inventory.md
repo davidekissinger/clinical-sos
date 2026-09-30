@@ -18,6 +18,23 @@ The first CI run on PR #9 confirmed `npm ci` succeeds, but the existing codebase
 
 For Phase 1, typecheck and lint are therefore advisory so CI can continue far enough to exercise the production build. The production build remains blocking. Later phases should reduce this technical debt without hiding new build failures.
 
+### Verified CI evidence
+
+[CI run 36255420887](https://github.com/davidekissinger/clinical-sos/actions/runs/36255420887) validated head `6197699f1fbdeeeff128fbda5a4b8b2d4976491f` on 2026-09-26. Its logs were reviewed on 2026-09-30:
+
+| Check | Actual result | Phase 1 policy |
+| --- | --- | --- |
+| `npm ci` | Passed | Blocking |
+| `npm run typecheck` | Failed; 250 TypeScript diagnostics in the job log | Advisory |
+| `npm run lint` | Failed; 35 errors, 0 warnings | Advisory |
+| `npm run build` | Passed | Blocking |
+
+Lint failures include unused imports. Typecheck failures include inferred required presentation props, unknown/never data shapes, DOM event fields, and numeric operations. No application source or dependency changes are included in this PR, so these are baseline findings, not newly introduced application regressions.
+
+The workflow now reports `steps.<id>.outcome` in its job summary and emits a warning when an advisory check fails. This records the actual result before `continue-on-error` changes the step conclusion to success. A green overall workflow therefore means the blocking checks passed; it does not claim a clean typecheck or lint run. Full diagnostics remain in the job logs.
+
+There is no `test` script in the baseline package configuration. This phase establishes install, typecheck, lint, and build visibility; it does not claim automated end-to-end coverage or production readiness.
+
 At the time of this inventory there was no committed `netlify.toml` on `main`. Netlify production configuration belongs to the later deployment phase rather than this baseline phase.
 
 ## 1. Frontend runtime dependencies
