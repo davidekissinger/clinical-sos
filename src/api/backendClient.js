@@ -51,6 +51,9 @@ const FUNCTION_SLUG = Object.freeze({
   getSubscriptionTiers: "stripe-checkout",
   createEngagementFromOpportunity: "clinical-workflow-action",
   generateWorkProduct: "generate-work-product",
+  scoreLead: "lead-intelligence-action",
+  scoreLeadDual: "lead-intelligence-action",
+  verifySignal: "lead-intelligence-action",
   getClientPortalContext: "get-client-portal-context",
   getClientPortalData: "get-client-portal-data",
   getClientPortalDetail: "get-client-portal-detail",
@@ -66,6 +69,9 @@ const FUNCTION_SLUG = Object.freeze({
 });
 
 const FUNCTION_ACTION = Object.freeze({
+  scoreLead: "score_lead",
+  scoreLeadDual: "score_lead_dual",
+  verifySignal: "verify_signal",
   closeDeficiency: "close_deficiency",
   createEngagementFromOpportunity: "create_engagement",
   updateRevisitReadiness: "update_revisit_readiness",
