@@ -270,3 +270,12 @@ test('portal access denials preserve the generic response for UI rollback', asyn
     return true;
   });
 });
+
+for (const [name,action,payload] of [
+ ['scoreLead','score_lead',{facility_id:'facility-1'}],
+ ['scoreLeadDual','score_lead_dual',{facility_id:'facility-1'}],
+ ['verifySignal','verify_signal',{signal_id:'signal-1'}],
+]) test(`${name} dispatches the correct lead-intelligence action`,async()=>{
+ globalThis.identityTestInvoke=async(slug,options)=>{assert.equal(slug,'lead-intelligence-action');assert.deepEqual(options.body,{...payload,action});return {data:{ok:true},error:null};};
+ assert.deepEqual(await backend.functions.invoke(name,{...payload,action:'attacker-action'}),{ok:true});
+});
