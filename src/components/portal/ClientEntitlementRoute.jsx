@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { useAuth } from "@/lib/AuthContext";
 
 export default function ClientEntitlementRoute() {
@@ -19,7 +19,7 @@ export default function ClientEntitlementRoute() {
         return;
       }
       try {
-        const res = await base44.functions.invoke("getClientPortalContext", {});
+        const res = await backend.functions.invoke("getClientPortalContext", {});
         setEntitlement(res.data || res);
       } catch (e) {
         setEntitlement({ authorized: false, access_status: null });
@@ -40,7 +40,7 @@ export default function ClientEntitlementRoute() {
 
   if (!user) return <Navigate to="/login?returnTo=/client" replace />;
 
-  // Unprovisioned users (Base44 native "user" or Clinical SOS "pending") go to access-pending
+  // Unprovisioned users go to access-pending.
   // — never bounce through staff routes or retrieve tenant data
   if (user.role === "pending" || user.role === "user") {
     return <Navigate to="/access-pending" replace />;

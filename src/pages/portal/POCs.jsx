@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import PullToRefresh from "@/components/PullToRefresh";
 
 export default function ClientPOCs() {
@@ -15,7 +15,7 @@ export default function ClientPOCs() {
 
   const loadPocs = async () => {
     try {
-      const res = await base44.functions.invoke("getClientPortalData", { resource: "pocs" });
+      const res = await backend.functions.invoke("getClientPortalData", { resource: "pocs" });
       setPocs(Array.isArray(res) ? res : (res?.data || []));
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
@@ -34,7 +34,7 @@ export default function ClientPOCs() {
     const optimisticStatus = action === "client_approve" ? "Client Approved" : action === "request_revision" ? "Revision Requested" : "Acknowledged";
     setPocs(pocs.map(p => p.id === poc.id ? { ...p, client_review_status: optimisticStatus } : p));
     try {
-      await base44.functions.invoke("clientReviewPOC", {
+      await backend.functions.invoke("clientReviewPOC", {
         poc_id: poc.id, action, comment: commentPocId === poc.id ? comment : null
       });
       setActionResult({ success: "POC review submitted. Regulatory status unchanged." });

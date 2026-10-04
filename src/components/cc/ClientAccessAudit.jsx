@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 
 export default function ClientAccessAudit() {
@@ -8,7 +8,7 @@ export default function ClientAccessAudit() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await base44.entities.AutomationLog.list("-created_date", 50);
+        const res = await backend.entities.AutomationLog.list("-created_date", 50);
         setLogs(Array.isArray(res) ? res : (res?.data || []));
       } catch (e) { console.error(e); }
       finally { setLoading(false); }

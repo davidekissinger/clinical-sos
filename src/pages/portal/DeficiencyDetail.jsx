@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { ArrowLeft } from "lucide-react";
 
 export default function ClientDeficiencyDetail() {
@@ -12,7 +12,7 @@ export default function ClientDeficiencyDetail() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await base44.functions.invoke("getClientPortalDetail", { resource: "deficiency", id });
+        const res = await backend.functions.invoke("getClientPortalDetail", { resource: "deficiency", id });
         setData(res.data || res);
       } catch (e) { console.error(e); setDenied(true); }
       finally { setLoading(false); }

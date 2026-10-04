@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 
 /**
  * Resolve the authoritative display name for a user.
@@ -36,8 +36,8 @@ export function useMyIdentity() {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await base44.functions.invoke("getMyIdentityProfile", {});
-      setProfile(res.data);
+      const res = await backend.functions.invoke("getMyIdentityProfile", {});
+      setProfile(res);
       setError(null);
     } catch (err) {
       setError(err);

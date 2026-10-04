@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 import { useEntities } from "@/hooks/useEntities";
 import { Plus, Search, FilePlus } from "lucide-react";
@@ -25,7 +25,7 @@ export default function Cases() {
     e.preventDefault();
     setSaving(true);
     try {
-      await base44.entities.RegulatoryCase.create({ ...form, clinical_approval_status: "Draft" });
+      await backend.entities.RegulatoryCase.create({ ...form, clinical_approval_status: "Draft" });
       setShowNew(false);
       setForm({ case_name: "", facility_name: "", client_name: "", survey_date: "", case_status: "Intake" });
       cases.reload();

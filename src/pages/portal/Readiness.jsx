@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { AlertTriangle } from "lucide-react";
 
 export default function ClientReadiness() {
@@ -11,8 +11,8 @@ export default function ClientReadiness() {
     async function load() {
       try {
         const [defRes, critRes] = await Promise.all([
-          base44.functions.invoke("getClientPortalData", { resource: "deficiencies" }),
-          base44.functions.invoke("getClientPortalData", { resource: "readiness" }),
+          backend.functions.invoke("getClientPortalData", { resource: "deficiencies" }),
+          backend.functions.invoke("getClientPortalData", { resource: "readiness" }),
         ]);
         setDeficiencies(Array.isArray(defRes) ? defRes : (defRes?.data || []));
         setCriteria(Array.isArray(critRes) ? critRes : (critRes?.data || []));

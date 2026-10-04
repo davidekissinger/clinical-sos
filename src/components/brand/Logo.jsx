@@ -2,13 +2,12 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 const LOGOS = {
-  horizontal: "https://media.base44.com/images/public/6a81d38c272422709e43236f/534ee6237_ClinicalSOS-final-Horiz.jpg",
-  horizontalDark: "https://media.base44.com/images/public/6a81d38c272422709e43236f/18e9988d9_ClinicalSOS-final-Horiz.png",
-  vertical: "https://media.base44.com/images/public/6a81d38c272422709e43236f/c6e1187c7_ClinicalSOS-final-Vert.jpg",
-  verticalDark: "https://media.base44.com/images/public/6a81d38c272422709e43236f/189258794_ClinicalSOS-final-Vert-cut-Reverse.png",
+  horizontal: "/assets/brand/clinical-sos-horizontal.jpg",
+  horizontalDark: "/assets/brand/clinical-sos-horizontal-dark.png",
+  vertical: "/assets/brand/clinical-sos-vertical.jpg",
+  verticalDark: "/assets/brand/clinical-sos-vertical-dark.png",
 };
 
-/** @param {{variant?: "horizontal" | "vertical", className?: string, onDark?: boolean}} props */
 export default function Logo({ variant = "horizontal", className, onDark = false }) {
   const src = onDark
     ? variant === "vertical"

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { ArrowLeft, ClipboardList, FileText, ClipboardCheck, FolderCheck, ListChecks, ShieldCheck, AlertTriangle } from "lucide-react";
 
 export default function ClientEngagementDetail() {
@@ -12,7 +12,7 @@ export default function ClientEngagementDetail() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await base44.functions.invoke("getClientPortalDetail", { resource: "engagement", id });
+        const res = await backend.functions.invoke("getClientPortalDetail", { resource: "engagement", id });
         setData(res.data || res);
       } catch (e) { console.error(e); setDenied(true); }
       finally { setLoading(false); }

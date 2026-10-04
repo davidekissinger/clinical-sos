@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import AccessibleDialog from "@/components/AccessibleDialog";
 import { Unlock, Ban, Lock, RotateCcw } from "lucide-react";
 
@@ -31,12 +31,12 @@ export default function ManageMembershipDialog({ membership, onClose, onResult, 
     async function loadScope() {
       try {
         // Get the membership's ClientAccount to determine organization scope
-        const account = await base44.entities.ClientAccount.get(membership.client_account_id);
+        const account = await backend.entities.ClientAccount.get(membership.client_account_id);
         if (!account || !account.organization_id) { setFacilities([]); setEngagements([]); return; }
 
         const [facRes, engRes] = await Promise.all([
-          base44.entities.Facility.list("-facility_name", 200),
-          base44.entities.Engagement.list("-created_date", 200),
+          backend.entities.Facility.list("-facility_name", 200),
+          backend.entities.Engagement.list("-created_date", 200),
         ]);
         const facList = Array.isArray(facRes) ? facRes : (facRes?.data || []);
         const engList = Array.isArray(engRes) ? engRes : (engRes?.data || []);
@@ -61,7 +61,7 @@ export default function ManageMembershipDialog({ membership, onClose, onResult, 
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      await base44.functions.invoke("manageClientMembership", {
+      await backend.functions.invoke("manageClientMembership", {
         action: "update_capabilities",
         membership_id: membership.id,
         authorized_facility_ids: selectedFacilityIds,
@@ -101,10 +101,10 @@ export default function ManageMembershipDialog({ membership, onClose, onResult, 
         </fieldset>
         <button type="submit" className="btn-primary text-sm w-full">Update Membership</button>
         <div className="flex gap-2 pt-2 border-t border-border">
-          {membership.membership_status !== "Active" && <button type="button" onClick={async () => { await base44.functions.invoke("manageClientMembership", { action: "activate", membership_id: membership.id }); onClose(); onReload(); onResult({ success: "Membership activated & access synced" }); }} className="btn-secondary text-xs flex-1"><Unlock className="h-3 w-3" /> Activate</button>}
-          {membership.membership_status === "Active" && <button type="button" onClick={async () => { await base44.functions.invoke("manageClientMembership", { action: "suspend", membership_id: membership.id, reason: "Admin suspension" }); onClose(); onReload(); onResult({ success: "Membership suspended" }); }} className="btn-secondary text-xs flex-1"><Ban className="h-3 w-3" /> Suspend</button>}
-          <button type="button" onClick={async () => { await base44.functions.invoke("manageClientMembership", { action: "revoke", membership_id: membership.id, reason: "Admin revocation" }); onClose(); onReload(); onResult({ success: "Membership revoked" }); }} className="btn-secondary text-xs flex-1"><Lock className="h-3 w-3" /> Revoke</button>
-          <button type="button" onClick={async () => { await base44.functions.invoke("syncClientMembershipAccess", { membership_id: membership.id }); onResult({ success: "Access synced" }); }} className="btn-secondary text-xs flex-1"><RotateCcw className="h-3 w-3" /> Sync</button>
+          {membership.membership_status !== "Active" && <button type="button" onClick={async () => { await backend.functions.invoke("manageClientMembership", { action: "activate", membership_id: membership.id }); onClose(); onReload(); onResult({ success: "Membership activated & access synced" }); }} className="btn-secondary text-xs flex-1"><Unlock className="h-3 w-3" /> Activate</button>}
+          {membership.membership_status === "Active" && <button type="button" onClick={async () => { await backend.functions.invoke("manageClientMembership", { action: "suspend", membership_id: membership.id, reason: "Admin suspension" }); onClose(); onReload(); onResult({ success: "Membership suspended" }); }} className="btn-secondary text-xs flex-1"><Ban className="h-3 w-3" /> Suspend</button>}
+          <button type="button" onClick={async () => { await backend.functions.invoke("manageClientMembership", { action: "revoke", membership_id: membership.id, reason: "Admin revocation" }); onClose(); onReload(); onResult({ success: "Membership revoked" }); }} className="btn-secondary text-xs flex-1"><Lock className="h-3 w-3" /> Revoke</button>
+          <button type="button" onClick={async () => { await backend.functions.invoke("syncClientMembershipAccess", { membership_id: membership.id }); onResult({ success: "Access synced" }); }} className="btn-secondary text-xs flex-1"><RotateCcw className="h-3 w-3" /> Sync</button>
         </div>
       </form>
     </AccessibleDialog>

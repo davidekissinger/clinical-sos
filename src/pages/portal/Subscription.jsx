@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useSearchParams, Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { CheckCircle2, CreditCard, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 
 export default function ClientSubscription() {
@@ -17,8 +17,8 @@ export default function ClientSubscription() {
   useEffect(() => {
     async function loadTiers() {
       try {
-        const res = await base44.entities.SubscriptionTier.list("sort_order", 50);
-        const list = Array.isArray(res) ? res : (res?.data || []);
+        const res = await backend.functions.invoke("getSubscriptionTiers");
+        const list = res?.tiers || [];
         setTiers(list.filter(t => t.is_active));
       } catch (e) {
         setError(e.message || "Unable to load subscription tiers.");
@@ -39,7 +39,7 @@ export default function ClientSubscription() {
     setCheckingOut(tierId);
     setError(null);
     try {
-      const result = await base44.functions.invoke("createCheckoutSession", { tier_id: tierId });
+      const result = await backend.functions.invoke("createCheckoutSession", { tier_id: tierId });
       if (result?.checkout_url) {
         window.location.href = result.checkout_url;
       } else {
@@ -88,8 +88,8 @@ export default function ClientSubscription() {
         <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 mb-6 flex items-start gap-3">
           <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">Subscription activated</p>
-            <p className="text-sm text-emerald-700 dark:text-emerald-400 mt-1">Your service package is now active. Your portal access has been updated.</p>
+            <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">Returned from checkout</p>
+            <p className="text-sm text-emerald-700 dark:text-emerald-400 mt-1">Your subscription status will update after payment confirmation is received.</p>
           </div>
         </div>
       )}

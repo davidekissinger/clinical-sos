@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { PageHeader, Badge, LoadingState } from "@/components/cc/ui";
 import { CheckCircle2, AlertTriangle, XCircle, ShieldCheck, RefreshCw, HelpCircle } from "lucide-react";
 
@@ -24,7 +24,7 @@ function useAllLaunchReadinessChecks() {
       let skip = 0;
       let hasMore = true;
       while (hasMore) {
-        const res = await base44.entities.LaunchReadinessCheck.list("category", PAGE_SIZE, skip);
+        const res = await backend.entities.LaunchReadinessCheck.list("category", PAGE_SIZE, skip);
         const page = Array.isArray(res) ? res : (res?.data || []);
         all = all.concat(page);
         hasMore = page.length === PAGE_SIZE;

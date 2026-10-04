@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 import { Search, RefreshCw } from "lucide-react";
 import IdentityDetailDialog from "@/components/cc/IdentityDetailDialog";
@@ -16,9 +16,9 @@ export default function UserIdentityManagement() {
     setLoading(true);
     try {
       const [usersRes, profilesRes, requestsRes] = await Promise.all([
-        base44.entities.User.list("-created_date", 500),
-        base44.entities.UserIdentityProfile.list("-created_date", 500),
-        base44.entities.UserNameChangeRequest.filter({ request_status: "Pending" }),
+        backend.entities.User.list("-created_date", 500),
+        backend.entities.UserIdentityProfile.list("-created_date", 500),
+        backend.entities.UserNameChangeRequest.filter({ request_status: "Pending" }),
       ]);
       setUsers(usersRes || []);
       setProfiles(profilesRes || []);

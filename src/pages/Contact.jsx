@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle2, ShieldAlert, Calendar } from "lucide-react";
 import { PageHero } from "@/components/PageCta";
-import { base44 } from "@/api/base44Client";
 import { SERVICES } from "@/lib/siteContent";
 import MobileSelect from "@/components/MobileSelect";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
@@ -42,15 +41,6 @@ export default function Contact() {
   const [status, setStatus] = useState("idle"); // idle | submitting | success | error
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
-  const [formStarted, setFormStarted] = useState(false);
-
-  const trackFormStart = () => {
-    if (!formStarted) {
-      setFormStarted(true);
-      try { base44.analytics.track({ eventName: "consultation_form_started" }); } catch (_e) { /* best-effort */ }
-    }
-  };
-
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const onSubmit = async (e) => {
@@ -60,18 +50,23 @@ export default function Contact() {
     setError("");
     try {
       const sourcePage = typeof window !== "undefined" ? window.location.pathname : "/contact";
-      const res = await base44.functions.invoke("submitConsultation", { ...form, form_loaded_at: formLoadedAt, source_page: sourcePage });
-      const data = res.data || res;
-      if (data?.error) throw new Error(data.error);
-
-      try {
-        await base44.analytics.track({ eventName: "contact_form_submitted", properties: { urgency: form.urgency_level, service: form.service_needed, source_page: sourcePage } });
-      } catch (err) { /* best-effort */ }
+      const response = await fetch("/api/consultations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          form_loaded_at: formLoadedAt,
+          source_page: sourcePage,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || "Something went wrong. Please try again or email us directly.");
+      }
 
       setResult({ consultationId: data.consultation_id });
       setStatus("success");
     } catch (err) {
-      try { base44.analytics.track({ eventName: "consultation_form_failed", properties: { reason: err?.message?.slice(0, 100) || "unknown" } }); } catch (_e) { /* best-effort */ }
       setError(err?.message || "Something went wrong. Please try again or email us directly.");
       setStatus("error");
     }
@@ -123,7 +118,7 @@ export default function Contact() {
           <div className="lg:col-span-2">
             <form onSubmit={onSubmit} className="card-elevated p-6 md:p-8 space-y-5">
               <div className="grid sm:grid-cols-2 gap-4">
-                <Field label="Name *"><input required value={form.name} onFocus={trackFormStart} onChange={(e) => set("name", e.target.value)} className="cs-input" /></Field>
+                <Field label="Name *"><input required value={form.name} onChange={(e) => set("name", e.target.value)} className="cs-input" /></Field>
                 <Field label="Organization"><input value={form.organization} onChange={(e) => set("organization", e.target.value)} className="cs-input" /></Field>
                 <Field label="Title"><input value={form.title} onChange={(e) => set("title", e.target.value)} className="cs-input" /></Field>
                 <Field label="Business email *"><input type="email" required value={form.business_email} onChange={(e) => set("business_email", e.target.value)} className="cs-input" /></Field>

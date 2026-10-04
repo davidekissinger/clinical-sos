@@ -1,11 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { useTestData } from "@/lib/TestDataContext";
 
 // Lightweight data hook for command center pages.
 // When excludeTestData is true and the Show Test Data toggle is OFF,
 // records with is_test_data === true are excluded from results.
-/** @param {string} entityName @param {{sort?: string, limit?: number, filter?: Record<string, unknown>, excludeTestData?: boolean}} [options] */
 export function useEntities(entityName, { sort, limit, filter, excludeTestData } = {}) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,8 +19,8 @@ export function useEntities(entityName, { sort, limit, filter, excludeTestData }
         query.is_test_data = { $ne: true };
       }
       let res;
-      if (Object.keys(query).length > 0) res = await base44.entities[entityName].filter(query, sort, limit);
-      else res = await base44.entities[entityName].list(sort, limit);
+      if (Object.keys(query).length > 0) res = await backend.entities[entityName].filter(query, sort, limit);
+      else res = await backend.entities[entityName].list(sort, limit);
       setData(Array.isArray(res) ? res : (res?.data || []));
       setError(null);
     } catch (err) {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { PageHeader, Badge, LoadingState, EmptyState } from "@/components/cc/ui";
 import { CreditCard, RefreshCw } from "lucide-react";
 
@@ -11,7 +11,7 @@ export default function SubscriptionTiers() {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await base44.entities.SubscriptionTier.list("sort_order", 50);
+      const res = await backend.entities.SubscriptionTier.list("sort_order", 50);
       setTiers(Array.isArray(res) ? res : (res?.data || []));
     } catch (e) {
       console.error(e);
@@ -24,7 +24,7 @@ export default function SubscriptionTiers() {
 
   const toggleActive = async (tier) => {
     try {
-      await base44.entities.SubscriptionTier.update(tier.id, { is_active: !tier.is_active });
+      await backend.entities.SubscriptionTier.update(tier.id, { is_active: !tier.is_active });
       load();
       setResult({ success: `${tier.tier_name} ${tier.is_active ? "deactivated" : "activated"}` });
     } catch (e) {

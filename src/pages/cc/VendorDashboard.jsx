@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Building2, ShieldCheck, AlertTriangle, ClipboardList, Calendar, FileText, TrendingUp, Lock } from "lucide-react";
 import { PageHeader, Badge, EmptyState, LoadingState, StatCard } from "@/components/cc/ui";
 import { useTestData } from "@/lib/TestDataContext";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 
 export default function VendorDashboard() {
   const { showTestData } = useTestData();
@@ -18,10 +18,10 @@ export default function VendorDashboard() {
       setLoading(true);
       try {
         const [v, e, r, p] = await Promise.all([
-          base44.entities.Vendor.list("-created_date", 200),
-          base44.entities.VendorEvaluation.list("-created_date", 200),
-          base44.entities.VendorRelationship.list("-created_date", 200),
-          base44.entities.VendorPerformanceImprovementPlan.list("-created_date", 200),
+          backend.entities.Vendor.list("-created_date", 200),
+          backend.entities.VendorEvaluation.list("-created_date", 200),
+          backend.entities.VendorRelationship.list("-created_date", 200),
+          backend.entities.VendorPerformanceImprovementPlan.list("-created_date", 200),
         ]);
         setVendors(v || []);
         setEvaluations(e || []);

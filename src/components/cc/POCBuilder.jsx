@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { Badge } from "@/components/cc/ui";
 import { Save, FileText, AlertTriangle, Plus, CheckCircle, Send, UserCheck, ArrowRightCircle, RotateCcw } from "lucide-react";
 import MobileSelect from "@/components/MobileSelect";
+import { useAuth } from "@/lib/AuthContext";
 
 const POC_STATUS_FLOW = {
   "AI Draft": ["submit_for_clinical_review"],
@@ -29,31 +30,23 @@ const ACTION_LABELS = {
 const EVIDENCE_REQUIRED = ["submit_poc", "record_acceptance"];
 
 export default function POCBuilder({ deficiency, onSaved }) {
+  const { user: currentUser } = useAuth();
   const [pocs, setPocs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePoc, setActivePoc] = useState(null);
   const [showEvidenceForm, setShowEvidenceForm] = useState(null);
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
   const [transitionError, setTransitionError] = useState("");
 
   useEffect(() => {
     loadPOCs();
-    loadUser();
   }, [deficiency.id]);
-
-  const loadUser = async () => {
-    try {
-      const u = await base44.auth.me();
-      setCurrentUser(u);
-    } catch (e) { /* best-effort */ }
-  };
 
   const loadPOCs = async () => {
     setLoading(true);
     try {
-      const all = await base44.entities.POC.filter({ deficiency_id: deficiency.id });
+      const all = await backend.entities.POC.filter({ deficiency_id: deficiency.id });
       const sorted = (all || []).sort((a, b) => (b.version || 0) - (a.version || 0));
       setPocs(sorted);
       setActivePoc(sorted[0] || null);
@@ -66,7 +59,7 @@ export default function POCBuilder({ deficiency, onSaved }) {
     try {
       const nextVersion = (pocs[0]?.version || 0) + 1;
       const userName = currentUser?.full_name || currentUser?.email || null;
-      const poc = await base44.entities.POC.create({
+      const poc = await backend.entities.POC.create({
         deficiency_id: deficiency.id,
         regulatory_case_id: deficiency.regulatory_case_id || null,
         facility_id: deficiency.facility_id || null,
@@ -88,7 +81,7 @@ export default function POCBuilder({ deficiency, onSaved }) {
       // Supersede prior versions
       for (const p of pocs) {
         if (p.status !== "Superseded") {
-          try { await base44.entities.POC.update(p.id, { status: "Superseded", superseded_by_version: nextVersion }); } catch (e) { /* best-effort */ }
+          try { await backend.entities.POC.update(p.id, { status: "Superseded", superseded_by_version: nextVersion }); } catch (e) { /* best-effort */ }
         }
       }
       await loadPOCs();
@@ -105,7 +98,7 @@ export default function POCBuilder({ deficiency, onSaved }) {
     if (!activePoc) return;
     setSaving(true);
     try {
-      await base44.entities.POC.update(activePoc.id, {
+      await backend.entities.POC.update(activePoc.id, {
         element_1_specific_correction: activePoc.element_1_specific_correction,
         element_2_others_potentially_affected: activePoc.element_2_others_potentially_affected,
         element_3_systemic_correction: activePoc.element_3_systemic_correction,
@@ -125,7 +118,7 @@ export default function POCBuilder({ deficiency, onSaved }) {
     setGenerating(true);
     setTransitionError("");
     try {
-      const result = await base44.functions.invoke("generateWorkProduct", {
+      const result = await backend.functions.invoke("generateWorkProduct", {
         document_type: "Plan of Correction Draft",
         deficiency_id: deficiency.id,
         poc_id: activePoc.id,
@@ -135,7 +128,7 @@ export default function POCBuilder({ deficiency, onSaved }) {
       if (data?.ok === false) {
         setTransitionError(data.error || "Work product generation failed.");
       } else if (data?.content) {
-        await base44.entities.POC.update(activePoc.id, { generated_narrative: data.content });
+        await backend.entities.POC.update(activePoc.id, { generated_narrative: data.content });
         await loadPOCs();
       }
     } catch (e) {
@@ -149,7 +142,7 @@ export default function POCBuilder({ deficiency, onSaved }) {
     if (!activePoc) return;
     setTransitionError("");
     try {
-      const result = await base44.functions.invoke("transitionPOC", {
+      const result = await backend.functions.invoke("transitionPOC", {
         poc_id: activePoc.id,
         action,
         evidence,
@@ -331,7 +324,6 @@ function Section({ title, desc, children }) {
   );
 }
 
-/** @param {{value: string, onChange: (value: string) => void, placeholder?: string, label?: string}} props */
 function TextArea({ value, onChange, placeholder, label }) {
   return (
     <textarea value={value || ""} onChange={e => onChange(e.target.value)}

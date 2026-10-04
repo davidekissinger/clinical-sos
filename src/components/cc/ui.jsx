@@ -1,7 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 
-/** @param {{title: React.ReactNode, subtitle?: React.ReactNode, action?: React.ReactNode}} props */
 export function PageHeader({ title, subtitle, action }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
@@ -14,7 +13,6 @@ export function PageHeader({ title, subtitle, action }) {
   );
 }
 
-/** @param {{label: React.ReactNode, value: React.ReactNode, sub?: React.ReactNode, icon?: React.ElementType, tone?: string}} props */
 export function StatCard({ label, value, sub, icon: Icon, tone = "default" }) {
   const tones = {
     default: "text-[hsl(262_50%_45%)] bg-accent",
@@ -62,7 +60,6 @@ export function Table({ headers, children }) {
   );
 }
 
-/** @param {{title: React.ReactNode, subtitle?: React.ReactNode}} props */
 export function EmptyState({ title, subtitle }) {
   return (
     <div className="bg-white dark:bg-card rounded-xl border border-border p-12 text-center">

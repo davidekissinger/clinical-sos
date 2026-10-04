@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 
 export default function ClientAudits() {
   const [audits, setAudits] = useState([]);
@@ -8,7 +8,7 @@ export default function ClientAudits() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await base44.functions.invoke("getClientPortalData", { resource: "audits" });
+        const res = await backend.functions.invoke("getClientPortalData", { resource: "audits" });
         setAudits(Array.isArray(res) ? res : (res?.data || []));
       } catch (e) { console.error(e); }
       finally { setLoading(false); }

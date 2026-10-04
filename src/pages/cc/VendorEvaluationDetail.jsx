@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Plus, ShieldCheck, AlertTriangle, Save } from "lucide-react";
 import { PageHeader, Badge, EmptyState, LoadingState } from "@/components/cc/ui";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { useToast } from "@/components/ui/use-toast";
 
 const EVALUATION_DOMAINS = [
@@ -27,9 +27,9 @@ export default function VendorEvaluationDetail() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const e = await base44.entities.VendorEvaluation.get(id);
+      const e = await backend.entities.VendorEvaluation.get(id);
       setEvaluation(e);
-      const items = await base44.entities.VendorEvaluationItem.filter({ vendor_evaluation_id: id }, "evaluation_category", 500);
+      const items = await backend.entities.VendorEvaluationItem.filter({ vendor_evaluation_id: id }, "evaluation_category", 500);
       setItems(items || []);
     } catch {
       setEvaluation(null);
@@ -73,7 +73,7 @@ export default function VendorEvaluationDetail() {
         else recommendation = "Not Recommended";
       }
 
-      await base44.entities.VendorEvaluation.update(id, {
+      await backend.entities.VendorEvaluation.update(id, {
         overall_score: overallScore,
         risk_level: riskLevel,
         recommendation,
@@ -206,7 +206,7 @@ function EvaluationItemRow({ item, onUpdate, toast }) {
 
   const save = async () => {
     try {
-      await base44.entities.VendorEvaluationItem.update(item.id, form);
+      await backend.entities.VendorEvaluationItem.update(item.id, form);
       toast({ title: "Criterion updated" });
       setEditing(false);
       onUpdate();
@@ -296,7 +296,7 @@ function AddItemDialog({ evaluationId, evaluationName, onClose, onAdded, toast }
     if (!form.criterion) { toast({ title: "Criterion is required", variant: "destructive" }); return; }
     setSaving(true);
     try {
-      await base44.entities.VendorEvaluationItem.create({
+      await backend.entities.VendorEvaluationItem.create({
         ...form,
         vendor_evaluation_id: evaluationId,
         vendor_evaluation_name: evaluationName,

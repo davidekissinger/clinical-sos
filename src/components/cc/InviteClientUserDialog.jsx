@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import AccessibleDialog from "@/components/AccessibleDialog";
 import MobileSelect from "@/components/MobileSelect";
 
@@ -46,15 +46,17 @@ export default function InviteClientUserDialog({ isOpen, onClose, accounts, onRe
   const [engagements, setEngagements] = useState([]);
   const [caps, setCaps] = useState(DEFAULT_CAPS);
   const [loading, setLoading] = useState(false);
+  const [searchError, setSearchError] = useState("");
 
   const searchUsers = async () => {
     if (!searchEmail || searchEmail.length < 3) return;
     setLoading(true);
+    setSearchError("");
+    setSelectedUser(null);
+    setPendingUsers([]);
     try {
-      const res = await base44.entities.User.list("-created_date", 50);
-      const list = Array.isArray(res) ? res : (res?.data || []);
-      setPendingUsers(list.filter(u => u.email?.toLowerCase().includes(searchEmail.toLowerCase()) && (u.role === "pending" || u.role === "user")));
-    } catch (e) { console.error(e); }
+      setPendingUsers(await backend.entities.User.searchPending(searchEmail.trim()));
+    } catch (e) { setSearchError(e.message || "Unable to search users."); }
     finally { setLoading(false); }
   };
 
@@ -65,8 +67,8 @@ export default function InviteClientUserDialog({ isOpen, onClose, accounts, onRe
     async function loadScope() {
       try {
         const [facRes, engRes] = await Promise.all([
-          base44.entities.Facility.list("-facility_name", 200),
-          base44.entities.Engagement.list("-created_date", 200),
+          backend.entities.Facility.list("-facility_name", 200),
+          backend.entities.Engagement.list("-created_date", 200),
         ]);
         const facList = Array.isArray(facRes) ? facRes : (facRes?.data || []);
         const engList = Array.isArray(engRes) ? engRes : (engRes?.data || []);
@@ -89,7 +91,7 @@ export default function InviteClientUserDialog({ isOpen, onClose, accounts, onRe
     const account = accounts.find(a => a.id === selectedAccountId);
     if (!account.organization_id) { onResult({ error: "Client Account must be linked to an Organization before tenant resources can be assigned." }); return; }
     try {
-      await base44.functions.invoke("manageClientMembership", {
+      await backend.functions.invoke("manageClientMembership", {
         action: "create",
         client_user_id: selectedUser.id,
         client_account_id: selectedAccountId,
@@ -110,8 +112,9 @@ export default function InviteClientUserDialog({ isOpen, onClose, accounts, onRe
           <label className="block text-xs font-medium text-muted-foreground mb-1">Search unprovisioned users by email</label>
           <div className="flex gap-2">
             <input type="email" value={searchEmail} onChange={e => setSearchEmail(e.target.value)} placeholder="user@example.com" className="cc-input flex-1" />
-            <button type="button" onClick={searchUsers} className="btn-secondary text-xs">Search</button>
+            <button type="button" onClick={searchUsers} disabled={loading} className="btn-secondary text-xs">Search</button>
           </div>
+          {searchError && <p role="alert" className="mt-2 text-sm text-destructive">{searchError}</p>}
           {pendingUsers.length > 0 && (
             <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
               {pendingUsers.map(u => (

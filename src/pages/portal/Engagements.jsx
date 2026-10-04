@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import PullToRefresh from "@/components/PullToRefresh";
 
 export default function ClientEngagements() {
@@ -12,7 +12,7 @@ export default function ClientEngagements() {
 
   const load = async () => {
     try {
-      const res = await base44.functions.invoke("getClientPortalData", { resource: "engagements" });
+      const res = await backend.functions.invoke("getClientPortalData", { resource: "engagements" });
       setEngagements(Array.isArray(res) ? res : (res?.data || []));
     } catch (e) { console.error(e); }
     finally { setLoading(false); }

@@ -2,10 +2,9 @@ import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
-import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import { AuthProvider } from '@/lib/AuthContext';
 import ScrollToTop from './components/ScrollToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import RoleProtectedRoute from '@/components/RoleProtectedRoute';
@@ -91,30 +90,13 @@ const SuspenseFallback = () => (
   </div>
 );
 
+const LoginRedirect = () => {
+  const location = useLocation();
+  const returnTo = location.pathname + location.search;
+  return <Navigate to={`/login?returnTo=${encodeURIComponent(returnTo)}`} replace />;
+};
+
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
-
-  // Show loading spinner while checking app public settings or auth
-  if (isLoadingPublicSettings || isLoadingAuth) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  // Handle authentication errors
-  if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
-      navigateToLogin();
-      return null;
-    }
-  }
-
-  // Render the main app
   return (
     <Suspense fallback={<SuspenseFallback />}>
     <Routes>
@@ -143,13 +125,13 @@ const AuthenticatedApp = () => {
       </Route>
 
       {/* Access pending — for users with no role assignment */}
-      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+      <Route element={<ProtectedRoute unauthenticatedElement={<LoginRedirect />} />}>
         <Route path="/access-pending" element={<AccessPending />} />
         <Route path="/my-profile" element={<MyProfile />} />
       </Route>
 
       {/* Client portal — authenticated + client-entitled */}
-      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+      <Route element={<ProtectedRoute unauthenticatedElement={<LoginRedirect />} />}>
         <Route element={<ClientEntitlementRoute />}>
           <Route element={<ClientPortalLayout />}>
             <Route path="/client" element={<ClientDashboard />} />
@@ -172,8 +154,8 @@ const AuthenticatedApp = () => {
       </Route>
 
       {/* Private command center — authenticated + role-authorized */}
-      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        <Route element={<RoleProtectedRoute roles={['admin', 'business_development', 'clinical', 'finance', 'read_only']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
+      <Route element={<ProtectedRoute unauthenticatedElement={<LoginRedirect />} />}>
+        <Route element={<RoleProtectedRoute roles={['admin', 'business_development', 'clinical', 'finance', 'read_only']} unauthenticatedElement={<LoginRedirect />} />}>
           <Route element={<CommandCenterLayout />}>
             <Route path="/command-center" element={<Dashboard />} />
             <Route path="/command-center/pipeline" element={<Pipeline />} />
@@ -182,7 +164,7 @@ const AuthenticatedApp = () => {
             <Route path="/command-center/engagements" element={<Engagements />} />
             <Route path="/command-center/vendor-dashboard" element={<VendorDashboard />} />
 
-            <Route element={<RoleProtectedRoute roles={['admin', 'business_development', 'clinical']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
+            <Route element={<RoleProtectedRoute roles={['admin', 'business_development', 'clinical']} unauthenticatedElement={<LoginRedirect />} />}>
               <Route path="/command-center/leads" element={<Leads />} />
               <Route path="/command-center/contacts" element={<Contacts />} />
               <Route path="/command-center/outreach" element={<Outreach />} />
@@ -190,7 +172,7 @@ const AuthenticatedApp = () => {
               <Route path="/command-center/vendors" element={<Vendors />} />
               <Route path="/command-center/vendors/:id" element={<VendorDetail />} />
             </Route>
-            <Route element={<RoleProtectedRoute roles={['admin', 'clinical', 'read_only']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
+            <Route element={<RoleProtectedRoute roles={['admin', 'clinical', 'read_only']} unauthenticatedElement={<LoginRedirect />} />}>
               <Route path="/command-center/signals" element={<Signals />} />
               <Route path="/command-center/recovery" element={<RecoveryDashboard />} />
               <Route path="/command-center/cases" element={<Cases />} />
@@ -200,10 +182,10 @@ const AuthenticatedApp = () => {
               <Route path="/command-center/vendor-evaluations" element={<VendorEvaluations />} />
               <Route path="/command-center/vendor-evaluations/:id" element={<VendorEvaluationDetail />} />
             </Route>
-            <Route element={<RoleProtectedRoute roles={['admin', 'business_development', 'finance']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
+            <Route element={<RoleProtectedRoute roles={['admin', 'business_development', 'finance']} unauthenticatedElement={<LoginRedirect />} />}>
               <Route path="/command-center/proposals" element={<Proposals />} />
             </Route>
-            <Route element={<RoleProtectedRoute roles={['admin']} unauthenticatedElement={<Navigate to="/login" replace />} />}>
+            <Route element={<RoleProtectedRoute roles={['admin']} unauthenticatedElement={<LoginRedirect />} />}>
               <Route path="/command-center/launch-readiness" element={<LaunchReadiness />} />
               <Route path="/command-center/identity-management" element={<UserIdentityManagement />} />
               <Route path="/command-center/client-accounts" element={<ClientAccounts />} />

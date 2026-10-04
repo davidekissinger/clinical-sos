@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import { Save, X } from "lucide-react";
 import MobileSelect from "@/components/MobileSelect";
 
@@ -38,7 +38,7 @@ export default function EvidenceItemForm({ deficiency, onSaved, onCancel }) {
   const save = async () => {
     setSaving(true);
     try {
-      await base44.entities.EvidenceItem.create({
+      await backend.entities.EvidenceItem.create({
         ...form,
         accepted_as_sufficient: form.review_status === "Accepted",
         is_test_data: !!deficiency.is_test_data,

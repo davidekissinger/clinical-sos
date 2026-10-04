@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { backend } from "@/api/backendClient";
 import PullToRefresh from "@/components/PullToRefresh";
 
 export default function ClientTasks() {
@@ -13,7 +13,7 @@ export default function ClientTasks() {
 
   const loadTasks = async () => {
     try {
-      const res = await base44.functions.invoke("getClientPortalData", { resource: "tasks" });
+      const res = await backend.functions.invoke("getClientPortalData", { resource: "tasks" });
       setTasks(Array.isArray(res) ? res : (res?.data || []));
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
@@ -30,7 +30,7 @@ export default function ClientTasks() {
     const prevTasks = tasks;
     setTasks(tasks.map(t => t.id === task.id ? { ...t, status: newStatus } : t));
     try {
-      await base44.functions.invoke("clientUpdateTask", { task_id: task.id, status: newStatus });
+      await backend.functions.invoke("clientUpdateTask", { task_id: task.id, status: newStatus });
       setActionResult({ success: "Task updated." });
       await loadTasks();
     } catch (e) {
