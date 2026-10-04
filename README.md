@@ -6,9 +6,9 @@ This branch recovers the source archive of Netlify production deploy
 The archive SHA-256 is recorded in `docs/deployment-recovery.md`.
 
 The Netlify deployment was uploaded independently and had no Git repository
-connection. GitHub `main` remains the Base44 application; this branch preserves
-the existing Netlify application for comparison and reproducible builds.
-Do not merge this recovery snapshot into main as a completed migration.
+connection. Recovery was reconciled into GitHub `main` in PR #30 on October 4,
+2026. This is the shared Netlify/Supabase integration baseline, not a claim of
+completed migration or a new production deployment.
 
 Run `npm ci`, configure the public Supabase build variables described in
 `docs/supabase-auth.md`, and run `npm run build`.

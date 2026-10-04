@@ -1,3 +1,4 @@
+-- Recovered from applied Supabase migration history on 2026-10-04.
 begin;
 
 create schema if not exists private;
@@ -1162,3 +1163,4 @@ create policy suppressions_delete_admin on public.suppressions
   using ((select public.has_app_role(array['admin'::public.app_role])));
 
 commit;
+

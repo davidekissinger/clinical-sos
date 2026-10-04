@@ -1,3 +1,4 @@
+-- Recovered from applied Supabase migration history on 2026-10-04.
 begin;
 
 -- Operational configuration, outreach, launch-readiness, and identity records
@@ -705,3 +706,4 @@ create policy user_identity_audit_events_update_admin
 -- grant or policy is created for authenticated users.
 
 commit;
+

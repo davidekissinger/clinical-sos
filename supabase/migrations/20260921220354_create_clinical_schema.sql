@@ -1,3 +1,4 @@
+-- Recovered from applied Supabase migration history on 2026-10-04.
 begin;
 
 -- Clinical and regulatory records retain Base44-compatible text identifiers and
@@ -1105,3 +1106,4 @@ comment on table public.work_products is
   'Generated clinical work products with preserved source provenance.';
 
 commit;
+

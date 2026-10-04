@@ -1,3 +1,4 @@
+-- Recovered from applied Supabase migration history on 2026-10-04.
 begin;
 
 create table public.consultation_requests (
@@ -699,3 +700,4 @@ comment on function public.ingest_consultation(jsonb, inet) is
   'Server-only public consultation intake with rate limiting and transactional CRM fan-out.';
 
 commit;
+

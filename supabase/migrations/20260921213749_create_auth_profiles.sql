@@ -1,3 +1,4 @@
+-- Recovered from applied Supabase migration history on 2026-10-04.
 begin;
 
 create schema if not exists private;
@@ -144,3 +145,4 @@ on conflict (id) do update
   set email = excluded.email;
 
 commit;
+

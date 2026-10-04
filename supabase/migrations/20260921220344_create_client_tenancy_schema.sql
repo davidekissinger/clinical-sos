@@ -1,3 +1,4 @@
+-- Recovered from applied Supabase migration history on 2026-10-04.
 begin;
 
 -- RLS policies below reuse public.has_app_role(public.app_role[]) from the
@@ -1208,3 +1209,4 @@ create policy vendor_performance_plans_delete_admin
   using ((select public.has_app_role(array['admin']::public.app_role[])));
 
 commit;
+
