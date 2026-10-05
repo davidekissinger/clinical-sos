@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - main
-      - recovery/netlify-production-source
   workflow_dispatch:
 
 permissions:
@@ -33,42 +32,39 @@ jobs:
         id: install
         run: npm ci
 
-      - name: Typecheck (baseline advisory)
+      - name: Typecheck
         id: typecheck
-        continue-on-error: true
         run: npm run typecheck
 
       - name: Lint
         id: lint
         run: npm run lint
 
-      - name: Backend routing regression tests
+      - name: Backend and authorization regression tests
+        id: tests
         run: node --test tests/*.test.mjs
 
-      - name: Build
+      - name: Production build
         id: build
         run: npm run build
 
-      - name: Summarize baseline validation
+      - name: Summarize production validation
         if: always()
         env:
           INSTALL_OUTCOME: ${{ steps.install.outcome }}
           TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
           LINT_OUTCOME: ${{ steps.lint.outcome }}
+          TEST_OUTCOME: ${{ steps.tests.outcome }}
           BUILD_OUTCOME: ${{ steps.build.outcome }}
         run: |
           {
-            echo "## Migration baseline validation"
+            echo "## Production validation"
             echo ""
-            echo "| Check | Result | Policy |"
-            echo "| --- | --- | --- |"
-            echo "| Install | $INSTALL_OUTCOME | Blocking |"
-            echo "| Typecheck | $TYPECHECK_OUTCOME | Advisory baseline debt |"
-            echo "| Lint | $LINT_OUTCOME | Blocking |"
-            echo "| Production build | $BUILD_OUTCOME | Blocking |"
-            echo ""
-            echo "A successful workflow does not mean advisory checks passed. See their logs and docs/migration/base44-migration-inventory.md for the baseline."
+            echo "| Check | Result |"
+            echo "| --- | --- |"
+            echo "| Install | $INSTALL_OUTCOME |"
+            echo "| Typecheck | $TYPECHECK_OUTCOME |"
+            echo "| Lint | $LINT_OUTCOME |"
+            echo "| Tests | $TEST_OUTCOME |"
+            echo "| Production build | $BUILD_OUTCOME |"
           } >> "$GITHUB_STEP_SUMMARY"
-          if [ "$TYPECHECK_OUTCOME" = "failure" ]; then
-            echo "::warning::Baseline typecheck failed. Review the validation summary and logs; typecheck remains advisory in Phase 1."
-          fi
