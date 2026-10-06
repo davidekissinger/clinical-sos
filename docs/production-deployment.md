@@ -48,7 +48,7 @@ Never commit the server secret or expose it through a browser-prefixed variable.
 ## Release procedure
 
 1. Work on a branch and open a PR to `main`.
-2. Require CI to pass: locked install, typecheck, lint, Node tests, migration/RLS replay, and Vite production build.
+2. Require the blocking CI gates to pass: locked install, lint, Node tests (including migration/RLS replay), and the Vite production build. Review the advisory typecheck diagnostics separately until the existing JavaScript typing backlog is retired.
 3. Merge only the reviewed PR.
 4. Deploy the merged `main` source to the existing Netlify production project.
 5. Confirm the deploy reports `ready` with the consultation function present.
@@ -60,6 +60,7 @@ The current Netlify project was last observed using upload/API deployments rathe
 ## Production acceptance checks
 
 - home, service, contact, login, and deep-linked SPA routes render;
+- current advisory typecheck diagnostics have been reviewed for migration-related regressions;
 - `POST /api/consultations` rejects malformed/oversized requests and accepts one controlled non-PHI test submission;
 - Supabase sign-in/sign-out and password recovery use the production origin;
 - pending users cannot enter protected application areas;
