@@ -141,7 +141,7 @@ export default function ClientAccount() {
       <AccessibleDialog
         isOpen={showDeleteDialog}
         onClose={() => { setShowDeleteDialog(false); setDeleteError(null); }}
-        title="Delete Account?"
+        title="Delete Sign-In Account?"
         titleId="delete-account-dialog-title"
         closeLabel="Cancel"
       >
@@ -149,7 +149,7 @@ export default function ClientAccount() {
           <div className="flex items-start gap-3 bg-rose-50 dark:bg-rose-950/40 rounded-lg p-4">
             <AlertCircle className="h-5 w-5 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
             <p className="text-sm text-rose-800 dark:text-rose-300">
-              This will permanently delete your account and revoke all portal access. This action cannot be undone.
+              This will permanently delete your portal sign-in identity and revoke your membership. Business, regulatory, audit, billing, or clinical records may be retained when required. This action cannot be undone.
             </p>
           </div>
           {deleteError && (
@@ -168,7 +168,7 @@ export default function ClientAccount() {
               disabled={deleting}
               className="inline-flex items-center gap-2 rounded-full bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2"
             >
-              {deleting ? "Deleting…" : "Yes, Delete My Account"}
+              {deleting ? "Deleting…" : "Yes, Delete My Sign-In Account"}
             </button>
           </div>
         </div>
