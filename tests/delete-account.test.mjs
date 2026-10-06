@@ -30,7 +30,8 @@ function tableQuery(table) {
 
   const query = {
     select() {
-      operation = "select";
+      // PostgREST allows .insert(...).select(...).single(); selecting a return
+      // representation must not erase the mutation operation in this fixture.
       return query;
     },
     insert(nextValues) {
