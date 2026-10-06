@@ -23,7 +23,7 @@ Clinical SOS uses GitHub + Supabase + Netlify.
 
 ## Validation
 
-Before opening or merging a PR:
+Before opening or merging a PR, run:
 
 ```bash
 npm ci
@@ -33,4 +33,4 @@ node --test tests/*.test.mjs
 npm run build
 ```
 
-Do not merge a failing production build or failing authorization/tenant-isolation tests.
+Do not merge a failing install, lint, production build, or authorization/tenant-isolation test suite. Typecheck currently exposes existing JavaScript inference debt; review it for new regressions until that backlog is separately resolved.
