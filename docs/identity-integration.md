@@ -34,3 +34,8 @@ This change targets the Netlify recovery branch. GitHub main and the Base44
 runtime remain separate. Other consolidated function routes, missing list-users
 and delete-account endpoints, Stripe activation, and remaining migration work
 are outside this subset.
+
+
+## Client self-service deletion
+
+The client account page now calls the JWT-protected `delete-account` Supabase Edge Function. It is client-role only, records an audit event before the destructive auth operation, and deletes only the authenticated sign-in identity plus profile/membership rows that cascade from it. Operational, audit, billing, regulatory, and clinical records retain their independent retention behavior.

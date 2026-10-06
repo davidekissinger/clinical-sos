@@ -37,6 +37,11 @@ jobs:
         continue-on-error: true
         run: npm run typecheck
 
+      - name: Runtime dependency audit (advisory)
+        id: audit
+        continue-on-error: true
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Lint
         id: lint
         run: npm run lint
@@ -54,6 +59,7 @@ jobs:
         env:
           INSTALL_OUTCOME: ${{ steps.install.outcome }}
           TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
+          AUDIT_OUTCOME: ${{ steps.audit.outcome }}
           LINT_OUTCOME: ${{ steps.lint.outcome }}
           TEST_OUTCOME: ${{ steps.tests.outcome }}
           BUILD_OUTCOME: ${{ steps.build.outcome }}
@@ -65,10 +71,14 @@ jobs:
             echo "| --- | --- | --- |"
             echo "| Install | $INSTALL_OUTCOME | Blocking |"
             echo "| Typecheck | $TYPECHECK_OUTCOME | Advisory existing JavaScript typing debt |"
+            echo "| Runtime dependency audit | $AUDIT_OUTCOME | Advisory; review production dependency findings |"
             echo "| Lint | $LINT_OUTCOME | Blocking |"
             echo "| Tests | $TEST_OUTCOME | Blocking |"
             echo "| Production build | $BUILD_OUTCOME | Blocking |"
           } >> "$GITHUB_STEP_SUMMARY"
           if [ "$TYPECHECK_OUTCOME" = "failure" ]; then
             echo "::warning::Typecheck has existing JavaScript inference debt; review diagnostics and do not introduce new errors."
+          fi
+          if [ "$AUDIT_OUTCOME" = "failure" ]; then
+            echo "::warning::Runtime dependency audit reported high-severity findings; review before public production exposure."
           fi
